@@ -261,6 +261,171 @@
   .nav-btn { flex: 1; padding: 10px 0; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; color: #BBB; transition: color 0.15s; }
   .nav-btn.active { color: var(--korean-main); }
   .nav-btn span:first-child { font-size: 22px; }
+
+  /* ══════════════════════════════════
+     오늘의 학습 / 달력 / 부모모드
+  ══════════════════════════════════ */
+
+  /* 홈 화면 오늘의 학습 카드 */
+  .today-card {
+    background: linear-gradient(135deg, var(--korean-main), #FF8C00);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    color: white;
+    box-shadow: 0 6px 20px rgba(255,184,0,0.35);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .today-card:active { transform: scale(0.98); }
+  .today-card::after {
+    content: '🚌';
+    position: absolute;
+    right: 16px; bottom: -4px;
+    font-size: 52px;
+    opacity: 0.25;
+  }
+  .today-card-label { font-size: 11px; font-weight: 700; opacity: 0.85; letter-spacing: 1px; }
+  .today-card-title { font-size: 20px; font-weight: 900; margin: 4px 0; }
+  .today-card-sub   { font-size: 12px; opacity: 0.85; }
+  .today-card-bar   { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .today-card-fill  { height: 100%; background: white; border-radius: 3px; transition: width 0.5s ease; }
+  .today-card-done  {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    box-shadow: 0 6px 20px rgba(76,175,80,0.35);
+  }
+
+  /* 스트릭 */
+  .streak-row {
+    display: flex; gap: 8px; align-items: center;
+    background: white; border-radius: var(--radius);
+    padding: 12px 16px; box-shadow: var(--shadow); flex-shrink: 0;
+  }
+  .streak-fire { font-size: 28px; }
+  .streak-info { flex: 1; }
+  .streak-info p { font-size: 11px; color: var(--text-mid); }
+  .streak-info strong { font-size: 18px; font-weight: 900; color: var(--text-dark); }
+  .streak-dots { display: flex; gap: 5px; }
+  .streak-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #EEE; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #BBB;
+  }
+  .streak-dot.done { background: var(--korean-main); color: white; }
+  .streak-dot.today { background: var(--korean-main); color: white; box-shadow: 0 0 0 3px rgba(255,184,0,0.3); }
+
+  /* ── 달력 화면 ── */
+  #screen-calendar { padding: 16px; gap: 14px; overflow-y: auto; }
+  .calendar-grid {
+    background: white; border-radius: var(--radius); padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .calendar-month { font-size: 16px; font-weight: 900; color: var(--text-dark); text-align: center; margin-bottom: 12px; }
+  .calendar-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 6px; }
+  .calendar-weekday { text-align: center; font-size: 10px; font-weight: 700; color: var(--text-mid); padding: 4px 0; }
+  .calendar-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+  .cal-day {
+    aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700; color: var(--text-mid);
+  }
+  .cal-day.has-study { background: var(--korean-light); color: var(--korean-dark); }
+  .cal-day.full-study { background: var(--korean-main); color: white; }
+  .cal-day.today-cal { box-shadow: 0 0 0 2px var(--korean-main); }
+  .cal-day.empty { opacity: 0; pointer-events: none; }
+
+  .calendar-legend { display: flex; gap: 14px; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-mid); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .stat-card { background: white; border-radius: var(--radius-sm); padding: 14px; box-shadow: var(--shadow); text-align: center; }
+  .stat-card .stat-emoji { font-size: 28px; }
+  .stat-card .stat-num { font-size: 22px; font-weight: 900; color: var(--text-dark); margin: 4px 0; }
+  .stat-card .stat-label { font-size: 11px; color: var(--text-mid); }
+
+  /* ── 부모 모드 ── */
+  #screen-parent { padding: 16px; gap: 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .parent-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  .pin-overlay {
+    position: absolute; inset: 0;
+    background: rgba(255,249,240,0.97);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px; z-index: 200; border-radius: var(--radius);
+  }
+  .pin-overlay h3 { font-size: 18px; font-weight: 900; color: var(--text-dark); }
+  .pin-display { display: flex; gap: 12px; }
+  .pin-dot { width: 16px; height: 16px; border-radius: 50%; background: #EEE; transition: background 0.15s; }
+  .pin-dot.filled { background: var(--korean-main); }
+  .pin-pad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; width: 220px; }
+  .pin-btn {
+    padding: 16px; background: white; border: 2px solid #EEE;
+    border-radius: var(--radius-sm); font-size: 20px; font-weight: 900;
+    color: var(--text-dark); cursor: pointer; text-align: center;
+    box-shadow: 0 2px 0 #DDD; transition: transform 0.1s;
+  }
+  .pin-btn:active { transform: scale(0.94); }
+  .pin-error { color: var(--wrong); font-size: 13px; font-weight: 700; }
+
+  .parent-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .parent-section-title { font-size: 12px; font-weight: 700; color: var(--text-mid); letter-spacing: 1px; padding: 12px 16px 6px; }
+  .parent-row { display: flex; align-items: center; padding: 13px 16px; gap: 12px; border-top: 1px solid #F5F5F5; }
+  .parent-row:first-of-type { border-top: none; }
+  .parent-row-icon { font-size: 22px; }
+  .parent-row-info { flex: 1; }
+  .parent-row-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+  .parent-row-desc { font-size: 11px; color: var(--text-mid); margin-top: 1px; }
+  .parent-row-val { font-size: 14px; font-weight: 900; color: var(--korean-main); }
+
+  .goal-btns { display: flex; gap: 6px; }
+  .goal-btn {
+    padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    border: 2px solid #EEE; background: white; color: var(--text-mid); cursor: pointer;
+  }
+  .goal-btn.active { border-color: var(--korean-main); background: var(--korean-light); color: var(--korean-dark); }
+
+  .progress-bar-wrap { width: 100%; }
+  .mini-bar { height: 8px; background: #EEE; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .mini-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--korean-main), #FF8C00); transition: width 0.4s; }
+
+
+  /* 커스텀 확인 모달 */
+  .modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 500; padding: 24px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: white; border-radius: var(--radius);
+    padding: 24px 20px; width: 100%; max-width: 320px;
+    text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .modal-emoji { font-size: 44px; margin-bottom: 8px; }
+  .modal-title { font-size: 18px; font-weight: 900; color: var(--text-dark); margin-bottom: 6px; }
+  .modal-msg { font-size: 13px; color: var(--text-mid); line-height: 1.5; margin-bottom: 18px; }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btn { flex: 1; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; border: none; }
+  .modal-btn-cancel { background: #EEE; color: var(--text-mid); }
+  .modal-btn-danger { background: var(--wrong); color: white; }
+  .modal-btn-confirm { background: var(--korean-main); color: white; }
+
+  /* 목표 스테퍼 */
+  .goal-stepper { display: flex; align-items: center; gap: 12px; }
+  .stepper-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--korean-main); background: white;
+    color: var(--korean-dark); font-size: 20px; font-weight: 900;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stepper-btn:active { background: var(--korean-light); }
+  .stepper-val { font-size: 20px; font-weight: 900; color: var(--text-dark); min-width: 50px; text-align: center; }
+
 </style>
 </head>
 <body>
@@ -280,6 +445,22 @@
   <!-- ② 과목 -->
   <div id="screen-subject" class="screen">
     <div class="greeting" id="greeting-text"></div>
+    <!-- 오늘의 학습 카드 -->
+    <div class="today-card" id="today-card" onclick="startTodayLearn()">
+      <div class="today-card-label">📚 오늘의 학습</div>
+      <div class="today-card-title" id="today-title">로딩 중...</div>
+      <div class="today-card-sub" id="today-sub"></div>
+      <div class="today-card-bar"><div class="today-card-fill" id="today-fill" style="width:0%"></div></div>
+    </div>
+    <!-- 스트릭 -->
+    <div class="streak-row">
+      <div class="streak-fire" id="streak-fire">🔥</div>
+      <div class="streak-info">
+        <p>연속 학습</p>
+        <strong id="streak-num">0</strong>일째!
+      </div>
+      <div class="streak-dots" id="streak-dots"></div>
+    </div>
     <div class="road-progress">
       <div class="road-progress-label">🛣️ 전체 학습 진행</div>
       <div class="road-track"><div class="road-fill" id="total-progress-fill" style="width:0%">🚌</div></div>
@@ -379,6 +560,147 @@
     <div class="garage-grid" id="garage-grid"></div>
   </div>
 
+  <!-- ⑧ 달력/통계 -->
+  <div id="screen-calendar" class="screen">
+    <div class="zone-header">
+      <button class="btn-back" onclick="goScreen('subject')">←</button>
+      <div class="zone-title">📅 학습 달력</div>
+    </div>
+    <div class="calendar-grid">
+      <div class="calendar-month" id="cal-month"></div>
+      <div class="calendar-weekdays">
+        <div class="calendar-weekday">일</div><div class="calendar-weekday">월</div>
+        <div class="calendar-weekday">화</div><div class="calendar-weekday">수</div>
+        <div class="calendar-weekday">목</div><div class="calendar-weekday">금</div>
+        <div class="calendar-weekday">토</div>
+      </div>
+      <div class="calendar-days" id="cal-days"></div>
+    </div>
+    <div class="calendar-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#FFF3C4;border:1px solid #FFB800"></div>일부 학습</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#FFB800"></div>목표 달성</div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+  </div>
+
+  <!-- ⑨ 부모 모드 -->
+  <div id="screen-parent" class="screen" style="position:relative">
+    <div class="parent-header">
+      <button class="btn-back" onclick="goScreen('subject')">←</button>
+      <div class="zone-title">👨‍👩‍👧 부모 모드</div>
+    </div>
+
+    <div class="parent-section">
+      <div class="parent-section-title">오늘 현황</div>
+      <div class="parent-row">
+        <div class="parent-row-icon">📚</div>
+        <div class="parent-row-info"><div class="parent-row-title">오늘 학습량</div>
+          <div class="progress-bar-wrap">
+            <div class="parent-row-desc" id="p-today-desc">-</div>
+            <div class="mini-bar"><div class="mini-fill" id="p-today-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="parent-row-val" id="p-today-val">0장</div>
+      </div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🔥</div>
+        <div class="parent-row-info"><div class="parent-row-title">연속 학습</div><div class="parent-row-desc">오늘 포함 연속 달성일</div></div>
+        <div class="parent-row-val" id="p-streak">0일</div>
+      </div>
+      <div class="parent-row">
+        <div class="parent-row-icon">⭐</div>
+        <div class="parent-row-info"><div class="parent-row-title">총 도장</div><div class="parent-row-desc">지금까지 획득한 도장 수</div></div>
+        <div class="parent-row-val" id="p-stamps">0개</div>
+      </div>
+    </div>
+
+    <div class="parent-section">
+      <div class="parent-section-title">하루 목표 설정 (과목별 · 1장 단위)</div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🚌</div>
+        <div class="parent-row-info"><div class="parent-row-title">국어 목표</div><div class="parent-row-desc">하루에 풀 국어 장수</div></div>
+        <div class="goal-stepper">
+          <button class="stepper-btn" onclick="changeGoal('korean',-1)">−</button>
+          <span class="stepper-val" id="p-goal-korean">2장</span>
+          <button class="stepper-btn" onclick="changeGoal('korean',1)">+</button>
+        </div>
+      </div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🚒</div>
+        <div class="parent-row-info"><div class="parent-row-title">수학 목표</div><div class="parent-row-desc">하루에 풀 수학 장수</div></div>
+        <div class="goal-stepper">
+          <button class="stepper-btn" onclick="changeGoal('math',-1)">−</button>
+          <span class="stepper-val" id="p-goal-math">2장</span>
+          <button class="stepper-btn" onclick="changeGoal('math',1)">+</button>
+        </div>
+      </div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🚓</div>
+        <div class="parent-row-info"><div class="parent-row-title">영어 목표</div><div class="parent-row-desc">하루에 풀 영어 장수</div></div>
+        <div class="goal-stepper">
+          <button class="stepper-btn" onclick="changeGoal('english',-1)">−</button>
+          <span class="stepper-val" id="p-goal-english">2장</span>
+          <button class="stepper-btn" onclick="changeGoal('english',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="parent-section">
+      <div class="parent-section-title">과목별 진도</div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🚌</div>
+        <div class="parent-row-info"><div class="parent-row-title">국어</div>
+          <div class="progress-bar-wrap"><div class="mini-bar"><div class="mini-fill" id="p-prog-korean" style="width:0%"></div></div></div>
+        </div>
+        <div class="parent-row-val" id="p-pct-korean">0%</div>
+      </div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🚒</div>
+        <div class="parent-row-info"><div class="parent-row-title">수학</div>
+          <div class="progress-bar-wrap"><div class="mini-bar"><div class="mini-fill" id="p-prog-math" style="width:0%"></div></div></div>
+        </div>
+        <div class="parent-row-val" id="p-pct-math">0%</div>
+      </div>
+      <div class="parent-row">
+        <div class="parent-row-icon">🚓</div>
+        <div class="parent-row-info"><div class="parent-row-title">영어</div>
+          <div class="progress-bar-wrap"><div class="mini-bar"><div class="mini-fill" id="p-prog-english" style="width:0%"></div></div></div>
+        </div>
+        <div class="parent-row-val" id="p-pct-english">0%</div>
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="confirmReset()">🗑️ 학습 기록 초기화</button>
+
+    <!-- PIN 오버레이 -->
+    <div class="pin-overlay" id="pin-overlay">
+      <div style="font-size:40px">🔐</div>
+      <h3>부모 모드</h3>
+      <div class="pin-display" id="pin-display">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-btn" onclick="pinInput(1)">1</button>
+        <button class="pin-btn" onclick="pinInput(2)">2</button>
+        <button class="pin-btn" onclick="pinInput(3)">3</button>
+        <button class="pin-btn" onclick="pinInput(4)">4</button>
+        <button class="pin-btn" onclick="pinInput(5)">5</button>
+        <button class="pin-btn" onclick="pinInput(6)">6</button>
+        <button class="pin-btn" onclick="pinInput(7)">7</button>
+        <button class="pin-btn" onclick="pinInput(8)">8</button>
+        <button class="pin-btn" onclick="pinInput(9)">9</button>
+        <button class="pin-btn" onclick="pinInput('back')" style="font-size:16px">⌫</button>
+        <button class="pin-btn" onclick="pinInput(0)">0</button>
+        <button class="pin-btn" onclick="pinInput('cancel')" style="font-size:13px;color:#CCC">취소</button>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+      <div style="font-size:11px;color:#CCC">초기 PIN: 1234</div>
+    </div>
+  </div>
+
   <!-- ⑦ 설정 -->
   <div id="screen-settings" class="screen">
     <div class="settings-header">
@@ -417,10 +739,22 @@
 
   <div class="toast" id="save-toast"></div>
 
+  <!-- 커스텀 확인 모달 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-emoji" id="modal-emoji">⚠️</div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-msg" id="modal-msg"></div>
+      <div class="modal-btns" id="modal-btns"></div>
+    </div>
+  </div>
+
+
   <nav class="bottom-nav" id="bottom-nav">
     <button class="nav-btn active" id="nav-home" onclick="navTo('subject')"><span>🏠</span><span>홈</span></button>
+    <button class="nav-btn" id="nav-calendar" onclick="navTo('calendar')"><span>📅</span><span>달력</span></button>
     <button class="nav-btn" id="nav-garage" onclick="navTo('garage')"><span>🚗</span><span>차고지</span></button>
-    <button class="nav-btn" id="nav-settings" onclick="navTo('settings')"><span>⚙️</span><span>설정</span></button>
+    <button class="nav-btn" id="nav-parent" onclick="navTo('parent')"><span>👨‍👩‍👧</span><span>부모</span></button>
   </nav>
 </div>
 
@@ -495,6 +829,11 @@ const CURRICULUM = {
         {char:'공',      name:'공',      sound:'공',      emoji:'⚽', keyword:'공', context:'데굴데굴'},
         {char:'책',      name:'책',      sound:'책',      emoji:'📚', keyword:'책', context:'읽어요'},
         {char:'물',      name:'물',      sound:'물',      emoji:'💧', keyword:'물', context:'마셔요'},
+        {char:'우유',    name:'우유',    sound:'우유',    emoji:'🥛', keyword:'우유', context:'쭉쭉 마셔요'},
+        {char:'신발',    name:'신발',    sound:'신발',    emoji:'👟', keyword:'신발', context:'신어요'},
+        {char:'모자',    name:'모자',    sound:'모자',    emoji:'🧢', keyword:'모자', context:'써요'},
+        {char:'우산',    name:'우산',    sound:'우산',    emoji:'☂️', keyword:'우산', context:'비올 때 써요'},
+        {char:'시계',    name:'시계',    sound:'시계',    emoji:'⏰', keyword:'시계', context:'시간을 봐요'},
       ]},
       { id:'ko-z5', name:'첫 문장', desc:'짧은 문장 읽기', items:[
         {char:'버스가 가요.',      name:'버스가 가요.',      sound:'버스가 가요.',      emoji:'🚌', keyword:'버스', context:'어디 갈까요?'},
@@ -505,6 +844,24 @@ const CURRICULUM = {
         {char:'개가 짖어요.',      name:'개가 짖어요.',      sound:'개가 짖어요.',      emoji:'🐶', keyword:'개', context:'멍멍!'},
         {char:'꽃이 예뻐요.',      name:'꽃이 예뻐요.',      sound:'꽃이 예뻐요.',      emoji:'🌸', keyword:'꽃', context:'와~ 예쁘다!'},
         {char:'사과가 맛있어요.',  name:'사과가 맛있어요.',  sound:'사과가 맛있어요.',  emoji:'🍎😋', keyword:'사과', context:'냠냠!'},
+        {char:'새가 날아요.',      name:'새가 날아요.',      sound:'새가 날아요.',      emoji:'🐦', keyword:'새', context:'훨훨~'},
+        {char:'아기가 자요.',      name:'아기가 자요.',      sound:'아기가 자요.',      emoji:'👶💤', keyword:'아기', context:'쉿! 조용히'},
+        {char:'물고기가 헤엄쳐요.',name:'물고기가 헤엄쳐요.',sound:'물고기가 헤엄쳐요.',emoji:'🐟', keyword:'물고기', context:'퐁당퐁당'},
+        {char:'달이 밝아요.',      name:'달이 밝아요.',      sound:'달이 밝아요.',      emoji:'🌙', keyword:'달', context:'반짝반짝'},
+      ]},
+      { id:'ko-z6', name:'동물 이름', desc:'동물 단어 12개', items:[
+        {char:'강아지', name:'강아지', sound:'강아지', emoji:'🐶', keyword:'강아지', context:'멍멍!'},
+        {char:'고양이', name:'고양이', sound:'고양이', emoji:'🐱', keyword:'고양이', context:'야옹~'},
+        {char:'토끼',   name:'토끼',   sound:'토끼',   emoji:'🐰', keyword:'토끼', context:'깡총깡총'},
+        {char:'곰',     name:'곰',     sound:'곰',     emoji:'🐻', keyword:'곰', context:'어흥!'},
+        {char:'사자',   name:'사자',   sound:'사자',   emoji:'🦁', keyword:'사자', context:'으르렁'},
+        {char:'코끼리', name:'코끼리', sound:'코끼리', emoji:'🐘', keyword:'코끼리', context:'뿌우~'},
+        {char:'원숭이', name:'원숭이', sound:'원숭이', emoji:'🐵', keyword:'원숭이', context:'우끼끼'},
+        {char:'기린',   name:'기린',   sound:'기린',   emoji:'🦒', keyword:'기린', context:'목이 길어요'},
+        {char:'호랑이', name:'호랑이', sound:'호랑이', emoji:'🐯', keyword:'호랑이', context:'어흥!'},
+        {char:'펭귄',   name:'펭귄',   sound:'펭귄',   emoji:'🐧', keyword:'펭귄', context:'뒤뚱뒤뚱'},
+        {char:'오리',   name:'오리',   sound:'오리',   emoji:'🦆', keyword:'오리', context:'꽥꽥!'},
+        {char:'돼지',   name:'돼지',   sound:'돼지',   emoji:'🐷', keyword:'돼지', context:'꿀꿀!'},
       ]},
     ]
   },
@@ -525,35 +882,53 @@ const CURRICULUM = {
         {char:'9',  name:'아홉', sound:'아홉', emoji:'🚓', keyword:'경찰차 9대', context:'경찰차가 아홉 대!', count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
         {char:'10', name:'열',   sound:'열',   emoji:'🚓', keyword:'경찰차 10대', context:'와! 열 대나!', count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
       ]},
-      { id:'ma-z3', name:'크다 작다', desc:'크기 비교하기', items:[
-        {char:'크다',  name:'크다',  sound:'크다',  emoji:'🚛', keyword:'큰 트럭', context:'🚛 트럭이 🚗 차보다 커요!', compare:{big:'🚛',small:'🚗',label:'크다'}},
-        {char:'작다',  name:'작다',  sound:'작다',  emoji:'🚗', keyword:'작은 차', context:'🚗 차가 🚛 트럭보다 작아요!', compare:{big:'🚛',small:'🚗',label:'작다'}},
-        {char:'많다',  name:'많다',  sound:'많다',  emoji:'🚌', keyword:'많은 버스', context:'버스가 많아요! 🚌🚌🚌🚌🚌', compare:{big:'🚌🚌🚌',small:'🚌',label:'많다'}},
-        {char:'적다',  name:'적다',  sound:'적다',  emoji:'🚌', keyword:'적은 버스', context:'버스가 적어요! 🚌', compare:{big:'🚌🚌🚌',small:'🚌',label:'적다'}},
-        {char:'길다',  name:'길다',  sound:'길다',  emoji:'🚂', keyword:'긴 기차', context:'기차가 길어요~ 🚂🚃🚃🚃', compare:{big:'🚂🚃🚃',small:'🚕',label:'길다'}},
-        {char:'짧다',  name:'짧다',  sound:'짧다',  emoji:'🚕', keyword:'짧은 택시', context:'택시가 짧아요! 🚕', compare:{big:'🚂🚃🚃',small:'🚕',label:'짧다'}},
+      { id:'ma-z3', name:'숫자 11~15', desc:'숫자 11부터 15까지', items:[
+        {char:'11', name:'열하나', sound:'열하나', emoji:'🚌', keyword:'버스 11대', context:'열하나! 🚌', count:'🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌'},
+        {char:'12', name:'열둘',   sound:'열둘',   emoji:'🚌', keyword:'버스 12대', context:'열둘! 🚌', count:'🚌×12'},
+        {char:'13', name:'열셋',   sound:'열셋',   emoji:'🚌', keyword:'버스 13대', context:'열셋! 🚌', count:'🚌×13'},
+        {char:'14', name:'열넷',   sound:'열넷',   emoji:'🚌', keyword:'버스 14대', context:'열넷! 🚌', count:'🚌×14'},
+        {char:'15', name:'열다섯', sound:'열다섯', emoji:'🚌', keyword:'버스 15대', context:'열다섯! 🚌', count:'🚌×15'},
       ]},
-      { id:'ma-z4', name:'도형', desc:'모양 알아보기', items:[
+      { id:'ma-z4', name:'크다 작다', desc:'크기 비교하기', items:[
+        {char:'크다',  name:'크다',  sound:'크다',  emoji:'🚛', keyword:'큰 트럭', context:'트럭이 차보다 커요!', compare:{big:'🚛',small:'🚗',bigLabel:'트럭',smallLabel:'자동차'}},
+        {char:'작다',  name:'작다',  sound:'작다',  emoji:'🚗', keyword:'작은 차', context:'차가 트럭보다 작아요!', compare:{big:'🚛',small:'🚗',bigLabel:'트럭',smallLabel:'자동차'}},
+        {char:'많다',  name:'많다',  sound:'많다',  emoji:'🚌', keyword:'많은 버스', context:'버스가 많아요!', compare:{big:'🚌🚌🚌🚌🚌',small:'🚌',bigLabel:'많다',smallLabel:'적다'}},
+        {char:'적다',  name:'적다',  sound:'적다',  emoji:'🚌', keyword:'적은 버스', context:'버스가 적어요!', compare:{big:'🚌🚌🚌🚌🚌',small:'🚌',bigLabel:'많다',smallLabel:'적다'}},
+        {char:'길다',  name:'길다',  sound:'길다',  emoji:'🚂', keyword:'긴 기차', context:'기차가 택시보다 길어요!', compare:{big:'🚂🚃🚃🚃🚃',small:'🚕',bigLabel:'기차',smallLabel:'택시'}},
+        {char:'짧다',  name:'짧다',  sound:'짧다',  emoji:'🚕', keyword:'짧은 택시', context:'택시가 기차보다 짧아요!', compare:{big:'🚂🚃🚃🚃🚃',small:'🚕',bigLabel:'기차',smallLabel:'택시'}},
+        {char:'높다',  name:'높다',  sound:'높다',  emoji:'🚁', keyword:'높은 헬기', context:'헬리콥터가 높이 있어요!', compare:{big:'🚁',small:'🚗',bigLabel:'헬기(높이)',smallLabel:'자동차(낮이)'}},
+        {char:'낮다',  name:'낮다',  sound:'낮다',  emoji:'🚗', keyword:'낮은 차', context:'자동차가 낮게 있어요!', compare:{big:'🚁',small:'🚗',bigLabel:'헬기(높이)',smallLabel:'자동차(낮이)'}},
+      ]},
+      { id:'ma-z5', name:'도형', desc:'모양 알아보기', items:[
         {char:'○', name:'동그라미', sound:'동그라미', emoji:'⭕', keyword:'동그라미', context:'바퀴는 동그라미예요 🛞'},
         {char:'△', name:'세모',     sound:'세모',     emoji:'🔺', keyword:'세모', context:'표지판은 세모예요 ⚠️'},
         {char:'□', name:'네모',     sound:'네모',     emoji:'🟦', keyword:'네모', context:'창문은 네모예요 🪟'},
         {char:'★', name:'별모양',   sound:'별모양',   emoji:'⭐', keyword:'별', context:'반짝반짝 별 ⭐'},
         {char:'♥', name:'하트',     sound:'하트',     emoji:'❤️', keyword:'하트', context:'사랑해요 ❤️'},
+        {char:'◇', name:'마름모',   sound:'마름모',   emoji:'🔷', keyword:'마름모', context:'반짝이는 마름모 🔷'},
       ]},
-      { id:'ma-z5', name:'더하기', desc:'1~5 더하기', items:[
+      { id:'ma-z6', name:'더하기', desc:'1~5 더하기', items:[
         {char:'1+1=2', name:'일 더하기 일은 이', sound:'일 더하기 일은 이', emoji:'🚒', keyword:'', context:'🚒 + 🚒 = 🚒🚒', eq:{a:1,b:1,r:2,e:'🚒'}},
         {char:'1+2=3', name:'일 더하기 이는 삼', sound:'일 더하기 이는 삼', emoji:'🚒', keyword:'', context:'🚒 + 🚒🚒 = 🚒🚒🚒', eq:{a:1,b:2,r:3,e:'🚒'}},
         {char:'2+2=4', name:'이 더하기 이는 사', sound:'이 더하기 이는 사', emoji:'🚕', keyword:'', context:'🚕🚕 + 🚕🚕 = 🚕🚕🚕🚕', eq:{a:2,b:2,r:4,e:'🚕'}},
-        {char:'2+3=5', name:'이 더하기 삼은 오', sound:'이 더하기 삼은 오', emoji:'🚗', keyword:'', context:'🚗🚗 + 🚗🚗🚗 = 🚗🚗🚗🚗🚗', eq:{a:2,b:3,r:5,e:'🚗'}},
-        {char:'3+3=6', name:'삼 더하기 삼은 육', sound:'삼 더하기 삼은 육', emoji:'🚌', keyword:'', context:'🚌🚌🚌 + 🚌🚌🚌 = 6대!', eq:{a:3,b:3,r:6,e:'🚌'}},
-        {char:'4+1=5', name:'사 더하기 일은 오', sound:'사 더하기 일은 오', emoji:'🚓', keyword:'', context:'🚓🚓🚓🚓 + 🚓 = 🚓🚓🚓🚓🚓', eq:{a:4,b:1,r:5,e:'🚓'}},
+        {char:'2+3=5', name:'이 더하기 삼은 오', sound:'이 더하기 삼은 오', emoji:'🚗', keyword:'', context:'🚗🚗 + 🚗🚗🚗 = 5대', eq:{a:2,b:3,r:5,e:'🚗'}},
+        {char:'3+2=5', name:'삼 더하기 이는 오', sound:'삼 더하기 이는 오', emoji:'🚙', keyword:'', context:'🚙🚙🚙 + 🚙🚙 = 5대', eq:{a:3,b:2,r:5,e:'🚙'}},
+        {char:'4+1=5', name:'사 더하기 일은 오', sound:'사 더하기 일은 오', emoji:'🚓', keyword:'', context:'🚓🚓🚓🚓 + 🚓 = 5대', eq:{a:4,b:1,r:5,e:'🚓'}},
+      ]},
+      { id:'ma-z7', name:'빼기', desc:'5까지 빼기', items:[
+        {char:'2-1=1', name:'이 빼기 일은 일', sound:'이 빼기 일은 일', emoji:'🚒', keyword:'', context:'🚒🚒 에서 1대 가면 🚒', sub:{a:2,b:1,r:1,e:'🚒'}},
+        {char:'3-1=2', name:'삼 빼기 일은 이', sound:'삼 빼기 일은 이', emoji:'🚗', keyword:'', context:'🚗🚗🚗 에서 1대 가면 🚗🚗', sub:{a:3,b:1,r:2,e:'🚗'}},
+        {char:'3-2=1', name:'삼 빼기 이는 일', sound:'삼 빼기 이는 일', emoji:'🚕', keyword:'', context:'🚕🚕🚕 에서 2대 가면 🚕', sub:{a:3,b:2,r:1,e:'🚕'}},
+        {char:'4-2=2', name:'사 빼기 이는 이', sound:'사 빼기 이는 이', emoji:'🚙', keyword:'', context:'🚙🚙🚙🚙 에서 2대 가면 🚙🚙', sub:{a:4,b:2,r:2,e:'🚙'}},
+        {char:'5-2=3', name:'오 빼기 이는 삼', sound:'오 빼기 이는 삼', emoji:'🚓', keyword:'', context:'5대에서 2대 가면 🚓🚓🚓', sub:{a:5,b:2,r:3,e:'🚓'}},
+        {char:'5-3=2', name:'오 빼기 삼은 이', sound:'오 빼기 삼은 이', emoji:'🚌', keyword:'', context:'5대에서 3대 가면 🚌🚌', sub:{a:5,b:3,r:2,e:'🚌'}},
       ]},
     ]
   },
-  english: {
+    english: {
     subject:'영어', icon:'🚓', color:'#4285F4', dark:'#1A56C4', light:'#E8F0FE',
     zones: [
-      { id:'en-z1', name:'알파벳 A~M', desc:'A부터 M까지', items:[
+      { id:'en-z1', name:'알파벳 A~G', desc:'A부터 G까지', items:[
         {char:'A', name:'에이', sound:'에이', emoji:'🍎', keyword:'Apple',  context:'A is for Apple! 🍎'},
         {char:'B', name:'비',   sound:'비',   emoji:'🐝', keyword:'Bee',    context:'B is for Bee! 🐝'},
         {char:'C', name:'씨',   sound:'씨',   emoji:'🐱', keyword:'Cat',    context:'C is for Cat! 🐱'},
@@ -561,57 +936,67 @@ const CURRICULUM = {
         {char:'E', name:'이',   sound:'이',   emoji:'🥚', keyword:'Egg',    context:'E is for Egg! 🥚'},
         {char:'F', name:'에프', sound:'에프', emoji:'🐟', keyword:'Fish',   context:'F is for Fish! 🐟'},
         {char:'G', name:'지',   sound:'지',   emoji:'🍇', keyword:'Grape',  context:'G is for Grape! 🍇'},
+      ]},
+      { id:'en-z2', name:'알파벳 H~N', desc:'H부터 N까지', items:[
         {char:'H', name:'에이치',sound:'에이치',emoji:'🏠',keyword:'House',  context:'H is for House! 🏠'},
         {char:'I', name:'아이', sound:'아이', emoji:'🍦', keyword:'Ice cream',context:'I is for Ice cream! 🍦'},
         {char:'J', name:'제이', sound:'제이', emoji:'🧃', keyword:'Juice',  context:'J is for Juice! 🧃'},
         {char:'K', name:'케이', sound:'케이', emoji:'🪁', keyword:'Kite',   context:'K is for Kite! 🪁'},
         {char:'L', name:'엘',   sound:'엘',   emoji:'🦁', keyword:'Lion',   context:'L is for Lion! 🦁'},
         {char:'M', name:'엠',   sound:'엠',   emoji:'🌙', keyword:'Moon',   context:'M is for Moon! 🌙'},
+        {char:'N', name:'엔',   sound:'엔',   emoji:'👃', keyword:'Nose',   context:'N is for Nose! 👃'},
       ]},
-      { id:'en-z2', name:'알파벳 N~Z', desc:'N부터 Z까지', items:[
-        {char:'N', name:'엔',    sound:'엔',    emoji:'🌙', keyword:'Night',   context:'N is for Night! 🌙'},
-        {char:'O', name:'오',    sound:'오',    emoji:'🐙', keyword:'Octopus', context:'O is for Octopus! 🐙'},
+      { id:'en-z3', name:'알파벳 O~T', desc:'O부터 T까지', items:[
+        {char:'O', name:'오',    sound:'오',    emoji:'🍊', keyword:'Orange', context:'O is for Orange! 🍊'},
         {char:'P', name:'피',    sound:'피',    emoji:'🐧', keyword:'Penguin', context:'P is for Penguin! 🐧'},
         {char:'Q', name:'큐',    sound:'큐',    emoji:'👸', keyword:'Queen',   context:'Q is for Queen! 👸'},
         {char:'R', name:'알',    sound:'알',    emoji:'🌈', keyword:'Rainbow', context:'R is for Rainbow! 🌈'},
         {char:'S', name:'에스',  sound:'에스',  emoji:'☀️', keyword:'Sun',     context:'S is for Sun! ☀️'},
         {char:'T', name:'티',    sound:'티',    emoji:'🌳', keyword:'Tree',    context:'T is for Tree! 🌳'},
+      ]},
+      { id:'en-z4', name:'알파벳 U~Z', desc:'U부터 Z까지', items:[
         {char:'U', name:'유',    sound:'유',    emoji:'☂️', keyword:'Umbrella',context:'U is for Umbrella! ☂️'},
         {char:'V', name:'브이',  sound:'브이',  emoji:'🎻', keyword:'Violin',  context:'V is for Violin! 🎻'},
         {char:'W', name:'더블유',sound:'더블유',emoji:'🐋', keyword:'Whale',   context:'W is for Whale! 🐋'},
-        {char:'X', name:'엑스',  sound:'엑스',  emoji:'🎸', keyword:'Xylophone',context:'X is for Xylophone! 🎸'},
+        {char:'X', name:'엑스',  sound:'엑스',  emoji:'🦊', keyword:'Fox(x)',  context:'fox has X! 🦊'},
         {char:'Y', name:'와이',  sound:'와이',  emoji:'🧶', keyword:'Yarn',    context:'Y is for Yarn! 🧶'},
         {char:'Z', name:'지',    sound:'지',    emoji:'🦓', keyword:'Zebra',   context:'Z is for Zebra! 🦓'},
       ]},
-      { id:'en-z3', name:'생활 단어', desc:'영어 단어 16개', items:[
-        {char:'apple',  name:'사과',   sound:'apple',  emoji:'🍎', keyword:'Apple',  context:'Red and sweet! 🍎'},
-        {char:'ball',   name:'공',     sound:'ball',   emoji:'⚽', keyword:'Ball',   context:'Kick the ball! ⚽'},
-        {char:'cat',    name:'고양이', sound:'cat',    emoji:'🐱', keyword:'Cat',    context:'Meow meow! 🐱'},
-        {char:'dog',    name:'개',     sound:'dog',    emoji:'🐶', keyword:'Dog',    context:'Woof woof! 🐶'},
-        {char:'egg',    name:'달걀',   sound:'egg',    emoji:'🥚', keyword:'Egg',    context:'Yummy egg! 🥚'},
-        {char:'fish',   name:'물고기', sound:'fish',   emoji:'🐟', keyword:'Fish',   context:'Swimming fish! 🐟'},
-        {char:'house',  name:'집',     sound:'house',  emoji:'🏠', keyword:'House',  context:'My home! 🏠'},
-        {char:'ice',    name:'얼음',   sound:'ice',    emoji:'🧊', keyword:'Ice',    context:'So cold! 🧊'},
-        {char:'juice',  name:'주스',   sound:'juice',  emoji:'🧃', keyword:'Juice',  context:'Delicious! 🧃'},
-        {char:'kite',   name:'연',     sound:'kite',   emoji:'🪁', keyword:'Kite',   context:'Fly high! 🪁'},
+      { id:'en-z5', name:'동물 단어', desc:'영어 동물 10개', items:[
+        {char:'cat',    name:'고양이', sound:'cat',    emoji:'🐱', keyword:'Cat',    context:'Meow! 🐱'},
+        {char:'dog',    name:'개',     sound:'dog',    emoji:'🐶', keyword:'Dog',    context:'Woof! 🐶'},
         {char:'lion',   name:'사자',   sound:'lion',   emoji:'🦁', keyword:'Lion',   context:'Roar! 🦁'},
-        {char:'moon',   name:'달',     sound:'moon',   emoji:'🌙', keyword:'Moon',   context:'Shining moon! 🌙'},
-        {char:'nose',   name:'코',     sound:'nose',   emoji:'👃', keyword:'Nose',   context:'Smell it! 👃'},
-        {char:'orange', name:'오렌지', sound:'orange', emoji:'🍊', keyword:'Orange', context:'Juicy orange! 🍊'},
-        {char:'pig',    name:'돼지',   sound:'pig',    emoji:'🐷', keyword:'Pig',    context:'Oink oink! 🐷'},
-        {char:'rainbow',name:'무지개', sound:'rainbow',emoji:'🌈', keyword:'Rainbow',context:'So colorful! 🌈'},
+        {char:'bear',   name:'곰',     sound:'bear',   emoji:'🐻', keyword:'Bear',   context:'Big bear! 🐻'},
+        {char:'pig',    name:'돼지',   sound:'pig',    emoji:'🐷', keyword:'Pig',    context:'Oink! 🐷'},
+        {char:'fish',   name:'물고기', sound:'fish',   emoji:'🐟', keyword:'Fish',   context:'Swim! 🐟'},
+        {char:'bird',   name:'새',     sound:'bird',   emoji:'🐦', keyword:'Bird',   context:'Tweet! 🐦'},
+        {char:'frog',   name:'개구리', sound:'frog',   emoji:'🐸', keyword:'Frog',   context:'Ribbit! 🐸'},
+        {char:'duck',   name:'오리',   sound:'duck',   emoji:'🦆', keyword:'Duck',   context:'Quack! 🦆'},
+        {char:'cow',    name:'소',     sound:'cow',    emoji:'🐮', keyword:'Cow',    context:'Moo! 🐮'},
       ]},
-      { id:'en-z4', name:'인사 표현', desc:'영어 인사 10개', items:[
+      { id:'en-z6', name:'음식 단어', desc:'영어 음식 10개', items:[
+        {char:'apple',  name:'사과',   sound:'apple',  emoji:'🍎', keyword:'Apple',  context:'Yummy! 🍎'},
+        {char:'banana', name:'바나나', sound:'banana', emoji:'🍌', keyword:'Banana', context:'Sweet! 🍌'},
+        {char:'bread',  name:'빵',     sound:'bread',  emoji:'🍞', keyword:'Bread',  context:'Soft! 🍞'},
+        {char:'milk',   name:'우유',   sound:'milk',   emoji:'🥛', keyword:'Milk',   context:'Cold! 🥛'},
+        {char:'egg',    name:'달걀',   sound:'egg',    emoji:'🥚', keyword:'Egg',    context:'Round! 🥚'},
+        {char:'cake',   name:'케이크', sound:'cake',   emoji:'🍰', keyword:'Cake',   context:'Party! 🍰'},
+        {char:'pizza',  name:'피자',   sound:'pizza',  emoji:'🍕', keyword:'Pizza',  context:'Hot! 🍕'},
+        {char:'juice',  name:'주스',   sound:'juice',  emoji:'🧃', keyword:'Juice',  context:'Tasty! 🧃'},
+        {char:'water',  name:'물',     sound:'water',  emoji:'💧', keyword:'Water',  context:'Drink! 💧'},
+        {char:'candy',  name:'사탕',   sound:'candy',  emoji:'🍬', keyword:'Candy',  context:'Sweet! 🍬'},
+      ]},
+      { id:'en-z7', name:'인사 표현', desc:'영어 인사 10개', items:[
         {char:'Hello!',     name:'안녕!',   sound:'Hello',     emoji:'👋', keyword:'인사해요',  context:'Hi there! 👋'},
-        {char:'Bye!',       name:'잘 가!',  sound:'Bye',       emoji:'✋', keyword:'작별인사',  context:'See you later! ✋'},
-        {char:'Thank you!', name:'고마워!', sound:'Thank you', emoji:'🙏', keyword:'감사해요',  context:'Thank you so much! 🙏'},
+        {char:'Bye!',       name:'잘 가!',  sound:'Bye',       emoji:'✋', keyword:'작별인사',  context:'See you! ✋'},
+        {char:'Thank you!', name:'고마워!', sound:'Thank you', emoji:'🙏', keyword:'감사해요',  context:'Thank you! 🙏'},
         {char:'Sorry!',     name:'미안해!', sound:'Sorry',     emoji:'😅', keyword:'미안해요',  context:'I am sorry! 😅'},
-        {char:'Yes!',       name:'응!',     sound:'Yes',       emoji:'✅', keyword:'맞아요',   context:'Yes yes yes! ✅'},
-        {char:'No!',        name:'아니!',   sound:'No',        emoji:'❌', keyword:'싫어요',   context:'No no no! ❌'},
+        {char:'Yes!',       name:'응!',     sound:'Yes',       emoji:'✅', keyword:'맞아요',   context:'Yes! ✅'},
+        {char:'No!',        name:'아니!',   sound:'No',        emoji:'❌', keyword:'싫어요',   context:'No! ❌'},
         {char:'Good!',      name:'잘했어!', sound:'Good',      emoji:'👍', keyword:'최고예요',  context:'Good job! 👍'},
-        {char:'Stop!',      name:'멈춰!',   sound:'Stop',      emoji:'🛑', keyword:'멈춰요',   context:'Stop right there! 🛑'},
-        {char:'Go!',        name:'가자!',   sound:'Go',        emoji:'🚦', keyword:'출발해요',  context:'Let\'s go! 🚦'},
-        {char:'Help!',      name:'도와줘!', sound:'Help',      emoji:'🆘', keyword:'도움',     context:'Help me please! 🆘'},
+        {char:'Stop!',      name:'멈춰!',   sound:'Stop',      emoji:'🛑', keyword:'멈춰요',   context:'Stop! 🛑'},
+        {char:'Go!',        name:'가자!',   sound:'Go',        emoji:'🚦', keyword:'출발해요',  context:"Let's go! 🚦"},
+        {char:'Help!',      name:'도와줘!', sound:'Help',      emoji:'🆘', keyword:'도움',     context:'Help! 🆘'},
       ]},
     ]
   }
@@ -645,7 +1030,7 @@ Object.entries(CURRICULUM).forEach(([k,v]) => {
 let state = {
   userName:'', currentSubject:'korean', currentZoneIdx:0, currentPageIdx:0,
   stamps:0, progress:{korean:0,math:0,english:0},
-  settings:{freeNav:false,autoSound:true}, answered:false,
+  settings:{freeNav:false,autoSound:true,dailyGoal:10,goalKorean:2,goalMath:2,goalEnglish:2}, answered:false, dailyLog:{}, dailySubjectLog:{},
 };
 function saveState(){ try{ localStorage.setItem('broom_v2', JSON.stringify(state)); }catch(e){} }
 function loadState(){ try{ const s=localStorage.getItem('broom_v2'); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
@@ -676,11 +1061,19 @@ function renderCardVisual(page, subject) {
   // 수학 — 숫자 (카운팅)
   if(item.count !== undefined) {
     const num = parseInt(item.char);
-    const dots = item.count;
+    let dotsHtml;
+    if(item.count.includes('×')) {
+      // 큰 숫자: 이모지 줄바꿈 표시
+      const e = item.count.split('×')[0];
+      const n = parseInt(item.count.split('×')[1]);
+      dotsHtml = `<div style="font-size:24px;line-height:1.5;max-width:240px;word-break:break-all">${e.repeat(n)}</div>`;
+    } else {
+      dotsHtml = `<div style="font-size:28px;letter-spacing:2px;line-height:1.4">${item.count}</div>`;
+    }
     vis.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-        <div style="font-size:80px;font-weight:900;color:#FF5252;line-height:1">${item.char}</div>
-        <div style="font-size:28px;letter-spacing:3px;line-height:1.4">${dots}</div>
+        <div style="font-size:72px;font-weight:900;color:#FF5252;line-height:1">${item.char}</div>
+        ${dotsHtml}
         <div style="font-size:15px;font-weight:700;color:#FF5252">${item.name}</div>
       </div>`;
     return;
@@ -690,15 +1083,61 @@ function renderCardVisual(page, subject) {
   if(item.compare) {
     const c = item.compare;
     const isBig = item.char==='크다'||item.char==='많다'||item.char==='길다';
-    vis.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="display:flex;align-items:center;gap:20px">
-          <div style="font-size:${isBig?'56px':'36px'};line-height:1">${c.big}</div>
-          <div style="font-size:18px;color:#CCC">↔</div>
-          <div style="font-size:${!isBig?'56px':'36px'};line-height:1">${c.small}</div>
-        </div>
-        <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
-      </div>`;
+    // 개념별 맞춤 시각화
+    const isCount = c.big.includes('🚌🚌'); // 많다/적다
+    const isLength = c.big.includes('🚃');  // 길다/짧다
+
+    if(isCount) {
+      // 많다/적다: 개수로 표현, 같은 크기
+      vis.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+          <div style="display:flex;align-items:center;gap:24px">
+            <div style="text-align:center">
+              <div style="font-size:28px;line-height:1.4">${c.big}</div>
+              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.bigLabel}</div>
+            </div>
+            <div style="font-size:14px;color:#CCC">vs</div>
+            <div style="text-align:center">
+              <div style="font-size:28px;line-height:1.4">${c.small}</div>
+              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.smallLabel}</div>
+            </div>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
+        </div>`;
+    } else if(isLength) {
+      // 길다/짧다: 세로로 배치해서 길이 차이 표현
+      vis.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <div style="text-align:left">
+              <span style="font-size:32px;letter-spacing:-4px">${c.big}</span>
+              <span style="font-size:11px;color:#FF5252;font-weight:700;margin-left:6px">${c.bigLabel}</span>
+            </div>
+            <div style="text-align:left">
+              <span style="font-size:32px">${c.small}</span>
+              <span style="font-size:11px;color:#FF5252;font-weight:700;margin-left:6px">${c.smallLabel}</span>
+            </div>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
+        </div>`;
+    } else {
+      // 크다/작다: 크기 차이로 표현
+      vis.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+          <div style="display:flex;align-items:flex-end;gap:16px">
+            <div style="text-align:center">
+              <div style="font-size:72px;line-height:1">${c.big}</div>
+              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.bigLabel}</div>
+            </div>
+            <div style="font-size:14px;color:#CCC;margin-bottom:20px">vs</div>
+            <div style="text-align:center">
+              <div style="font-size:36px;line-height:1">${c.small}</div>
+              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.smallLabel}</div>
+            </div>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
+        </div>`;
+    }
     return;
   }
 
@@ -708,13 +1147,32 @@ function renderCardVisual(page, subject) {
     const makeEmojis = (n) => Array(n).fill(e).join('');
     vis.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:22px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:24px">
           <span>${makeEmojis(a)}</span>
-          <span style="font-size:24px;font-weight:900;color:#FF5252">+</span>
+          <span style="font-size:26px;font-weight:900;color:#4CAF50">➕</span>
           <span>${makeEmojis(b)}</span>
         </div>
-        <div style="font-size:20px;font-weight:900;color:#FF5252">=</div>
-        <div style="font-size:22px">${makeEmojis(r)}</div>
+        <div style="font-size:20px;font-weight:900;color:#FF5252">⬇</div>
+        <div style="font-size:24px">${makeEmojis(r)}</div>
+        <div style="font-size:32px;font-weight:900;color:#FF5252">${item.char}</div>
+      </div>`;
+    return;
+  }
+
+  // 수학 — 빼기
+  if(item.sub) {
+    const {a,b,r,e} = item.sub;
+    const makeEmojis = (n,faded) => Array(n).fill(0).map((_,i)=>
+      faded&&i>=r ? `<span style="opacity:0.25">${e}</span>` : e
+    ).join('');
+    vis.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:24px">
+          <span>${makeEmojis(a,true)}</span>
+        </div>
+        <div style="font-size:14px;color:#888;font-weight:700">${b}대가 출발! 🚦</div>
+        <div style="font-size:20px;font-weight:900;color:#FF5252">⬇</div>
+        <div style="font-size:24px">${makeEmojis(r,false)}</div>
         <div style="font-size:32px;font-weight:900;color:#FF5252">${item.char}</div>
       </div>`;
     return;
@@ -771,13 +1229,14 @@ function goScreen(name) {
   document.getElementById('bottom-nav').style.display = name==='learn'?'none':'flex';
   if(name==='subject') renderSubject();
   if(name==='zone')    renderZone();
-  if(name==='garage')  renderGarage();
+  if(name==='garage')   renderGarage();
   if(name==='settings') renderSettings();
+  if(name==='calendar') renderCalendar();
+  if(name==='parent')   { renderParent(); }
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const m={subject:'nav-home',garage:'nav-garage',settings:'nav-settings'};
+  const m={subject:'nav-home',garage:'nav-garage',settings:'nav-settings',calendar:'nav-calendar',parent:'nav-parent'};
   if(m[name]) document.getElementById(m[name])?.classList.add('active');
 }
-function navTo(s){ goScreen(s); }
 
 // ═══════════════════════════════════════
 // 시작
@@ -795,6 +1254,8 @@ function renderSubject() {
   setAccent('korean');
   document.getElementById('greeting-text').innerHTML=`<em>${state.userName}</em>, 오늘도 출발해볼까요? 🚌`;
   document.getElementById('total-stamps').textContent=state.stamps;
+  renderTodayCard();
+  renderStreak();
   ['korean','math','english'].forEach(k=>{
     const total=ZONES[k].reduce((a,z)=>a+z.pages.length,0);
     const done=state.progress[k]||0;
@@ -904,6 +1365,7 @@ function checkAnswer(selected, btn) {
 function nextPage() {
   const zone=ZONES[state.currentSubject][state.currentZoneIdx];
   state.progress[state.currentSubject]=Math.max(state.progress[state.currentSubject]||0, state.currentPageIdx+1);
+  recordTodayPage();
   saveState();
   if(state.currentPageIdx+1>=zone.pages.length) showResult(zone);
   else { state.currentPageIdx++; state.answered=false; renderPage(); }
@@ -952,9 +1414,374 @@ function renderSettings(){
 function saveName(){ const v=document.getElementById('settings-name-input').value.trim(); if(!v)return; state.userName=v; saveState(); showToast('✅ 이름 저장!'); }
 function toggleSetting(k,v){ if(!state.settings)state.settings={}; state.settings[k]=v; saveState(); showToast('✅ 설정 저장!'); }
 function showToast(msg){ const t=document.getElementById('save-toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
-function confirmReset(){ if(confirm('학습 기록을 모두 지울까요?')){ localStorage.removeItem('broom_v2'); location.reload(); } }
+function showModal(opts) {
+  document.getElementById('modal-emoji').textContent = opts.emoji || '⚠️';
+  document.getElementById('modal-title').textContent = opts.title || '';
+  document.getElementById('modal-msg').textContent = opts.msg || '';
+  const btns = document.getElementById('modal-btns');
+  btns.innerHTML = '';
+  (opts.buttons||[]).forEach(b => {
+    const el = document.createElement('button');
+    el.className = 'modal-btn ' + (b.cls||'modal-btn-cancel');
+    el.textContent = b.label;
+    el.onclick = () => { closeModal(); if(b.action) b.action(); };
+    btns.appendChild(el);
+  });
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
 
-window.onload=()=>{ loadState(); if(state.userName){ setAccent('korean'); goScreen('subject'); } };
+function confirmReset(){
+  showModal({
+    emoji:'🗑️',
+    title:'학습 기록 초기화',
+    msg:'도장, 진도, 달력이 모두 사라져요.\n정말 초기화할까요?',
+    buttons:[
+      {label:'취소', cls:'modal-btn-cancel'},
+      {label:'초기화', cls:'modal-btn-danger', action: doReset},
+    ]
+  });
+}
+
+function doReset() {
+  // 인메모리 리셋 (Artifacts에서도 작동)
+  const name = state.userName;
+  state = {
+    userName:'', currentSubject:'korean', currentZoneIdx:0, currentPageIdx:0,
+    stamps:0, progress:{korean:0,math:0,english:0},
+    settings:{freeNav:false,autoSound:true,goalKorean:2,goalMath:2,goalEnglish:2},
+    answered:false, dailyLog:{}, dailySubjectLog:{},
+  };
+  try { localStorage.removeItem('broom_v2'); } catch(e){}
+  pinUnlocked = false;
+  // 시작 화면으로
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-start').classList.add('active');
+  document.getElementById('bottom-nav').style.display='flex';
+  document.getElementById('input-name').value='';
+  showToast('✅ 초기화 완료!');
+}
+
+
+/* ═══════════════════════════════════════
+   날짜 유틸
+═══════════════════════════════════════ */
+function todayStr() {
+  return new Date().toISOString().slice(0,10); // "2026-06-24"
+}
+function dateStr(d) {
+  return d.toISOString().slice(0,10);
+}
+
+/* ═══════════════════════════════════════
+   일일 학습 시스템
+═══════════════════════════════════════ */
+const DAILY_GOAL_DEFAULT = 10;
+
+function getDailyGoal() {
+  const s = state.settings || {};
+  return (s.goalKorean||2) + (s.goalMath||2) + (s.goalEnglish||2);
+}
+function getSubjectGoal(subj) {
+  const s = state.settings || {};
+  if(subj==='korean') return s.goalKorean||2;
+  if(subj==='math')   return s.goalMath||2;
+  if(subj==='english')return s.goalEnglish||2;
+  return 2;
+}
+
+// 오늘 학습한 페이지 수 반환
+function getTodayDone() {
+  const today = todayStr();
+  return (state.dailyLog && state.dailyLog[today]) || 0;
+}
+
+// 오늘 학습 기록 +1
+function recordTodayPage() {
+  if(!state.dailyLog) state.dailyLog = {};
+  if(!state.dailySubjectLog) state.dailySubjectLog = {};
+  const today = todayStr();
+  const subj = state.currentSubject;
+  state.dailyLog[today] = (state.dailyLog[today] || 0) + 1;
+  if(!state.dailySubjectLog[today]) state.dailySubjectLog[today] = {};
+  state.dailySubjectLog[today][subj] = (state.dailySubjectLog[today][subj]||0) + 1;
+  saveState();
+}
+function getTodaySubjectDone(subj) {
+  const today = todayStr();
+  return (state.dailySubjectLog && state.dailySubjectLog[today] && state.dailySubjectLog[today][subj]) || 0;
+}
+
+// 연속 학습일 계산
+function calcStreak() {
+  if(!state.dailyLog) return 0;
+  const goal = getDailyGoal();
+  let streak = 0;
+  const d = new Date();
+  // 오늘 포함해서 거슬러 올라감
+  for(let i=0; i<365; i++) {
+    const s = dateStr(d);
+    const done = state.dailyLog[s] || 0;
+    if(done >= goal || (i===0 && done > 0)) {
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else if(i===0) {
+      // 오늘 아직 안했어도 어제까지 연속이면 유지
+      d.setDate(d.getDate()-1);
+      const ys = dateStr(d);
+      if((state.dailyLog[ys]||0) >= goal) {
+        // 어제까지 연속, 오늘 아직 진행중
+        break;
+      } else {
+        break;
+      }
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+/* ═══════════════════════════════════════
+   오늘의 학습 카드 렌더
+═══════════════════════════════════════ */
+function renderTodayCard() {
+  const goal = getDailyGoal();
+  const done = getTodayDone();
+  const pct  = Math.min(100, Math.round(done/goal*100));
+  const card  = document.getElementById('today-card');
+  const title = document.getElementById('today-title');
+  const sub   = document.getElementById('today-sub');
+  const fill  = document.getElementById('today-fill');
+
+  fill.style.width = pct+'%';
+
+  // 과목별 달성 현황
+  const kDone = getTodaySubjectDone('korean');
+  const mDone = getTodaySubjectDone('math');
+  const eDone = getTodaySubjectDone('english');
+  const kGoal = getSubjectGoal('korean');
+  const mGoal = getSubjectGoal('math');
+  const eGoal = getSubjectGoal('english');
+  const detail = `국어 ${kDone}/${kGoal} · 수학 ${mDone}/${mGoal} · 영어 ${eDone}/${eGoal}`;
+
+  if(done >= goal) {
+    card.className = 'today-card today-card-done';
+    title.textContent = '오늘 목표 달성! 🎉';
+    sub.textContent   = detail;
+  } else {
+    card.className = 'today-card';
+    title.textContent = `오늘 ${goal-done}장 더 해봐요!`;
+    sub.textContent   = detail;
+  }
+}
+
+/* ═══════════════════════════════════════
+   스트릭 렌더
+═══════════════════════════════════════ */
+function renderStreak() {
+  const streak = calcStreak();
+  document.getElementById('streak-num').textContent = streak;
+  document.getElementById('streak-fire').textContent = streak >= 7 ? '🔥' : streak >= 3 ? '🔥' : '💧';
+
+  // 최근 7일 도트
+  const goal = getDailyGoal();
+  const dots = document.getElementById('streak-dots');
+  const days = [];
+  for(let i=6; i>=0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(dateStr(d));
+  }
+  dots.innerHTML = days.map((ds,i) => {
+    const done = (state.dailyLog && state.dailyLog[ds]) || 0;
+    const isToday = ds === todayStr();
+    const cls = done>=goal ? 'done' : isToday && done>0 ? 'today' : '';
+    const label = done>=goal ? '✓' : isToday ? '→' : ['일','월','화','수','목','금','토'][new Date(ds).getDay()];
+    return `<div class="streak-dot ${cls}">${label}</div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════
+   오늘의 학습 시작
+═══════════════════════════════════════ */
+function startTodayLearn() {
+  const done = getTodayDone();
+  const goal = getDailyGoal();
+  if(done >= goal) {
+    showToast('🎉 오늘 목표 달성! 내일 또 만나요');
+    return;
+  }
+  // 가장 안 끝난 과목 + Zone 찾아서 시작
+  // 과목별 목표 미달성인 과목 순서로 시작
+  const subjects = ['korean','math','english'];
+  for(const subj of subjects) {
+    const todayDoneSubj = getTodaySubjectDone(subj);
+    const subjGoal = getSubjectGoal(subj);
+    if(todayDoneSubj >= subjGoal) continue; // 오늘 목표 이미 달성
+
+    const zones = ZONES[subj];
+    let totalDone = 0;
+    for(let zi=0; zi<zones.length; zi++) {
+      const z = zones[zi];
+      const subjDone = state.progress[subj] || 0;
+      if(subjDone < totalDone + z.pages.length) {
+        state.currentSubject = subj;
+        state.currentZoneIdx = zi;
+        const pageStart = Math.max(0, subjDone - totalDone);
+        state.currentPageIdx = pageStart;
+        state.answered = false;
+        setAccent(subj);
+        goScreen('learn');
+        renderPage();
+        return;
+      }
+      totalDone += z.pages.length;
+    }
+  }
+  showToast('🏆 오늘 모든 과목 목표 달성! 대단해요!');
+}
+
+/* ═══════════════════════════════════════
+   달력 렌더
+═══════════════════════════════════════ */
+function renderCalendar() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const goal = getDailyGoal();
+
+  document.getElementById('cal-month').textContent =
+    `${year}년 ${month+1}월`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month+1, 0).getDate();
+  const todayDate = now.getDate();
+
+  let html = '';
+  for(let i=0; i<firstDay; i++) html += `<div class="cal-day empty">-</div>`;
+  for(let d=1; d<=lastDate; d++) {
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const done = (state.dailyLog && state.dailyLog[ds]) || 0;
+    let cls = '';
+    if(done >= goal) cls = 'full-study';
+    else if(done > 0) cls = 'has-study';
+    if(d === todayDate) cls += ' today-cal';
+    html += `<div class="cal-day ${cls}">${d}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML = html;
+
+  // 통계
+  const totalDays = Object.keys(state.dailyLog||{}).filter(ds=>ds.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)).length;
+  const goalDays  = Object.entries(state.dailyLog||{}).filter(([ds,v])=>ds.startsWith(`${year}-${String(month+1).padStart(2,'0')}`) && v>=goal).length;
+  const totalPages= Object.values(state.dailyLog||{}).reduce((a,v)=>a+v,0);
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-emoji">📅</div><div class="stat-num">${totalDays}</div><div class="stat-label">이번달 학습일</div></div>
+    <div class="stat-card"><div class="stat-emoji">🎯</div><div class="stat-num">${goalDays}</div><div class="stat-label">목표 달성일</div></div>
+    <div class="stat-card"><div class="stat-emoji">📚</div><div class="stat-num">${totalPages}</div><div class="stat-label">총 학습 페이지</div></div>
+    <div class="stat-card"><div class="stat-emoji">🔥</div><div class="stat-num">${calcStreak()}</div><div class="stat-label">현재 연속일</div></div>
+  `;
+}
+
+/* ═══════════════════════════════════════
+   부모 모드 PIN
+═══════════════════════════════════════ */
+const DEFAULT_PIN = '1234';
+let pinBuffer = '';
+let pinUnlocked = false;
+
+function navTo(s) {
+  if(s === 'parent' && !pinUnlocked) {
+    goScreen('parent');
+    showPinOverlay();
+    return;
+  }
+  goScreen(s);
+}
+
+function showPinOverlay() {
+  pinBuffer = '';
+  document.getElementById('pin-overlay').style.display = 'flex';
+  document.getElementById('pin-error').textContent = '';
+  updatePinDisplay();
+}
+
+function hidePinOverlay() {
+  document.getElementById('pin-overlay').style.display = 'none';
+}
+
+function updatePinDisplay() {
+  for(let i=0; i<4; i++) {
+    document.getElementById('pd'+i).className = 'pin-dot' + (i<pinBuffer.length?' filled':'');
+  }
+}
+
+function pinInput(val) {
+  if(val === 'cancel') { goScreen('subject'); return; }
+  if(val === 'back') { pinBuffer = pinBuffer.slice(0,-1); updatePinDisplay(); return; }
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += String(val);
+  updatePinDisplay();
+  if(pinBuffer.length === 4) {
+    const correct = state.settings?.pin || DEFAULT_PIN;
+    if(pinBuffer === correct) {
+      pinUnlocked = true;
+      hidePinOverlay();
+      renderParent();
+    } else {
+      document.getElementById('pin-error').textContent = '❌ 틀렸어요. 다시 입력해주세요.';
+      setTimeout(()=>{ pinBuffer=''; updatePinDisplay(); document.getElementById('pin-error').textContent=''; }, 800);
+    }
+  }
+}
+
+function renderParent() {
+  const goal = getDailyGoal();
+  const done = getTodayDone();
+  const pct  = Math.min(100, Math.round(done/goal*100));
+
+  document.getElementById('p-today-desc').textContent = `목표 ${goal}장 중 ${done}장 완료`;
+  document.getElementById('p-today-bar').style.width  = pct+'%';
+  document.getElementById('p-today-val').textContent  = done+'장';
+  document.getElementById('p-streak').textContent     = calcStreak()+'일';
+  document.getElementById('p-stamps').textContent     = state.stamps+'개';
+
+  // 과목별 목표 값 표시
+  ['korean','math','english'].forEach(subj => {
+    const g = getSubjectGoal(subj);
+    document.getElementById('p-goal-'+subj).textContent = g+'장';
+  });
+
+  // 과목별 진도
+  ['korean','math','english'].forEach(k => {
+    const total = ZONES[k].reduce((a,z)=>a+z.pages.length,0);
+    const d = state.progress[k] || 0;
+    const p = Math.min(100, Math.round(d/total*100));
+    document.getElementById('p-prog-'+k).style.width = p+'%';
+    document.getElementById('p-pct-'+k).textContent  = p+'%';
+  });
+}
+
+function changeGoal(subj, delta) {
+  if(!state.settings) state.settings = {};
+  const key = subj==='korean'?'goalKorean':subj==='math'?'goalMath':'goalEnglish';
+  let cur = state.settings[key] || 2;
+  cur = Math.max(0, Math.min(30, cur + delta));
+  state.settings[key] = cur;
+  saveState();
+  renderParent();
+}
+
+window.onload=()=>{
+  loadState();
+  if(!state.dailyLog) state.dailyLog={};
+  if(!state.dailySubjectLog) state.dailySubjectLog={};
+  pinUnlocked = false;
+  if(state.userName){ setAccent('korean'); goScreen('subject'); }
+};
 </script>
 </body>
 </html>
