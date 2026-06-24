@@ -5,859 +5,372 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>부릉부릉 학교</title>
 <style>
-  /* ── 토큰 ── */
   :root {
     --bg: #FFF9F0;
-    --road: #4A4A4A;
-    --road-line: #FFD93D;
     --korean-main: #FFB800;
     --korean-dark: #E09800;
     --korean-light: #FFF3C4;
+    --math-main: #FF5252;
+    --math-dark: #D32F2F;
+    --english-main: #4285F4;
+    --english-dark: #1A56C4;
     --correct: #4CAF50;
     --wrong: #FF5252;
     --text-dark: #2D2D2D;
     --text-mid: #666;
     --white: #FFFFFF;
-    --shadow: 0 4px 16px rgba(0,0,0,0.12);
+    --shadow: 0 4px 20px rgba(0,0,0,0.10);
     --radius: 20px;
     --radius-sm: 12px;
+    --accent: var(--korean-main);
+    --accent-dark: var(--korean-dark);
+    --accent-light: var(--korean-light);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   body {
     font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-    background: #2D2D2D;
+    background: #1a1a2e;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    position: relative;
   }
-
-  /* ── 도로 배경 ── */
-  .road-bg {
-    position: fixed;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: min(100vw, calc(100vh * 16 / 9));
-    height: 80px;
-    background: var(--road);
-    z-index: 0;
-  }
-  .road-bg::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 0; right: 0;
-    height: 6px;
-    background: repeating-linear-gradient(90deg, var(--road-line) 0px, var(--road-line) 40px, transparent 40px, transparent 80px);
-    transform: translateY(-50%);
-  }
-
-  /* ── 앱 래퍼 (9:16 고정) ── */
   #app {
     position: relative;
-    z-index: 1;
     width: min(100vw, calc(100vh * 16 / 9));
     height: min(100vh, calc(100vw * 9 / 16));
-    max-height: 100vh;
     background: var(--bg);
     display: flex;
     flex-direction: column;
     padding: 0 0 64px 0;
     overflow: hidden;
-    box-shadow: 0 0 40px rgba(0,0,0,0.18);
+    box-shadow: 0 0 60px rgba(0,0,0,0.4);
   }
-
-  /* ── 화면 전환 ── */
-  .screen {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    overflow: hidden;
-  }
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
   .screen.active { display: flex; }
-  /* 존/차고지만 스크롤 허용 */
-  #screen-zone, #screen-garage {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  #screen-zone, #screen-garage, #screen-settings { overflow-y: auto; }
 
-  /* ══════════════════════════════════
-     시작 화면
-  ══════════════════════════════════ */
+  /* ── 시작 화면 ── */
   #screen-start {
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 40px 24px;
+    align-items: center; justify-content: center; gap: 20px; padding: 32px 28px;
+    background: linear-gradient(160deg, #FFF9F0 0%, #FFF3C4 100%);
   }
+  .app-logo { font-size: 80px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgba(255,184,0,0.3)); }
+  @keyframes float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-14px) rotate(3deg)} }
+  .app-title { font-size: 30px; font-weight: 900; color: var(--text-dark); text-align: center; letter-spacing: -1px; }
+  .app-title em { color: var(--korean-main); font-style: normal; display: block; font-size: 13px; font-weight: 700; letter-spacing: 3px; margin-top: 4px; }
+  .name-section { width: 100%; background: white; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
+  .name-section label { font-size: 13px; font-weight: 700; color: var(--text-mid); text-align: center; }
+  .name-section input { width: 100%; padding: 14px 18px; border: 3px solid var(--korean-main); border-radius: var(--radius-sm); font-size: 22px; font-weight: 900; text-align: center; color: var(--text-dark); background: var(--bg); outline: none; }
+  .name-section input::placeholder { color: #CCC; font-weight: 400; font-size: 16px; }
+  .btn-start { width: 100%; padding: 18px; background: var(--korean-main); color: white; border: none; border-radius: var(--radius); font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 var(--korean-dark), 0 8px 20px rgba(255,184,0,0.4); transition: transform 0.1s, box-shadow 0.1s; letter-spacing: 1px; }
+  .btn-start:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--korean-dark); }
 
-  .app-logo {
-    font-size: 72px;
-    animation: bounce 2s infinite;
-  }
-  @keyframes bounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
-
-  .app-title {
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--text-dark);
-    letter-spacing: -1px;
-    text-align: center;
-  }
-  .app-title span {
-    color: var(--korean-main);
-    display: block;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-top: 4px;
-  }
-
-  .name-input-wrap {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .name-input-wrap label {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text-mid);
-    text-align: center;
-  }
-  .name-input-wrap input {
-    width: 100%;
-    padding: 16px 20px;
-    border: 3px solid var(--korean-main);
-    border-radius: var(--radius);
-    font-size: 22px;
-    font-weight: 700;
-    text-align: center;
-    color: var(--text-dark);
-    background: var(--white);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .name-input-wrap input:focus { border-color: var(--korean-dark); }
-  .name-input-wrap input::placeholder { color: #CCC; font-weight: 400; }
-
-  .btn-start {
-    width: 100%;
-    padding: 20px;
-    background: var(--korean-main);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius);
-    font-size: 22px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 6px 0 var(--korean-dark);
-    transition: transform 0.1s, box-shadow 0.1s;
-    letter-spacing: 1px;
-  }
-  .btn-start:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 var(--korean-dark);
-  }
-
-  /* ══════════════════════════════════
-     과목 선택 화면
-  ══════════════════════════════════ */
-  #screen-subject {
-    padding: 16px 20px;
-    gap: 12px;
-    justify-content: space-between;
-    overflow: hidden;
-  }
-
-  .greeting {
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--text-dark);
-    text-align: center;
-    line-height: 1.3;
-    flex-shrink: 0;
-  }
+  /* ── 과목 선택 ── */
+  #screen-subject { padding: 14px 16px; gap: 10px; justify-content: space-between; }
+  .greeting { font-size: 16px; font-weight: 900; color: var(--text-dark); text-align: center; flex-shrink: 0; }
   .greeting em { color: var(--korean-main); font-style: normal; }
-
-  .progress-strip {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    box-shadow: var(--shadow);
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-shrink: 0;
-  }
-  .star-count { font-size: 28px; }
-  .star-info { flex: 1; }
-  .star-info p { font-size: 12px; color: var(--text-mid); }
-  .star-info strong { font-size: 18px; font-weight: 900; color: var(--text-dark); }
-
-  .subject-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 1;
-    margin: 0;
-  }
-
+  .road-progress { background: white; border-radius: var(--radius); padding: 10px 16px; box-shadow: var(--shadow); flex-shrink: 0; }
+  .road-progress-label { font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; }
+  .road-track { height: 14px; background: #EEE; border-radius: 8px; overflow: hidden; }
+  .road-fill { height: 100%; background: linear-gradient(90deg, var(--korean-main), #FF8C00); border-radius: 8px; transition: width 0.6s ease; min-width: 20px; display: flex; align-items: center; justify-content: flex-end; padding-right: 3px; font-size: 11px; }
+  .subject-grid { display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .subject-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    cursor: pointer;
-    border: 3px solid transparent;
-    transition: border-color 0.2s, transform 0.1s;
-    position: relative;
-    overflow: hidden;
-    flex: 1;
+    background: white; border-radius: var(--radius); padding: 0; box-shadow: var(--shadow);
+    display: flex; align-items: center; cursor: pointer;
+    border: 3px solid transparent; transition: transform 0.15s, box-shadow 0.15s;
+    flex: 1; overflow: hidden; position: relative;
   }
   .subject-card:active { transform: scale(0.97); }
   .subject-card.korean { border-color: var(--korean-main); }
-  .subject-card.math { border-color: #FF5252; }
-  .subject-card.english { border-color: #4285F4; }
-
-  .subject-icon { font-size: 40px; flex-shrink: 0; }
+  .subject-card.math   { border-color: var(--math-main); }
+  .subject-card.english{ border-color: var(--english-main); }
+  .subject-card-stripe {
+    width: 8px; height: 100%; flex-shrink: 0;
+  }
+  .korean .subject-card-stripe { background: var(--korean-main); }
+  .math   .subject-card-stripe { background: var(--math-main); }
+  .english .subject-card-stripe{ background: var(--english-main); }
+  .subject-card-body { display: flex; align-items: center; gap: 14px; padding: 14px 16px; flex: 1; }
+  .subject-icon { font-size: 36px; flex-shrink: 0; }
   .subject-info { flex: 1; }
-  .subject-name { font-size: 20px; font-weight: 900; color: var(--text-dark); }
-  .subject-desc { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
-  .subject-badge {
-    background: var(--korean-main);
-    color: var(--white);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-  }
-  .badge-soon { background: #CCC; }
+  .subject-name { font-size: 19px; font-weight: 900; color: var(--text-dark); }
+  .subject-desc { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
+  .subject-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; color: white; flex-shrink: 0; }
+  .subject-progress-mini { font-size: 10px; color: var(--text-mid); margin-top: 4px; }
+  .progress-strip { background: white; border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .star-info { flex: 1; }
+  .star-info p { font-size: 10px; color: var(--text-mid); }
+  .star-info strong { font-size: 16px; font-weight: 900; color: var(--text-dark); }
 
-  /* 도로 진행 바 */
-  .road-progress {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    box-shadow: var(--shadow);
-    flex-shrink: 0;
-  }
-  .road-progress-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-mid);
-    margin-bottom: 8px;
-  }
-  .road-track {
-    height: 16px;
-    background: #EEE;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-  }
-  .road-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--korean-main), var(--korean-dark));
-    border-radius: 8px;
-    transition: width 0.5s ease;
-    min-width: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 4px;
-  }
-  .road-car { font-size: 14px; }
-
-  /* ══════════════════════════════════
-     존 선택 화면
-  ══════════════════════════════════ */
-  #screen-zone {
-    padding: 24px 20px;
-    gap: 16px;
-  }
-
-  .zone-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .btn-back {
-    background: var(--white);
-    border: none;
-    border-radius: 50%;
-    width: 44px; height: 44px;
-    font-size: 20px;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .zone-title { font-size: 22px; font-weight: 900; color: var(--text-dark); }
-
-  .zone-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .zone-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
+  /* ── 존 선택 ── */
+  #screen-zone { padding: 18px 16px; gap: 12px; }
+  .zone-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .btn-back { background: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
+  .zone-title { font-size: 20px; font-weight: 900; color: var(--text-dark); }
+  .zone-list { display: flex; flex-direction: column; gap: 10px; }
+  .zone-card { background: white; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.1s; border-left: 5px solid #EEE; }
   .zone-card:active { transform: scale(0.97); }
-  .zone-card.locked { opacity: 0.4; pointer-events: none; }
-
-  .zone-num {
-    width: 44px; height: 44px;
-    background: var(--korean-light);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 900; color: var(--korean-dark);
-    flex-shrink: 0;
-  }
-  .zone-num.done { background: var(--correct); color: var(--white); }
+  .zone-card.locked { opacity: 0.35; pointer-events: none; }
+  .zone-card.active-zone { border-left-color: var(--accent); }
+  .zone-num { width: 40px; height: 40px; background: var(--korean-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; color: var(--korean-dark); flex-shrink: 0; }
+  .zone-num.done { background: var(--correct); color: white; }
   .zone-info { flex: 1; }
-  .zone-name { font-size: 17px; font-weight: 700; color: var(--text-dark); }
-  .zone-sub { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
+  .zone-name { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+  .zone-sub { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
   .zone-arrow { font-size: 20px; color: #CCC; }
 
-  /* ══════════════════════════════════
-     학습 화면
-  ══════════════════════════════════ */
-  #screen-learn {
-    padding: 16px 20px;
-    gap: 16px;
-  }
+  /* ── 학습 화면 ── */
+  #screen-learn { padding: 12px 16px; gap: 10px; }
+  .learn-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .learn-progress-bar { flex: 1; height: 8px; background: #EEE; border-radius: 4px; overflow: hidden; }
+  .learn-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-dark)); border-radius: 4px; transition: width 0.4s ease; }
+  .learn-step-txt { font-size: 12px; font-weight: 700; color: var(--text-mid); white-space: nowrap; }
 
-  /* 상단 바 */
-  .learn-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .learn-progress-bar {
-    flex: 1;
-    height: 10px;
-    background: #EEE;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  .learn-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--korean-main), var(--korean-dark));
-    border-radius: 5px;
-    transition: width 0.4s ease;
-  }
-  .learn-step-txt { font-size: 14px; font-weight: 700; color: var(--text-mid); white-space: nowrap; }
-
-  /* 카드 영역 */
+  /* 학습 카드 — 완전 새 구조 */
   .learn-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 32px 20px 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
-    min-height: 320px;
-    justify-content: center;
-    position: relative;
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    display: flex; flex-direction: column; align-items: center;
+    flex: 1; overflow: hidden; position: relative;
   }
-
+  .card-top-band {
+    width: 100%; height: 6px; flex-shrink: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+  }
+  .card-body {
+    flex: 1; width: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 12px 16px; gap: 8px; position: relative;
+  }
   .card-subject-label {
-    position: absolute;
-    top: 16px; left: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--korean-main);
-    letter-spacing: 1px;
+    position: absolute; top: 10px; left: 14px;
+    font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 1px;
   }
 
-  /* SVG 차량 영역 */
-  .card-vehicle {
-    width: 160px;
-    height: 100px;
+  /* 비주얼 영역 */
+  .card-visual {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; flex-wrap: wrap;
   }
+  .card-visual-main { font-size: 72px; line-height: 1; }
+  .card-visual-emoji { font-size: 56px; line-height: 1; }
+  .card-visual-scene {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .card-visual-scene-row { display: flex; gap: 6px; align-items: flex-end; }
 
-  /* 핵심 글자/숫자 표시 */
-  .card-main-char {
-    font-size: 96px;
-    font-weight: 900;
-    color: var(--text-dark);
-    line-height: 1;
-    letter-spacing: -2px;
+  /* 글자/단어 표시 */
+  .card-char-display {
+    font-size: 80px; font-weight: 900; color: var(--text-dark);
+    line-height: 1; letter-spacing: -2px; text-align: center;
+  }
+  .card-char-display.small { font-size: 40px; }
+  .card-char-display.sentence { font-size: 26px; font-weight: 800; }
+
+  /* 설명 태그 */
+  .card-tag {
+    background: var(--accent-light); color: var(--accent-dark);
+    font-size: 13px; font-weight: 700; padding: 5px 14px;
+    border-radius: 20px; text-align: center;
+    border: 2px solid var(--accent);
+  }
+  .card-sub-text {
+    font-size: 20px; color: var(--text-mid); font-weight: 700; text-align: center;
   }
 
   /* 소리 버튼 */
   .btn-sound {
-    background: var(--korean-light);
-    border: 3px solid var(--korean-main);
-    border-radius: 50px;
-    padding: 12px 28px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--korean-dark);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: transform 0.1s, background 0.15s;
+    background: var(--accent-light); border: 2.5px solid var(--accent);
+    border-radius: 50px; padding: 9px 22px; font-size: 16px; font-weight: 700;
+    color: var(--accent-dark); cursor: pointer; display: flex; align-items: center; gap: 7px;
+    transition: all 0.15s; flex-shrink: 0;
   }
-  .btn-sound:active { transform: scale(0.94); background: var(--korean-main); color: var(--white); }
-  .btn-sound.playing { background: var(--korean-main); color: var(--white); }
+  .btn-sound:active, .btn-sound.playing { background: var(--accent); color: white; }
 
-  /* 안내 텍스트 */
-  .card-hint {
-    font-size: 15px;
-    color: var(--text-mid);
-    font-weight: 600;
-    text-align: center;
-  }
-
-  /* 보기 선택지 */
-  .options-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    width: 100%;
-  }
-  .options-grid.two-col { grid-template-columns: repeat(2, 1fr); }
-
+  /* 선택지 */
+  .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; flex-shrink: 0; }
+  .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
   .option-btn {
-    background: var(--white);
-    border: 3px solid #E0E0E0;
-    border-radius: var(--radius-sm);
-    padding: 16px 8px;
-    font-size: 28px;
-    font-weight: 900;
-    color: var(--text-dark);
-    cursor: pointer;
-    text-align: center;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
-    box-shadow: 0 3px 0 #DDD;
+    background: white; border: 2.5px solid #E0E0E0; border-radius: var(--radius-sm);
+    padding: 10px 6px; font-weight: 900; color: var(--text-dark); cursor: pointer;
+    text-align: center; box-shadow: 0 3px 0 #DDD; transition: all 0.12s;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    height: 80px; justify-content: center;
   }
+  .option-btn .opt-emoji { font-size: 28px; line-height: 1; }
+  .option-btn .opt-char { font-size: 22px; font-weight: 900; }
+  .option-btn .opt-label { font-size: 10px; color: var(--text-mid); font-weight: 600; }
   .option-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #DDD; }
-  .option-btn.correct {
-    border-color: var(--correct);
-    background: #E8F5E9;
-    box-shadow: 0 3px 0 #4CAF50;
-    animation: correctPop 0.3s ease;
-  }
-  .option-btn.wrong {
-    border-color: var(--wrong);
-    background: #FFEBEE;
-    box-shadow: 0 3px 0 #FF5252;
-    animation: shake 0.3s ease;
-  }
-  @keyframes correctPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1); }
-  }
-  @keyframes shake {
-    0%,100% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-  }
+  .option-btn.correct { border-color: var(--correct); background: #E8F5E9; box-shadow: 0 3px 0 #4CAF50; animation: correctPop 0.3s ease; }
+  .option-btn.wrong   { border-color: var(--wrong); background: #FFEBEE; box-shadow: 0 3px 0 #FF5252; animation: shake 0.3s ease; }
+  @keyframes correctPop { 0%{transform:scale(1)} 50%{transform:scale(1.1)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
 
-  /* 다음 버튼 */
-  .btn-next {
-    width: 100%;
-    padding: 18px;
-    background: var(--korean-main);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius);
-    font-size: 20px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 5px 0 var(--korean-dark);
-    transition: transform 0.1s, box-shadow 0.1s;
-    display: none;
-  }
+  .btn-next { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-size: 17px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 var(--accent-dark); display: none; flex-shrink: 0; transition: transform 0.1s, box-shadow 0.1s; }
   .btn-next.visible { display: block; }
-  .btn-next:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--korean-dark); }
+  .btn-next:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--accent-dark); }
 
-  /* ══════════════════════════════════
-     결과 화면
-  ══════════════════════════════════ */
-  #screen-result {
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 40px 24px;
-  }
+  /* ── 결과 ── */
+  #screen-result { align-items: center; justify-content: center; gap: 18px; padding: 32px 24px; background: linear-gradient(160deg, #FFF9F0, #FFF3C4); }
+  .result-emoji { font-size: 80px; animation: float 1s ease-in-out infinite; }
+  .result-title { font-size: 26px; font-weight: 900; color: var(--text-dark); text-align: center; }
+  .result-sub { font-size: 14px; color: var(--text-mid); text-align: center; }
+  .stamp-row { display: flex; gap: 10px; justify-content: center; }
+  .stamp { width: 52px; height: 52px; background: var(--korean-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 3px solid var(--korean-main); animation: stampIn 0.4s ease backwards; box-shadow: 0 3px 10px rgba(255,184,0,0.3); }
+  @keyframes stampIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+  .result-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .btn-continue { padding: 16px; background: var(--korean-main); color: white; border: none; border-radius: var(--radius); font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 var(--korean-dark); }
+  .btn-home2 { padding: 13px; background: white; color: var(--text-mid); border: 2px solid #DDD; border-radius: var(--radius); font-size: 15px; font-weight: 700; cursor: pointer; }
 
-  .result-emoji { font-size: 80px; animation: bounce 1s infinite; }
-  .result-title { font-size: 30px; font-weight: 900; color: var(--text-dark); text-align: center; }
-  .result-sub { font-size: 17px; color: var(--text-mid); text-align: center; }
+  /* ── 차고지 ── */
+  #screen-garage { padding: 18px 16px; gap: 12px; }
+  .garage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .garage-item { background: white; border-radius: var(--radius-sm); padding: 12px 6px; text-align: center; box-shadow: var(--shadow); }
+  .garage-item .g-emoji { font-size: 32px; }
+  .garage-item p { font-size: 9px; color: var(--text-mid); margin-top: 4px; font-weight: 600; }
+  .garage-item.locked { opacity: 0.18; filter: grayscale(1); }
 
-  .stamp-row {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-  .stamp {
-    width: 56px; height: 56px;
-    background: var(--korean-light);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    border: 3px solid var(--korean-main);
-    animation: stampIn 0.4s ease backwards;
-  }
-  @keyframes stampIn {
-    from { transform: scale(0) rotate(-20deg); opacity: 0; }
-    to { transform: scale(1) rotate(0); opacity: 1; }
-  }
-
-  .result-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-  .btn-continue {
-    padding: 18px;
-    background: var(--korean-main);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius);
-    font-size: 19px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 5px 0 var(--korean-dark);
-  }
-  .btn-home {
-    padding: 14px;
-    background: var(--white);
-    color: var(--text-mid);
-    border: 2px solid #DDD;
-    border-radius: var(--radius);
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  /* ══════════════════════════════════
-     차고지 (컬렉션) 화면
-  ══════════════════════════════════ */
-  #screen-garage {
-    padding: 24px 20px;
-    gap: 16px;
-  }
-  .garage-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-  .garage-item {
-    background: var(--white);
-    border-radius: var(--radius-sm);
-    padding: 16px 8px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    font-size: 40px;
-  }
-  .garage-item.locked { opacity: 0.2; filter: grayscale(1); }
-  .garage-item p { font-size: 11px; color: var(--text-mid); margin-top: 6px; font-weight: 600; }
-
-  /* ══════════════════════════════════
-     하단 네비
-  ══════════════════════════════════ */
-  .bottom-nav {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 72px;
-    background: var(--white);
-    border-top: 2px solid #EEE;
-    display: flex;
-    z-index: 100;
-  }
-  .nav-btn {
-    flex: 1;
-    padding: 12px 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #BBB;
-    transition: color 0.15s;
-  }
-  .nav-btn.active { color: var(--korean-main); }
-  .nav-btn span:first-child { font-size: 24px; }
-
-  /* ══════════════════════════════════
-     설정 화면
-  ══════════════════════════════════ */
-  #screen-settings {
-    padding: 16px 20px;
-    gap: 14px;
-    overflow-y: auto;
-  }
-
-  .settings-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-  }
-
-  .settings-section {
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  .settings-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-mid);
-    letter-spacing: 1px;
-    padding: 12px 20px 4px;
-  }
-
-  .settings-row {
-    display: flex;
-    align-items: center;
-    padding: 16px 20px;
-    gap: 14px;
-    border-top: 1px solid #F0F0F0;
-  }
+  /* ── 설정 ── */
+  #screen-settings { padding: 16px; gap: 12px; }
+  .settings-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .settings-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .settings-label { font-size: 10px; font-weight: 700; color: var(--text-mid); letter-spacing: 1px; padding: 10px 16px 4px; text-transform: uppercase; }
+  .settings-row { display: flex; align-items: center; padding: 13px 16px; gap: 12px; border-top: 1px solid #F5F5F5; }
   .settings-row:first-of-type { border-top: none; }
-
-  .settings-row-icon { font-size: 26px; flex-shrink: 0; }
+  .settings-row-icon { font-size: 22px; flex-shrink: 0; }
   .settings-row-info { flex: 1; }
-  .settings-row-title { font-size: 16px; font-weight: 700; color: var(--text-dark); }
-  .settings-row-desc  { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
-
-  /* 토글 스위치 */
-  .toggle-wrap { position: relative; width: 52px; height: 28px; flex-shrink: 0; }
+  .settings-row-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+  .settings-row-desc { font-size: 10px; color: var(--text-mid); margin-top: 1px; }
+  .toggle-wrap { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
   .toggle-wrap input { opacity: 0; width: 0; height: 0; }
-  .toggle-slider {
-    position: absolute;
-    inset: 0;
-    background: #CCC;
-    border-radius: 28px;
-    cursor: pointer;
-    transition: background 0.25s;
-  }
-  .toggle-slider::before {
-    content: '';
-    position: absolute;
-    width: 22px; height: 22px;
-    left: 3px; top: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.25s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  }
+  .toggle-slider { position: absolute; inset: 0; background: #CCC; border-radius: 26px; cursor: pointer; transition: background 0.25s; }
+  .toggle-slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.25s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
   .toggle-wrap input:checked + .toggle-slider { background: var(--korean-main); }
-  .toggle-wrap input:checked + .toggle-slider::before { transform: translateX(24px); }
-
-  /* 이름 수정 인풋 */
-  .settings-name-wrap {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding: 12px 20px 16px;
-  }
-  .settings-name-input {
-    flex: 1;
-    padding: 10px 14px;
-    border: 2px solid #E0E0E0;
-    border-radius: var(--radius-sm);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-dark);
-    outline: none;
-    transition: border-color 0.2s;
-  }
+  .toggle-wrap input:checked + .toggle-slider::before { transform: translateX(22px); }
+  .settings-name-wrap { display: flex; gap: 8px; align-items: center; padding: 10px 16px 14px; }
+  .settings-name-input { flex: 1; padding: 9px 12px; border: 2px solid #E0E0E0; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700; color: var(--text-dark); outline: none; }
   .settings-name-input:focus { border-color: var(--korean-main); }
-  .btn-name-save {
-    padding: 10px 18px;
-    background: var(--korean-main);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 3px 0 var(--korean-dark);
-    white-space: nowrap;
-  }
-  .btn-name-save:active { transform: translateY(2px); box-shadow: none; }
+  .btn-name-save { padding: 9px 14px; background: var(--korean-main); color: white; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .btn-reset { width: 100%; padding: 13px; background: none; border: 2px solid #FFCDD2; border-radius: var(--radius); color: var(--wrong); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .toast { position: absolute; bottom: 75px; left: 50%; transform: translateX(-50%) translateY(16px); background: #2D2D2D; color: white; padding: 8px 20px; border-radius: 50px; font-size: 12px; font-weight: 700; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .settings-save-toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #2D2D2D;
-    color: white;
-    padding: 10px 24px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 700;
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
-    pointer-events: none;
-    z-index: 999;
-    white-space: nowrap;
-  }
-  .settings-save-toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* 초기화 버튼 */
-  .btn-reset {
-    width: 100%;
-    padding: 14px;
-    background: none;
-    border: 2px solid #FFCDD2;
-    border-radius: var(--radius);
-    color: var(--wrong);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-reset:active { background: #FFEBEE; }
-
+  /* ── 네비 ── */
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1.5px solid #F0F0F0; display: flex; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
+  .nav-btn { flex: 1; padding: 10px 0; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; color: #BBB; transition: color 0.15s; }
+  .nav-btn.active { color: var(--korean-main); }
+  .nav-btn span:first-child { font-size: 22px; }
 </style>
 </head>
 <body>
-
-<div class="road-bg"></div>
-
 <div id="app">
 
-  <!-- ① 시작 화면 -->
+  <!-- ① 시작 -->
   <div id="screen-start" class="screen active">
     <div class="app-logo">🚌</div>
-    <div class="app-title">
-      부릉부릉 학교
-      <span>BROOM BROOM SCHOOL</span>
+    <div class="app-title">부릉부릉 학교<em>BROOM BROOM SCHOOL</em></div>
+    <div class="name-section">
+      <label>✏️ 이름을 알려줘요!</label>
+      <input type="text" id="input-name" placeholder="예: 지민" maxlength="6">
     </div>
-    <div class="name-input-wrap">
-      <label>이름을 알려줘요!</label>
-      <input type="text" id="input-name" placeholder="예: 지민이" maxlength="6">
-    </div>
-    <button class="btn-start" onclick="startApp()">출발! 🚀</button>
+    <button class="btn-start" onclick="startApp()">🚀 출발!</button>
   </div>
 
-  <!-- ② 과목 선택 화면 -->
+  <!-- ② 과목 -->
   <div id="screen-subject" class="screen">
     <div class="greeting" id="greeting-text"></div>
-
     <div class="road-progress">
-      <div class="road-progress-label">🛣️ 전체 진행</div>
-      <div class="road-track">
-        <div class="road-fill" id="total-progress-fill" style="width:0%">
-          <span class="road-car">🚌</span>
-        </div>
-      </div>
+      <div class="road-progress-label">🛣️ 전체 학습 진행</div>
+      <div class="road-track"><div class="road-fill" id="total-progress-fill" style="width:0%">🚌</div></div>
     </div>
-
     <div class="subject-grid">
       <div class="subject-card korean" onclick="goToZone('korean')">
-        <div class="subject-icon">🚌</div>
-        <div class="subject-info">
-          <div class="subject-name">국어</div>
-          <div class="subject-desc">한글 자음·모음·단어</div>
+        <div class="subject-card-stripe"></div>
+        <div class="subject-card-body">
+          <div class="subject-icon">🚌</div>
+          <div class="subject-info">
+            <div class="subject-name">국어</div>
+            <div class="subject-desc">한글 자음 · 모음 · 단어 · 문장</div>
+            <div class="subject-progress-mini" id="prog-korean">0% 완료</div>
+          </div>
+          <div class="subject-badge" style="background:#FFB800">학습중</div>
         </div>
-        <div class="subject-badge" style="background:#FFB800">학습중</div>
       </div>
       <div class="subject-card math" onclick="goToZone('math')">
-        <div class="subject-icon">🚒</div>
-        <div class="subject-info">
-          <div class="subject-name">수학</div>
-          <div class="subject-desc">숫자·계산·도형</div>
+        <div class="subject-card-stripe"></div>
+        <div class="subject-card-body">
+          <div class="subject-icon">🚒</div>
+          <div class="subject-info">
+            <div class="subject-name">수학</div>
+            <div class="subject-desc">숫자 · 크기비교 · 도형 · 더하기</div>
+            <div class="subject-progress-mini" id="prog-math">0% 완료</div>
+          </div>
+          <div class="subject-badge" style="background:#FF5252">학습중</div>
         </div>
-        <div class="subject-badge" style="background:#FF5252">학습중</div>
       </div>
       <div class="subject-card english" onclick="goToZone('english')">
-        <div class="subject-icon">🚓</div>
-        <div class="subject-info">
-          <div class="subject-name">영어</div>
-          <div class="subject-desc">알파벳·단어·표현</div>
+        <div class="subject-card-stripe"></div>
+        <div class="subject-card-body">
+          <div class="subject-icon">🚓</div>
+          <div class="subject-info">
+            <div class="subject-name">영어</div>
+            <div class="subject-desc">알파벳 · 단어 · 인사표현</div>
+            <div class="subject-progress-mini" id="prog-english">0% 완료</div>
+          </div>
+          <div class="subject-badge" style="background:#4285F4">학습중</div>
         </div>
-        <div class="subject-badge" style="background:#4285F4">학습중</div>
       </div>
     </div>
-
     <div class="progress-strip">
-      <div class="star-count">⭐</div>
-      <div class="star-info">
-        <p>모은 도장</p>
-        <strong id="total-stamps">0</strong>개
-      </div>
-      <div style="font-size:32px" onclick="goScreen('garage')" style="cursor:pointer">🏠</div>
+      <span style="font-size:22px">⭐</span>
+      <div class="star-info"><p>모은 도장</p><strong id="total-stamps">0</strong>개</div>
+      <span style="font-size:20px;color:#CCC">›</span>
     </div>
   </div>
 
-  <!-- ③ 존 선택 화면 -->
+  <!-- ③ 존 -->
   <div id="screen-zone" class="screen">
     <div class="zone-header">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
-      <div class="zone-title" id="zone-title">🚌 국어</div>
+      <div class="zone-title" id="zone-title">국어</div>
     </div>
     <div class="zone-list" id="zone-list"></div>
   </div>
 
-  <!-- ④ 학습 화면 -->
+  <!-- ④ 학습 -->
   <div id="screen-learn" class="screen">
     <div class="learn-header">
-      <button class="btn-back" onclick="goScreen('zone')" style="width:36px;height:36px;font-size:16px">←</button>
-      <div class="learn-progress-bar">
-        <div class="learn-progress-fill" id="learn-progress-fill" style="width:0%"></div>
-      </div>
+      <button class="btn-back" onclick="goScreen('zone')" style="width:34px;height:34px;font-size:14px">←</button>
+      <div class="learn-progress-bar"><div class="learn-progress-fill" id="learn-progress-fill" style="width:0%"></div></div>
       <div class="learn-step-txt" id="learn-step-txt">0/0</div>
     </div>
-
     <div class="learn-card" id="learn-card">
-      <div class="card-subject-label">🚌 국어</div>
-      <div class="card-main-char" id="card-char"></div>
-      <button class="btn-sound" id="btn-sound" onclick="playSound()">
-        <span>🔊</span>
-        <span id="sound-label">들어봐요</span>
-      </button>
-      <div class="card-hint" id="card-hint"></div>
+      <div class="card-top-band" id="card-top-band"></div>
+      <div class="card-body">
+        <div class="card-subject-label" id="card-subject-label">🚌 국어</div>
+        <div class="card-visual" id="card-visual"></div>
+        <button class="btn-sound" id="btn-sound" onclick="playSound()">🔊 <span id="sound-label">들어봐요</span></button>
+        <div class="card-sub-text" id="card-hint"></div>
+      </div>
     </div>
-
     <div class="options-grid" id="options-grid"></div>
-
     <button class="btn-next" id="btn-next" onclick="nextPage()">다음 ➡️</button>
   </div>
 
-  <!-- ⑤ 결과 화면 -->
+  <!-- ⑤ 결과 -->
   <div id="screen-result" class="screen">
-    <div class="result-emoji" id="result-emoji">🎉</div>
-    <div class="result-title" id="result-title">잘했어요!</div>
+    <div class="result-emoji">🎉</div>
+    <div class="result-title" id="result-title">완료!</div>
     <div class="result-sub" id="result-sub"></div>
     <div class="stamp-row" id="stamp-row"></div>
     <div class="result-btns">
       <button class="btn-continue" onclick="continueLearn()">계속하기 ➡️</button>
-      <button class="btn-home" onclick="goScreen('subject')">처음으로</button>
+      <button class="btn-home2" onclick="goScreen('subject')">처음으로</button>
     </div>
   </div>
 
-  <!-- ⑥ 차고지 화면 -->
+  <!-- ⑥ 차고지 -->
   <div id="screen-garage" class="screen">
     <div class="zone-header">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
@@ -866,14 +379,12 @@
     <div class="garage-grid" id="garage-grid"></div>
   </div>
 
-
-  <!-- ⑦ 설정 화면 -->
+  <!-- ⑦ 설정 -->
   <div id="screen-settings" class="screen">
     <div class="settings-header">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
       <div class="zone-title">⚙️ 설정</div>
     </div>
-
     <div class="settings-section">
       <div class="settings-label">이름</div>
       <div class="settings-name-wrap">
@@ -881,803 +392,569 @@
         <button class="btn-name-save" onclick="saveName()">저장</button>
       </div>
     </div>
-
     <div class="settings-section">
       <div class="settings-label">학습 옵션</div>
       <div class="settings-row">
         <div class="settings-row-icon">🔓</div>
-        <div class="settings-row-info">
-          <div class="settings-row-title">자유 이동</div>
-          <div class="settings-row-desc">커리큘럼 완료 전에도 다음 Zone으로 이동</div>
-        </div>
-        <label class="toggle-wrap">
-          <input type="checkbox" id="toggle-free-nav" onchange="toggleSetting('freeNav', this.checked)">
-          <span class="toggle-slider"></span>
-        </label>
+        <div class="settings-row-info"><div class="settings-row-title">자유 이동</div><div class="settings-row-desc">완료 전에도 다음 Zone 이동 가능</div></div>
+        <label class="toggle-wrap"><input type="checkbox" id="toggle-free-nav" onchange="toggleSetting('freeNav',this.checked)"><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
         <div class="settings-row-icon">🔊</div>
-        <div class="settings-row-info">
-          <div class="settings-row-title">자동 소리 재생</div>
-          <div class="settings-row-desc">페이지 넘어갈 때 자동으로 소리 재생</div>
-        </div>
-        <label class="toggle-wrap">
-          <input type="checkbox" id="toggle-auto-sound" onchange="toggleSetting('autoSound', this.checked)" checked>
-          <span class="toggle-slider"></span>
-        </label>
+        <div class="settings-row-info"><div class="settings-row-title">자동 소리 재생</div><div class="settings-row-desc">페이지 넘길 때 자동으로 소리 재생</div></div>
+        <label class="toggle-wrap"><input type="checkbox" id="toggle-auto-sound" onchange="toggleSetting('autoSound',this.checked)" checked><span class="toggle-slider"></span></label>
       </div>
     </div>
-
     <div class="settings-section">
-      <div class="settings-label">데이터</div>
+      <div class="settings-label">현황</div>
       <div class="settings-row">
         <div class="settings-row-icon">📊</div>
-        <div class="settings-row-info">
-          <div class="settings-row-title">학습 현황</div>
-          <div class="settings-row-desc" id="settings-stats">로딩 중...</div>
-        </div>
+        <div class="settings-row-info"><div class="settings-row-title">학습 현황</div><div class="settings-row-desc" id="settings-stats">-</div></div>
       </div>
     </div>
-
     <button class="btn-reset" onclick="confirmReset()">🗑️ 학습 기록 초기화</button>
   </div>
 
-  <div class="settings-save-toast" id="save-toast">✅ 저장됐어요!</div>
+  <div class="toast" id="save-toast"></div>
 
-<!-- 하단 네비 (학습 중 숨김) -->
-<nav class="bottom-nav" id="bottom-nav">
-  <button class="nav-btn active" id="nav-home" onclick="navTo('subject')">
-    <span>🏠</span><span>홈</span>
-  </button>
-  <button class="nav-btn" id="nav-garage" onclick="navTo('garage')">
-    <span>🚌</span><span>차고지</span>
-  </button>
-  <button class="nav-btn" id="nav-settings" onclick="navTo('settings')">
-    <span>⚙️</span><span>설정</span>
-  </button>
-</nav>
-</div><!-- /app -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="navTo('subject')"><span>🏠</span><span>홈</span></button>
+    <button class="nav-btn" id="nav-garage" onclick="navTo('garage')"><span>🚗</span><span>차고지</span></button>
+    <button class="nav-btn" id="nav-settings" onclick="navTo('settings')"><span>⚙️</span><span>설정</span></button>
+  </nav>
+</div>
 
 <script>
-// ═══════════════════════════════════════════
-// data.js — 부릉부릉 학교 커리큘럼 데이터
-// ═══════════════════════════════════════════
-
+// ═══════════════════════════════════════
+// 커리큘럼 데이터
+// ═══════════════════════════════════════
 const CURRICULUM = {
-
   korean: {
-    subject: '국어',
-    icon: '🚌',
-    color: '#FFB800',
+    subject:'국어', icon:'🚌', color:'#FFB800', dark:'#E09800', light:'#FFF3C4',
     zones: [
-
-      // ─────────────────────────────
-      // Zone 1. 자음 정류장 (28장)
-      // ─────────────────────────────
-      {
-        id: 'ko-z1',
-        name: '자음 정류장',
-        desc: 'ㄱ~ㅎ 자음 14개',
-        vehicle: '고속버스',
-        items: [
-          { char:'ㄱ', name:'기역',  sound:'그', emoji:'🚌', audio:'01_기역', audioSound:'15_그' },
-          { char:'ㄴ', name:'니은',  sound:'느', emoji:'🚗', audio:'02_니은', audioSound:'16_느' },
-          { char:'ㄷ', name:'디귿',  sound:'드', emoji:'🚛', audio:'03_디귿', audioSound:'17_드' },
-          { char:'ㄹ', name:'리을',  sound:'르', emoji:'🚚', audio:'04_리을', audioSound:'18_르' },
-          { char:'ㅁ', name:'미음',  sound:'므', emoji:'🚎', audio:'05_미음', audioSound:'19_므' },
-          { char:'ㅂ', name:'비읍',  sound:'브', emoji:'🚍', audio:'06_비읍', audioSound:'20_브' },
-          { char:'ㅅ', name:'시옷',  sound:'스', emoji:'🚒', audio:'07_시옷', audioSound:'21_스' },
-          { char:'ㅇ', name:'이응',  sound:'으', emoji:'🏍️', audio:'08_이응', audioSound:'22_으' },
-          { char:'ㅈ', name:'지읒',  sound:'즈', emoji:'🏗️', audio:'09_지읒', audioSound:'23_즈' },
-          { char:'ㅊ', name:'치읓',  sound:'츠', emoji:'🚜', audio:'10_치읓', audioSound:'24_츠' },
-          { char:'ㅋ', name:'키읔',  sound:'크', emoji:'🚕', audio:'11_키읔', audioSound:'25_크' },
-          { char:'ㅌ', name:'티읕',  sound:'트', emoji:'🚖', audio:'12_티읕', audioSound:'26_트' },
-          { char:'ㅍ', name:'피읖',  sound:'프', emoji:'🚧', audio:'13_피읖', audioSound:'27_프' },
-          { char:'ㅎ', name:'히읗',  sound:'흐', emoji:'🚁', audio:'14_히읗', audioSound:'28_흐' },
-        ]
-      },
-
-      // ─────────────────────────────
-      // Zone 2. 모음 정류장 (20장)
-      // ─────────────────────────────
-      {
-        id: 'ko-z2',
-        name: '모음 정류장',
-        desc: 'ㅏ~ㅣ 모음 10개',
-        vehicle: '마을버스',
-        items: [
-          { char:'ㅏ', name:'아', sound:'아', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅑ', name:'야', sound:'야', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅓ', name:'어', sound:'어', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅕ', name:'여', sound:'여', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅗ', name:'오', sound:'오', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅛ', name:'요', sound:'요', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅜ', name:'우', sound:'우', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅠ', name:'유', sound:'유', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅡ', name:'으', sound:'으', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'ㅣ', name:'이', sound:'이', emoji:'🚌', audio:'tts', audioSound:'tts' },
-        ]
-      },
-
-      // ─────────────────────────────
-      // Zone 3. 글자 조합 (24장)
-      // ─────────────────────────────
-      {
-        id: 'ko-z3',
-        name: '글자 조합 놀이',
-        desc: '자음+모음 합치기',
-        vehicle: '기차',
-        items: [
-          { char:'가', name:'가', sound:'가', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'나', name:'나', sound:'나', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'다', name:'다', sound:'다', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'라', name:'라', sound:'라', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'마', name:'마', sound:'마', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'바', name:'바', sound:'바', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'사', name:'사', sound:'사', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'아', name:'아', sound:'아', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'자', name:'자', sound:'자', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'차', name:'차', sound:'차', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'카', name:'카', sound:'카', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'타', name:'타', sound:'타', emoji:'🚂', audio:'tts', audioSound:'tts' },
-        ]
-      },
-
-      // ─────────────────────────────
-      // Zone 4. 단어 카드 (50장)
-      // ─────────────────────────────
-      {
-        id: 'ko-z4',
-        name: '단어 카드',
-        desc: '그림 단어 50개',
-        vehicle: '택시',
-        items: [
-          { char:'버스', name:'버스',   sound:'버스', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'차',   name:'차',     sound:'차',   emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'기차', name:'기차',   sound:'기차', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'배',   name:'배',     sound:'배',   emoji:'⛵', audio:'tts', audioSound:'tts' },
-          { char:'비행기',name:'비행기',sound:'비행기',emoji:'✈️', audio:'tts', audioSound:'tts' },
-          { char:'나무', name:'나무',   sound:'나무', emoji:'🌳', audio:'tts', audioSound:'tts' },
-          { char:'꽃',   name:'꽃',     sound:'꽃',   emoji:'🌸', audio:'tts', audioSound:'tts' },
-          { char:'해',   name:'해',     sound:'해',   emoji:'☀️', audio:'tts', audioSound:'tts' },
-          { char:'달',   name:'달',     sound:'달',   emoji:'🌙', audio:'tts', audioSound:'tts' },
-          { char:'별',   name:'별',     sound:'별',   emoji:'⭐', audio:'tts', audioSound:'tts' },
-          { char:'물',   name:'물',     sound:'물',   emoji:'💧', audio:'tts', audioSound:'tts' },
-          { char:'불',   name:'불',     sound:'불',   emoji:'🔥', audio:'tts', audioSound:'tts' },
-          { char:'집',   name:'집',     sound:'집',   emoji:'🏠', audio:'tts', audioSound:'tts' },
-          { char:'산',   name:'산',     sound:'산',   emoji:'⛰️', audio:'tts', audioSound:'tts' },
-          { char:'강',   name:'강',     sound:'강',   emoji:'🌊', audio:'tts', audioSound:'tts' },
-          { char:'개',   name:'개',     sound:'개',   emoji:'🐶', audio:'tts', audioSound:'tts' },
-          { char:'고양이',name:'고양이',sound:'고양이',emoji:'🐱', audio:'tts', audioSound:'tts' },
-          { char:'곰',   name:'곰',     sound:'곰',   emoji:'🐻', audio:'tts', audioSound:'tts' },
-          { char:'토끼', name:'토끼',   sound:'토끼', emoji:'🐰', audio:'tts', audioSound:'tts' },
-          { char:'사자', name:'사자',   sound:'사자', emoji:'🦁', audio:'tts', audioSound:'tts' },
-          { char:'사과', name:'사과',   sound:'사과', emoji:'🍎', audio:'tts', audioSound:'tts' },
-          { char:'바나나',name:'바나나',sound:'바나나',emoji:'🍌', audio:'tts', audioSound:'tts' },
-          { char:'포도', name:'포도',   sound:'포도', emoji:'🍇', audio:'tts', audioSound:'tts' },
-          { char:'딸기', name:'딸기',   sound:'딸기', emoji:'🍓', audio:'tts', audioSound:'tts' },
-          { char:'수박', name:'수박',   sound:'수박', emoji:'🍉', audio:'tts', audioSound:'tts' },
-        ]
-      },
-
-      // ─────────────────────────────
-      // Zone 5. 짧은 문장 (20장)
-      // ─────────────────────────────
-      {
-        id: 'ko-z5',
-        name: '첫 문장',
-        desc: '짧은 문장 읽기',
-        vehicle: '소방차',
-        items: [
-          { char:'버스가 가요.', name:'버스가 가요.', sound:'버스가 가요.', emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'차가 빨라요.', name:'차가 빨라요.', sound:'차가 빨라요.', emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'기차가 와요.', name:'기차가 와요.', sound:'기차가 와요.', emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'곰이 자요.',   name:'곰이 자요.',   sound:'곰이 자요.',   emoji:'🐻', audio:'tts', audioSound:'tts' },
-          { char:'꽃이 예뻐요.',name:'꽃이 예뻐요.',sound:'꽃이 예뻐요.',emoji:'🌸', audio:'tts', audioSound:'tts' },
-          { char:'해가 떠요.',   name:'해가 떠요.',   sound:'해가 떠요.',   emoji:'☀️', audio:'tts', audioSound:'tts' },
-          { char:'비가 와요.',   name:'비가 와요.',   sound:'비가 와요.',   emoji:'🌧️', audio:'tts', audioSound:'tts' },
-          { char:'개가 짖어요.',name:'개가 짖어요.',sound:'개가 짖어요.',emoji:'🐶', audio:'tts', audioSound:'tts' },
-          { char:'사과가 맛있어요.',name:'사과가 맛있어요.',sound:'사과가 맛있어요.',emoji:'🍎', audio:'tts', audioSound:'tts' },
-          { char:'집에 가요.',   name:'집에 가요.',   sound:'집에 가요.',   emoji:'🏠', audio:'tts', audioSound:'tts' },
-        ]
-      },
+      { id:'ko-z1', name:'자음 정류장', desc:'ㄱ~ㅎ 자음 14개', items:[
+        {char:'ㄱ', name:'기역', sound:'그', emoji:'🚌', keyword:'고속버스', context:'고속버스의 ㄱ!'},
+        {char:'ㄴ', name:'니은', sound:'느', emoji:'🚗', keyword:'나들이차', context:'나들이차의 ㄴ!'},
+        {char:'ㄷ', name:'디귿', sound:'드', emoji:'🚛', keyword:'덤프트럭', context:'덤프트럭의 ㄷ!'},
+        {char:'ㄹ', name:'리을', sound:'르', emoji:'🚚', keyword:'레미콘', context:'레미콘의 ㄹ!'},
+        {char:'ㅁ', name:'미음', sound:'므', emoji:'🚎', keyword:'마을버스', context:'마을버스의 ㅁ!'},
+        {char:'ㅂ', name:'비읍', sound:'브', emoji:'🛞', keyword:'바퀴', context:'바퀴의 ㅂ!'},
+        {char:'ㅅ', name:'시옷', sound:'스', emoji:'🚒', keyword:'소방차', context:'소방차의 ㅅ!'},
+        {char:'ㅇ', name:'이응', sound:'으', emoji:'🏍️', keyword:'오토바이', context:'오토바이의 ㅇ!'},
+        {char:'ㅈ', name:'지읒', sound:'즈', emoji:'🏗️', keyword:'지게차', context:'지게차의 ㅈ!'},
+        {char:'ㅊ', name:'치읓', sound:'츠', emoji:'🚜', keyword:'청소차', context:'청소차의 ㅊ!'},
+        {char:'ㅋ', name:'키읔', sound:'크', emoji:'🚕', keyword:'카택시', context:'카택시의 ㅋ!'},
+        {char:'ㅌ', name:'티읕', sound:'트', emoji:'🚂', keyword:'트럭', context:'트럭의 ㅌ!'},
+        {char:'ㅍ', name:'피읖', sound:'프', emoji:'🚧', keyword:'포클레인', context:'포클레인의 ㅍ!'},
+        {char:'ㅎ', name:'히읗', sound:'흐', emoji:'🚁', keyword:'헬리콥터', context:'헬리콥터의 ㅎ!'},
+      ]},
+      { id:'ko-z2', name:'모음 정류장', desc:'ㅏ~ㅣ 모음 10개', items:[
+        {char:'ㅏ', name:'아', sound:'아', emoji:'😮', keyword:'아~', context:'"아~" 하고 입을 크게 벌려요'},
+        {char:'ㅑ', name:'야', sound:'야', emoji:'😄', keyword:'야~', context:'"야~" 하고 크게 외쳐요'},
+        {char:'ㅓ', name:'어', sound:'어', emoji:'😯', keyword:'어~', context:'"어~" 하고 놀라요'},
+        {char:'ㅕ', name:'여', sound:'여', emoji:'🙂', keyword:'여기', context:'"여기!"라고 말해봐요'},
+        {char:'ㅗ', name:'오', sound:'오', emoji:'🚗', keyword:'오토바이', context:'"오~" 하고 입술을 오므려요'},
+        {char:'ㅛ', name:'요', sound:'요', emoji:'👋', keyword:'요기', context:'"요~" 하고 불러봐요'},
+        {char:'ㅜ', name:'우', sound:'우', emoji:'😢', keyword:'우~', context:'"우~" 하고 울어봐요'},
+        {char:'ㅠ', name:'유', sound:'유', emoji:'🦄', keyword:'유니콘', context:'"유~" 하고 불어봐요'},
+        {char:'ㅡ', name:'으', sound:'으', emoji:'😤', keyword:'으~', context:'"으~" 하고 힘을 줘요'},
+        {char:'ㅣ', name:'이', sound:'이', emoji:'😁', keyword:'이빨', context:'"이~" 하고 웃어봐요'},
+      ]},
+      { id:'ko-z3', name:'글자 조합', desc:'자음+모음 합치기', items:[
+        {char:'가', name:'가', sound:'가방', emoji:'👜', keyword:'가방', context:'가방 👜  ㄱ+ㅏ=가'},
+        {char:'나', name:'나', sound:'나비', emoji:'🦋', keyword:'나비', context:'나비 🦋  ㄴ+ㅏ=나'},
+        {char:'다', name:'다', sound:'다리', emoji:'🦵', keyword:'다리', context:'다리 🦵  ㄷ+ㅏ=다'},
+        {char:'라', name:'라', sound:'라면', emoji:'🍜', keyword:'라면', context:'라면 🍜  ㄹ+ㅏ=라'},
+        {char:'마', name:'마', sound:'마늘', emoji:'🧄', keyword:'마늘', context:'마늘 🧄  ㅁ+ㅏ=마'},
+        {char:'바', name:'바', sound:'바나나', emoji:'🍌', keyword:'바나나', context:'바나나 🍌  ㅂ+ㅏ=바'},
+        {char:'사', name:'사', sound:'사과', emoji:'🍎', keyword:'사과', context:'사과 🍎  ㅅ+ㅏ=사'},
+        {char:'아', name:'아', sound:'아이스크림', emoji:'🍦', keyword:'아이스크림', context:'아이스크림 🍦  ㅇ+ㅏ=아'},
+        {char:'자', name:'자', sound:'자전거', emoji:'🚲', keyword:'자전거', context:'자전거 🚲  ㅈ+ㅏ=자'},
+        {char:'차', name:'차', sound:'차', emoji:'🍵', keyword:'차(tea)', context:'차 한 잔 🍵  ㅊ+ㅏ=차'},
+        {char:'카', name:'카', sound:'카메라', emoji:'📷', keyword:'카메라', context:'카메라 📷  ㅋ+ㅏ=카'},
+        {char:'타', name:'타', sound:'타조', emoji:'🦤', keyword:'타조', context:'타조 🦤  ㅌ+ㅏ=타'},
+      ]},
+      { id:'ko-z4', name:'단어 카드', desc:'그림 단어 20개', items:[
+        {char:'버스',    name:'버스',    sound:'버스',    emoji:'🚌', keyword:'버스', context:'사람들을 태워요 🚌'},
+        {char:'자동차',  name:'자동차',  sound:'자동차',  emoji:'🚗', keyword:'자동차', context:'씽씽 달려요'},
+        {char:'기차',    name:'기차',    sound:'기차',    emoji:'🚂', keyword:'기차', context:'칙칙폭폭!'},
+        {char:'비행기',  name:'비행기',  sound:'비행기',  emoji:'✈️', keyword:'비행기', context:'하늘을 날아요'},
+        {char:'배',      name:'배',      sound:'배',      emoji:'⛵', keyword:'배', context:'바다 위를 달려요'},
+        {char:'나무',    name:'나무',    sound:'나무',    emoji:'🌳', keyword:'나무', context:'초록초록해요'},
+        {char:'꽃',      name:'꽃',      sound:'꽃',      emoji:'🌸', keyword:'꽃', context:'예뻐요'},
+        {char:'해',      name:'해',      sound:'해',      emoji:'☀️', keyword:'해', context:'따뜻해요'},
+        {char:'달',      name:'달',      sound:'달',      emoji:'🌙', keyword:'달', context:'밤에 떠요'},
+        {char:'별',      name:'별',      sound:'별',      emoji:'⭐', keyword:'별', context:'반짝반짝'},
+        {char:'개',      name:'개',      sound:'개',      emoji:'🐶', keyword:'개', context:'멍멍!'},
+        {char:'고양이',  name:'고양이',  sound:'고양이',  emoji:'🐱', keyword:'고양이', context:'야옹~'},
+        {char:'사과',    name:'사과',    sound:'사과',    emoji:'🍎', keyword:'사과', context:'빨갛고 달아요'},
+        {char:'바나나',  name:'바나나',  sound:'바나나',  emoji:'🍌', keyword:'바나나', context:'길쭉해요'},
+        {char:'수박',    name:'수박',    sound:'수박',    emoji:'🍉', keyword:'수박', context:'여름에 먹어요'},
+        {char:'집',      name:'집',      sound:'집',      emoji:'🏠', keyword:'집', context:'우리집 최고!'},
+        {char:'학교',    name:'학교',    sound:'학교',    emoji:'🏫', keyword:'학교', context:'공부해요'},
+        {char:'공',      name:'공',      sound:'공',      emoji:'⚽', keyword:'공', context:'데굴데굴'},
+        {char:'책',      name:'책',      sound:'책',      emoji:'📚', keyword:'책', context:'읽어요'},
+        {char:'물',      name:'물',      sound:'물',      emoji:'💧', keyword:'물', context:'마셔요'},
+      ]},
+      { id:'ko-z5', name:'첫 문장', desc:'짧은 문장 읽기', items:[
+        {char:'버스가 가요.',      name:'버스가 가요.',      sound:'버스가 가요.',      emoji:'🚌', keyword:'버스', context:'어디 갈까요?'},
+        {char:'차가 빨라요.',      name:'차가 빨라요.',      sound:'차가 빨라요.',      emoji:'🚗💨', keyword:'자동차', context:'쌩~!'},
+        {char:'기차가 와요.',      name:'기차가 와요.',      sound:'기차가 와요.',      emoji:'🚂', keyword:'기차', context:'칙칙폭폭!'},
+        {char:'해가 떠요.',        name:'해가 떠요.',        sound:'해가 떠요.',        emoji:'☀️', keyword:'해', context:'좋은 아침!'},
+        {char:'비가 와요.',        name:'비가 와요.',        sound:'비가 와요.',        emoji:'🌧️', keyword:'비', context:'우산 써요!'},
+        {char:'개가 짖어요.',      name:'개가 짖어요.',      sound:'개가 짖어요.',      emoji:'🐶', keyword:'개', context:'멍멍!'},
+        {char:'꽃이 예뻐요.',      name:'꽃이 예뻐요.',      sound:'꽃이 예뻐요.',      emoji:'🌸', keyword:'꽃', context:'와~ 예쁘다!'},
+        {char:'사과가 맛있어요.',  name:'사과가 맛있어요.',  sound:'사과가 맛있어요.',  emoji:'🍎😋', keyword:'사과', context:'냠냠!'},
+      ]},
     ]
   },
-
-  // ════════════════════════════════
-  // 수학
-  // ════════════════════════════════
   math: {
-    subject: '수학',
-    icon: '🚒',
-    color: '#FF5252',
+    subject:'수학', icon:'🚒', color:'#FF5252', dark:'#D32F2F', light:'#FFEBEE',
     zones: [
-      {
-        id: 'ma-z1',
-        name: '숫자 1~5 차고',
-        desc: '숫자 1부터 5까지',
-        vehicle: '소방차',
-        items: [
-          { char:'1', name:'일', sound:'일', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'2', name:'이', sound:'이', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'3', name:'삼', sound:'삼', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'4', name:'사', sound:'사', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'5', name:'오', sound:'오', emoji:'🚒', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'ma-z2',
-        name: '숫자 6~10 차고',
-        desc: '숫자 6부터 10까지',
-        vehicle: '경찰차',
-        items: [
-          { char:'6',  name:'육',  sound:'육',  emoji:'🚓', audio:'tts', audioSound:'tts' },
-          { char:'7',  name:'칠',  sound:'칠',  emoji:'🚓', audio:'tts', audioSound:'tts' },
-          { char:'8',  name:'팔',  sound:'팔',  emoji:'🚓', audio:'tts', audioSound:'tts' },
-          { char:'9',  name:'구',  sound:'구',  emoji:'🚓', audio:'tts', audioSound:'tts' },
-          { char:'10', name:'십',  sound:'십',  emoji:'🚓', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'ma-z3',
-        name: '크다 작다 도로',
-        desc: '크기 비교하기',
-        vehicle: '덤프트럭',
-        items: [
-          { char:'크다',  name:'크다',  sound:'크다',  emoji:'🚛', audio:'tts', audioSound:'tts' },
-          { char:'작다',  name:'작다',  sound:'작다',  emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'많다',  name:'많다',  sound:'많다',  emoji:'🚛', audio:'tts', audioSound:'tts' },
-          { char:'적다',  name:'적다',  sound:'적다',  emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'길다',  name:'길다',  sound:'길다',  emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'짧다',  name:'짧다',  sound:'짧다',  emoji:'🚕', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'ma-z4',
-        name: '도형 교차로',
-        desc: '동그라미·세모·네모',
-        vehicle: '포클레인',
-        items: [
-          { char:'○', name:'동그라미', sound:'동그라미', emoji:'⭕', audio:'tts', audioSound:'tts' },
-          { char:'△', name:'세모',     sound:'세모',     emoji:'🔺', audio:'tts', audioSound:'tts' },
-          { char:'□', name:'네모',     sound:'네모',     emoji:'🟦', audio:'tts', audioSound:'tts' },
-          { char:'★', name:'별모양',   sound:'별모양',   emoji:'⭐', audio:'tts', audioSound:'tts' },
-          { char:'♥', name:'하트',     sound:'하트',     emoji:'❤️', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'ma-z5',
-        name: '더하기 출동',
-        desc: '1~5 더하기',
-        vehicle: '소방차',
-        items: [
-          { char:'1+1=2', name:'일 더하기 일은 이', sound:'일 더하기 일은 이', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'1+2=3', name:'일 더하기 이는 삼', sound:'일 더하기 이는 삼', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'2+2=4', name:'이 더하기 이는 사', sound:'이 더하기 이는 사', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'2+3=5', name:'이 더하기 삼은 오', sound:'이 더하기 삼은 오', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'3+3=6', name:'삼 더하기 삼은 육', sound:'삼 더하기 삼은 육', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'4+1=5', name:'사 더하기 일은 오', sound:'사 더하기 일은 오', emoji:'🚒', audio:'tts', audioSound:'tts' },
-        ]
-      },
+      { id:'ma-z1', name:'숫자 1~5', desc:'숫자 1부터 5까지', items:[
+        {char:'1', name:'하나', sound:'하나', emoji:'🚒', keyword:'소방차 1대', context:'소방차가 한 대 있어요', count:'🚒'},
+        {char:'2', name:'둘',  sound:'둘',  emoji:'🚒', keyword:'소방차 2대', context:'소방차가 두 대 있어요', count:'🚒🚒'},
+        {char:'3', name:'셋',  sound:'셋',  emoji:'🚒', keyword:'소방차 3대', context:'소방차가 세 대 있어요', count:'🚒🚒🚒'},
+        {char:'4', name:'넷',  sound:'넷',  emoji:'🚒', keyword:'소방차 4대', context:'소방차가 네 대 있어요', count:'🚒🚒🚒🚒'},
+        {char:'5', name:'다섯',sound:'다섯',emoji:'🚒', keyword:'소방차 5대', context:'소방차가 다섯 대!', count:'🚒🚒🚒🚒🚒'},
+      ]},
+      { id:'ma-z2', name:'숫자 6~10', desc:'숫자 6부터 10까지', items:[
+        {char:'6',  name:'여섯', sound:'여섯', emoji:'🚓', keyword:'경찰차 6대', context:'경찰차가 여섯 대!', count:'🚓🚓🚓🚓🚓🚓'},
+        {char:'7',  name:'일곱', sound:'일곱', emoji:'🚓', keyword:'경찰차 7대', context:'경찰차가 일곱 대!', count:'🚓🚓🚓🚓🚓🚓🚓'},
+        {char:'8',  name:'여덟', sound:'여덟', emoji:'🚓', keyword:'경찰차 8대', context:'경찰차가 여덟 대!', count:'🚓🚓🚓🚓🚓🚓🚓🚓'},
+        {char:'9',  name:'아홉', sound:'아홉', emoji:'🚓', keyword:'경찰차 9대', context:'경찰차가 아홉 대!', count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
+        {char:'10', name:'열',   sound:'열',   emoji:'🚓', keyword:'경찰차 10대', context:'와! 열 대나!', count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
+      ]},
+      { id:'ma-z3', name:'크다 작다', desc:'크기 비교하기', items:[
+        {char:'크다',  name:'크다',  sound:'크다',  emoji:'🚛', keyword:'큰 트럭', context:'🚛 트럭이 🚗 차보다 커요!', compare:{big:'🚛',small:'🚗',label:'크다'}},
+        {char:'작다',  name:'작다',  sound:'작다',  emoji:'🚗', keyword:'작은 차', context:'🚗 차가 🚛 트럭보다 작아요!', compare:{big:'🚛',small:'🚗',label:'작다'}},
+        {char:'많다',  name:'많다',  sound:'많다',  emoji:'🚌', keyword:'많은 버스', context:'버스가 많아요! 🚌🚌🚌🚌🚌', compare:{big:'🚌🚌🚌',small:'🚌',label:'많다'}},
+        {char:'적다',  name:'적다',  sound:'적다',  emoji:'🚌', keyword:'적은 버스', context:'버스가 적어요! 🚌', compare:{big:'🚌🚌🚌',small:'🚌',label:'적다'}},
+        {char:'길다',  name:'길다',  sound:'길다',  emoji:'🚂', keyword:'긴 기차', context:'기차가 길어요~ 🚂🚃🚃🚃', compare:{big:'🚂🚃🚃',small:'🚕',label:'길다'}},
+        {char:'짧다',  name:'짧다',  sound:'짧다',  emoji:'🚕', keyword:'짧은 택시', context:'택시가 짧아요! 🚕', compare:{big:'🚂🚃🚃',small:'🚕',label:'짧다'}},
+      ]},
+      { id:'ma-z4', name:'도형', desc:'모양 알아보기', items:[
+        {char:'○', name:'동그라미', sound:'동그라미', emoji:'⭕', keyword:'동그라미', context:'바퀴는 동그라미예요 🛞'},
+        {char:'△', name:'세모',     sound:'세모',     emoji:'🔺', keyword:'세모', context:'표지판은 세모예요 ⚠️'},
+        {char:'□', name:'네모',     sound:'네모',     emoji:'🟦', keyword:'네모', context:'창문은 네모예요 🪟'},
+        {char:'★', name:'별모양',   sound:'별모양',   emoji:'⭐', keyword:'별', context:'반짝반짝 별 ⭐'},
+        {char:'♥', name:'하트',     sound:'하트',     emoji:'❤️', keyword:'하트', context:'사랑해요 ❤️'},
+      ]},
+      { id:'ma-z5', name:'더하기', desc:'1~5 더하기', items:[
+        {char:'1+1=2', name:'일 더하기 일은 이', sound:'일 더하기 일은 이', emoji:'🚒', keyword:'', context:'🚒 + 🚒 = 🚒🚒', eq:{a:1,b:1,r:2,e:'🚒'}},
+        {char:'1+2=3', name:'일 더하기 이는 삼', sound:'일 더하기 이는 삼', emoji:'🚒', keyword:'', context:'🚒 + 🚒🚒 = 🚒🚒🚒', eq:{a:1,b:2,r:3,e:'🚒'}},
+        {char:'2+2=4', name:'이 더하기 이는 사', sound:'이 더하기 이는 사', emoji:'🚕', keyword:'', context:'🚕🚕 + 🚕🚕 = 🚕🚕🚕🚕', eq:{a:2,b:2,r:4,e:'🚕'}},
+        {char:'2+3=5', name:'이 더하기 삼은 오', sound:'이 더하기 삼은 오', emoji:'🚗', keyword:'', context:'🚗🚗 + 🚗🚗🚗 = 🚗🚗🚗🚗🚗', eq:{a:2,b:3,r:5,e:'🚗'}},
+        {char:'3+3=6', name:'삼 더하기 삼은 육', sound:'삼 더하기 삼은 육', emoji:'🚌', keyword:'', context:'🚌🚌🚌 + 🚌🚌🚌 = 6대!', eq:{a:3,b:3,r:6,e:'🚌'}},
+        {char:'4+1=5', name:'사 더하기 일은 오', sound:'사 더하기 일은 오', emoji:'🚓', keyword:'', context:'🚓🚓🚓🚓 + 🚓 = 🚓🚓🚓🚓🚓', eq:{a:4,b:1,r:5,e:'🚓'}},
+      ]},
     ]
   },
-
-  // ════════════════════════════════
-  // 영어
-  // ════════════════════════════════
   english: {
-    subject: '영어',
-    icon: '🚓',
-    color: '#4285F4',
+    subject:'영어', icon:'🚓', color:'#4285F4', dark:'#1A56C4', light:'#E8F0FE',
     zones: [
-      {
-        id: 'en-z1',
-        name: '알파벳 A~M',
-        desc: 'A부터 M까지',
-        vehicle: '경찰차',
-        items: [
-          { char:'A', name:'에이', sound:'에이', emoji:'🚑', audio:'tts', audioSound:'tts' },
-          { char:'B', name:'비',   sound:'비',   emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'C', name:'씨',   sound:'씨',   emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'D', name:'디',   sound:'디',   emoji:'🚛', audio:'tts', audioSound:'tts' },
-          { char:'E', name:'이',   sound:'이',   emoji:'⚡', audio:'tts', audioSound:'tts' },
-          { char:'F', name:'에프', sound:'에프', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'G', name:'지',   sound:'지',   emoji:'🏎️', audio:'tts', audioSound:'tts' },
-          { char:'H', name:'에이치',sound:'에이치',emoji:'🚁', audio:'tts', audioSound:'tts' },
-          { char:'I', name:'아이', sound:'아이', emoji:'🛻', audio:'tts', audioSound:'tts' },
-          { char:'J', name:'제이', sound:'제이', emoji:'🚙', audio:'tts', audioSound:'tts' },
-          { char:'K', name:'케이', sound:'케이', emoji:'🛺', audio:'tts', audioSound:'tts' },
-          { char:'L', name:'엘',   sound:'엘',   emoji:'🚐', audio:'tts', audioSound:'tts' },
-          { char:'M', name:'엠',   sound:'엠',   emoji:'🛵', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'en-z2',
-        name: '알파벳 N~Z',
-        desc: 'N부터 Z까지',
-        vehicle: '경찰차',
-        items: [
-          { char:'N', name:'엔',   sound:'엔',   emoji:'🚓', audio:'tts', audioSound:'tts' },
-          { char:'O', name:'오',   sound:'오',   emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'P', name:'피',   sound:'피',   emoji:'🚓', audio:'tts', audioSound:'tts' },
-          { char:'Q', name:'큐',   sound:'큐',   emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'R', name:'알',   sound:'알',   emoji:'🚕', audio:'tts', audioSound:'tts' },
-          { char:'S', name:'에스', sound:'에스', emoji:'🚒', audio:'tts', audioSound:'tts' },
-          { char:'T', name:'티',   sound:'티',   emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'U', name:'유',   sound:'유',   emoji:'🚛', audio:'tts', audioSound:'tts' },
-          { char:'V', name:'브이', sound:'브이', emoji:'🚐', audio:'tts', audioSound:'tts' },
-          { char:'W', name:'더블유',sound:'더블유',emoji:'🚚', audio:'tts', audioSound:'tts' },
-          { char:'X', name:'엑스', sound:'엑스', emoji:'🚧', audio:'tts', audioSound:'tts' },
-          { char:'Y', name:'와이', sound:'와이', emoji:'🏎️', audio:'tts', audioSound:'tts' },
-          { char:'Z', name:'지',   sound:'지',   emoji:'🚁', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'en-z3',
-        name: '기초 단어 순찰',
-        desc: '영어 단어 20개',
-        vehicle: '경찰차',
-        items: [
-          { char:'bus',    name:'버스',   sound:'bus',    emoji:'🚌', audio:'tts', audioSound:'tts' },
-          { char:'car',    name:'자동차', sound:'car',    emoji:'🚗', audio:'tts', audioSound:'tts' },
-          { char:'train',  name:'기차',   sound:'train',  emoji:'🚂', audio:'tts', audioSound:'tts' },
-          { char:'ship',   name:'배',     sound:'ship',   emoji:'⛵', audio:'tts', audioSound:'tts' },
-          { char:'plane',  name:'비행기', sound:'plane',  emoji:'✈️', audio:'tts', audioSound:'tts' },
-          { char:'dog',    name:'개',     sound:'dog',    emoji:'🐶', audio:'tts', audioSound:'tts' },
-          { char:'cat',    name:'고양이', sound:'cat',    emoji:'🐱', audio:'tts', audioSound:'tts' },
-          { char:'bear',   name:'곰',     sound:'bear',   emoji:'🐻', audio:'tts', audioSound:'tts' },
-          { char:'apple',  name:'사과',   sound:'apple',  emoji:'🍎', audio:'tts', audioSound:'tts' },
-          { char:'banana', name:'바나나', sound:'banana', emoji:'🍌', audio:'tts', audioSound:'tts' },
-          { char:'sun',    name:'해',     sound:'sun',    emoji:'☀️', audio:'tts', audioSound:'tts' },
-          { char:'moon',   name:'달',     sound:'moon',   emoji:'🌙', audio:'tts', audioSound:'tts' },
-          { char:'star',   name:'별',     sound:'star',   emoji:'⭐', audio:'tts', audioSound:'tts' },
-          { char:'house',  name:'집',     sound:'house',  emoji:'🏠', audio:'tts', audioSound:'tts' },
-          { char:'water',  name:'물',     sound:'water',  emoji:'💧', audio:'tts', audioSound:'tts' },
-        ]
-      },
-      {
-        id: 'en-z4',
-        name: '인사 표현',
-        desc: '영어 인사 10개',
-        vehicle: '경찰차',
-        items: [
-          { char:'Hello!',     name:'헬로',     sound:'Hello',     emoji:'👋', audio:'tts', audioSound:'tts' },
-          { char:'Bye!',       name:'바이',     sound:'Bye',       emoji:'✋', audio:'tts', audioSound:'tts' },
-          { char:'Yes!',       name:'예스',     sound:'Yes',       emoji:'✅', audio:'tts', audioSound:'tts' },
-          { char:'No!',        name:'노',       sound:'No',        emoji:'❌', audio:'tts', audioSound:'tts' },
-          { char:'Thank you!', name:'땡큐',     sound:'Thank you', emoji:'🙏', audio:'tts', audioSound:'tts' },
-          { char:'Sorry!',     name:'쏘리',     sound:'Sorry',     emoji:'😅', audio:'tts', audioSound:'tts' },
-          { char:'Good!',      name:'굿',       sound:'Good',      emoji:'👍', audio:'tts', audioSound:'tts' },
-          { char:'Help!',      name:'헬프',     sound:'Help',      emoji:'🆘', audio:'tts', audioSound:'tts' },
-          { char:'Go!',        name:'고',       sound:'Go',        emoji:'🚦', audio:'tts', audioSound:'tts' },
-          { char:'Stop!',      name:'스탑',     sound:'Stop',      emoji:'🛑', audio:'tts', audioSound:'tts' },
-        ]
-      },
+      { id:'en-z1', name:'알파벳 A~M', desc:'A부터 M까지', items:[
+        {char:'A', name:'에이', sound:'에이', emoji:'🍎', keyword:'Apple',  context:'A is for Apple! 🍎'},
+        {char:'B', name:'비',   sound:'비',   emoji:'🐝', keyword:'Bee',    context:'B is for Bee! 🐝'},
+        {char:'C', name:'씨',   sound:'씨',   emoji:'🐱', keyword:'Cat',    context:'C is for Cat! 🐱'},
+        {char:'D', name:'디',   sound:'디',   emoji:'🐶', keyword:'Dog',    context:'D is for Dog! 🐶'},
+        {char:'E', name:'이',   sound:'이',   emoji:'🥚', keyword:'Egg',    context:'E is for Egg! 🥚'},
+        {char:'F', name:'에프', sound:'에프', emoji:'🐟', keyword:'Fish',   context:'F is for Fish! 🐟'},
+        {char:'G', name:'지',   sound:'지',   emoji:'🍇', keyword:'Grape',  context:'G is for Grape! 🍇'},
+        {char:'H', name:'에이치',sound:'에이치',emoji:'🏠',keyword:'House',  context:'H is for House! 🏠'},
+        {char:'I', name:'아이', sound:'아이', emoji:'🍦', keyword:'Ice cream',context:'I is for Ice cream! 🍦'},
+        {char:'J', name:'제이', sound:'제이', emoji:'🧃', keyword:'Juice',  context:'J is for Juice! 🧃'},
+        {char:'K', name:'케이', sound:'케이', emoji:'🪁', keyword:'Kite',   context:'K is for Kite! 🪁'},
+        {char:'L', name:'엘',   sound:'엘',   emoji:'🦁', keyword:'Lion',   context:'L is for Lion! 🦁'},
+        {char:'M', name:'엠',   sound:'엠',   emoji:'🌙', keyword:'Moon',   context:'M is for Moon! 🌙'},
+      ]},
+      { id:'en-z2', name:'알파벳 N~Z', desc:'N부터 Z까지', items:[
+        {char:'N', name:'엔',    sound:'엔',    emoji:'🌙', keyword:'Night',   context:'N is for Night! 🌙'},
+        {char:'O', name:'오',    sound:'오',    emoji:'🐙', keyword:'Octopus', context:'O is for Octopus! 🐙'},
+        {char:'P', name:'피',    sound:'피',    emoji:'🐧', keyword:'Penguin', context:'P is for Penguin! 🐧'},
+        {char:'Q', name:'큐',    sound:'큐',    emoji:'👸', keyword:'Queen',   context:'Q is for Queen! 👸'},
+        {char:'R', name:'알',    sound:'알',    emoji:'🌈', keyword:'Rainbow', context:'R is for Rainbow! 🌈'},
+        {char:'S', name:'에스',  sound:'에스',  emoji:'☀️', keyword:'Sun',     context:'S is for Sun! ☀️'},
+        {char:'T', name:'티',    sound:'티',    emoji:'🌳', keyword:'Tree',    context:'T is for Tree! 🌳'},
+        {char:'U', name:'유',    sound:'유',    emoji:'☂️', keyword:'Umbrella',context:'U is for Umbrella! ☂️'},
+        {char:'V', name:'브이',  sound:'브이',  emoji:'🎻', keyword:'Violin',  context:'V is for Violin! 🎻'},
+        {char:'W', name:'더블유',sound:'더블유',emoji:'🐋', keyword:'Whale',   context:'W is for Whale! 🐋'},
+        {char:'X', name:'엑스',  sound:'엑스',  emoji:'🎸', keyword:'Xylophone',context:'X is for Xylophone! 🎸'},
+        {char:'Y', name:'와이',  sound:'와이',  emoji:'🧶', keyword:'Yarn',    context:'Y is for Yarn! 🧶'},
+        {char:'Z', name:'지',    sound:'지',    emoji:'🦓', keyword:'Zebra',   context:'Z is for Zebra! 🦓'},
+      ]},
+      { id:'en-z3', name:'생활 단어', desc:'영어 단어 16개', items:[
+        {char:'apple',  name:'사과',   sound:'apple',  emoji:'🍎', keyword:'Apple',  context:'Red and sweet! 🍎'},
+        {char:'ball',   name:'공',     sound:'ball',   emoji:'⚽', keyword:'Ball',   context:'Kick the ball! ⚽'},
+        {char:'cat',    name:'고양이', sound:'cat',    emoji:'🐱', keyword:'Cat',    context:'Meow meow! 🐱'},
+        {char:'dog',    name:'개',     sound:'dog',    emoji:'🐶', keyword:'Dog',    context:'Woof woof! 🐶'},
+        {char:'egg',    name:'달걀',   sound:'egg',    emoji:'🥚', keyword:'Egg',    context:'Yummy egg! 🥚'},
+        {char:'fish',   name:'물고기', sound:'fish',   emoji:'🐟', keyword:'Fish',   context:'Swimming fish! 🐟'},
+        {char:'house',  name:'집',     sound:'house',  emoji:'🏠', keyword:'House',  context:'My home! 🏠'},
+        {char:'ice',    name:'얼음',   sound:'ice',    emoji:'🧊', keyword:'Ice',    context:'So cold! 🧊'},
+        {char:'juice',  name:'주스',   sound:'juice',  emoji:'🧃', keyword:'Juice',  context:'Delicious! 🧃'},
+        {char:'kite',   name:'연',     sound:'kite',   emoji:'🪁', keyword:'Kite',   context:'Fly high! 🪁'},
+        {char:'lion',   name:'사자',   sound:'lion',   emoji:'🦁', keyword:'Lion',   context:'Roar! 🦁'},
+        {char:'moon',   name:'달',     sound:'moon',   emoji:'🌙', keyword:'Moon',   context:'Shining moon! 🌙'},
+        {char:'nose',   name:'코',     sound:'nose',   emoji:'👃', keyword:'Nose',   context:'Smell it! 👃'},
+        {char:'orange', name:'오렌지', sound:'orange', emoji:'🍊', keyword:'Orange', context:'Juicy orange! 🍊'},
+        {char:'pig',    name:'돼지',   sound:'pig',    emoji:'🐷', keyword:'Pig',    context:'Oink oink! 🐷'},
+        {char:'rainbow',name:'무지개', sound:'rainbow',emoji:'🌈', keyword:'Rainbow',context:'So colorful! 🌈'},
+      ]},
+      { id:'en-z4', name:'인사 표현', desc:'영어 인사 10개', items:[
+        {char:'Hello!',     name:'안녕!',   sound:'Hello',     emoji:'👋', keyword:'인사해요',  context:'Hi there! 👋'},
+        {char:'Bye!',       name:'잘 가!',  sound:'Bye',       emoji:'✋', keyword:'작별인사',  context:'See you later! ✋'},
+        {char:'Thank you!', name:'고마워!', sound:'Thank you', emoji:'🙏', keyword:'감사해요',  context:'Thank you so much! 🙏'},
+        {char:'Sorry!',     name:'미안해!', sound:'Sorry',     emoji:'😅', keyword:'미안해요',  context:'I am sorry! 😅'},
+        {char:'Yes!',       name:'응!',     sound:'Yes',       emoji:'✅', keyword:'맞아요',   context:'Yes yes yes! ✅'},
+        {char:'No!',        name:'아니!',   sound:'No',        emoji:'❌', keyword:'싫어요',   context:'No no no! ❌'},
+        {char:'Good!',      name:'잘했어!', sound:'Good',      emoji:'👍', keyword:'최고예요',  context:'Good job! 👍'},
+        {char:'Stop!',      name:'멈춰!',   sound:'Stop',      emoji:'🛑', keyword:'멈춰요',   context:'Stop right there! 🛑'},
+        {char:'Go!',        name:'가자!',   sound:'Go',        emoji:'🚦', keyword:'출발해요',  context:'Let\'s go! 🚦'},
+        {char:'Help!',      name:'도와줘!', sound:'Help',      emoji:'🆘', keyword:'도움',     context:'Help me please! 🆘'},
+      ]},
     ]
   }
 };
 
-// ═══════════════════════════════════════════
-// 페이지 빌더 — 아이템 → 학습 페이지 자동 생성
-// ═══════════════════════════════════════════
-function buildPages(zone, subjectKey) {
+// ═══════════════════════════════════════
+// 페이지 빌더
+// ═══════════════════════════════════════
+function buildPages(zone) {
   const pages = [];
-  const items = zone.items;
-
-  items.forEach((item, i) => {
-    // 페이지 1: 듣기 (listen)
-    pages.push({
-      id: `${zone.id}-${i}-listen`,
-      type: 'listen',
-      char: item.char,
-      label: item.name,
-      hint: `"${item.name}" 들어봐요! 🔊`,
-      emoji: item.emoji,
-      audio: item.audio === 'tts' ? null : `audio/${item.audio}.mp3`,
-      ttsText: item.sound,
-    });
-
-    // 페이지 2: 고르기 (choose) — 3개 중 정답
-    const others = items.filter((_, j) => j !== i);
-    const picks = others.sort(() => Math.random() - 0.5).slice(0, 2);
-    const opts = [item.char, picks[0]?.char, picks[1]?.char]
-      .filter(Boolean)
-      .sort(() => Math.random() - 0.5);
-
-    pages.push({
-      id: `${zone.id}-${i}-choose`,
-      type: 'choose',
-      char: item.char,
-      label: item.name,
-      hint: `"${item.name}" 찾아봐요! 👀`,
-      emoji: item.emoji,
-      audio: item.audio === 'tts' ? null : `audio/${item.audio}.mp3`,
-      ttsText: item.sound,
-      options: opts,
-      answer: item.char,
-    });
+  zone.items.forEach((item, i) => {
+    // listen 페이지
+    pages.push({ type:'listen', char:item.char, label:item.name, hint:item.context||'', emoji:item.emoji, ttsText:item.sound, item });
+    // choose 페이지
+    const others = zone.items.filter((_,j)=>j!==i);
+    const picks = [...others].sort(()=>Math.random()-0.5).slice(0,2);
+    const opts = [item, ...picks].sort(()=>Math.random()-0.5);
+    pages.push({ type:'choose', char:item.char, label:item.name, hint:`"${item.name}" 을 찾아봐요! 👀`, emoji:item.emoji, ttsText:item.sound, options:opts, answer:item.char, item });
   });
-
   return pages;
 }
 
-// ZONES 형태로 변환 (엔진 호환)
 const ZONES = {};
-Object.entries(CURRICULUM).forEach(([subjectKey, subject]) => {
-  ZONES[subjectKey] = subject.zones.map(zone => ({
-    ...zone,
-    pages: buildPages(zone, subjectKey)
-  }));
+Object.entries(CURRICULUM).forEach(([k,v]) => {
+  ZONES[k] = v.zones.map(z => ({...z, pages:buildPages(z)}));
 });
 
-</script>
-<script>
-/* ═══════════════════════════════════════════
-   DATA — 국어 Zone 1: 자음 (14자)
-   오디오 파일은 같은 폴더에 있어야 함
-   예: audio/01_기역.mp3
-═══════════════════════════════════════════ */
-
-// 데이터는 data.js에서 로드 (ZONES 전역변수 사용)
-
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
+// ═══════════════════════════════════════
+// 상태
+// ═══════════════════════════════════════
 let state = {
-  userName: '',
-  currentSubject: 'korean',
-  currentZoneIdx: 0,
-  currentPageIdx: 0,
-  stamps: 0,
-  progress: { korean: 0, math: 0, english: 0 },
-  settings: { freeNav: false, autoSound: true },
-  unlockedVehicles: [],
-  answered: false,
+  userName:'', currentSubject:'korean', currentZoneIdx:0, currentPageIdx:0,
+  stamps:0, progress:{korean:0,math:0,english:0},
+  settings:{freeNav:false,autoSound:true}, answered:false,
 };
+function saveState(){ try{ localStorage.setItem('broom_v2', JSON.stringify(state)); }catch(e){} }
+function loadState(){ try{ const s=localStorage.getItem('broom_v2'); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
 
-function saveState() {
-  localStorage.setItem('broom_state', JSON.stringify(state));
-}
-function loadState() {
-  const s = localStorage.getItem('broom_state');
-  if (s) {
-    try { state = { ...state, ...JSON.parse(s) }; } catch(e) {}
-  }
-}
-
-/* ═══════════════════════════════════════════
-   AUDIO
-═══════════════════════════════════════════ */
-let currentAudio = null;
-
-function playAudio(src, onEnd) {
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  const a = new Audio(src);
-  currentAudio = a;
-  const btn = document.getElementById('btn-sound');
-  if (btn) { btn.classList.add('playing'); }
-  a.play().catch(() => {
-    // 파일 없으면 브라우저 TTS fallback
-    const label = document.getElementById('sound-label');
-    if (label) speakFallback(label.textContent);
-  });
-  a.onended = () => {
-    if (btn) btn.classList.remove('playing');
-    if (onEnd) onEnd();
-  };
-}
-
-function speakFallback(text) {
+// ═══════════════════════════════════════
+// 오디오
+// ═══════════════════════════════════════
+function speakTTS(text, lang) {
+  if(!window.speechSynthesis) return;
+  lang = lang || (state.currentSubject==='english' ? 'en-US' : 'ko-KR');
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ko-KR'; u.rate = 0.85;
+  u.lang = lang; u.rate = 0.85;
+  speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
-
 function playSound() {
-  const pages = ZONES[state.currentSubject][state.currentZoneIdx].pages;
-  const page = pages[state.currentPageIdx];
-  if (page.audio) {
-    playAudio(page.audio);
-  } else {
-    speakFallback(page.ttsText || page.label);
+  const page = ZONES[state.currentSubject][state.currentZoneIdx].pages[state.currentPageIdx];
+  speakTTS(page.ttsText || page.label);
+}
+
+// ═══════════════════════════════════════
+// 비주얼 렌더러 — 핵심!
+// ═══════════════════════════════════════
+function renderCardVisual(page, subject) {
+  const item = page.item;
+  const vis = document.getElementById('card-visual');
+
+  // 수학 — 숫자 (카운팅)
+  if(item.count !== undefined) {
+    const num = parseInt(item.char);
+    const dots = item.count;
+    vis.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="font-size:80px;font-weight:900;color:#FF5252;line-height:1">${item.char}</div>
+        <div style="font-size:28px;letter-spacing:3px;line-height:1.4">${dots}</div>
+        <div style="font-size:15px;font-weight:700;color:#FF5252">${item.name}</div>
+      </div>`;
+    return;
   }
+
+  // 수학 — 크다/작다 비교
+  if(item.compare) {
+    const c = item.compare;
+    const isBig = item.char==='크다'||item.char==='많다'||item.char==='길다';
+    vis.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:20px">
+          <div style="font-size:${isBig?'56px':'36px'};line-height:1">${c.big}</div>
+          <div style="font-size:18px;color:#CCC">↔</div>
+          <div style="font-size:${!isBig?'56px':'36px'};line-height:1">${c.small}</div>
+        </div>
+        <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
+      </div>`;
+    return;
+  }
+
+  // 수학 — 더하기
+  if(item.eq) {
+    const {a,b,r,e} = item.eq;
+    const makeEmojis = (n) => Array(n).fill(e).join('');
+    vis.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:22px">
+          <span>${makeEmojis(a)}</span>
+          <span style="font-size:24px;font-weight:900;color:#FF5252">+</span>
+          <span>${makeEmojis(b)}</span>
+        </div>
+        <div style="font-size:20px;font-weight:900;color:#FF5252">=</div>
+        <div style="font-size:22px">${makeEmojis(r)}</div>
+        <div style="font-size:32px;font-weight:900;color:#FF5252">${item.char}</div>
+      </div>`;
+    return;
+  }
+
+  // 자음 — 글자 + 키워드 이모지 + 설명
+  if(subject==='korean' && item.keyword && item.char.length===1 && 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ'.includes(item.char)) {
+    vis.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-size:72px;font-weight:900;color:#2D2D2D;line-height:1">${item.char}</div>
+          <div style="font-size:56px;line-height:1">${item.emoji}</div>
+        </div>
+        <div style="background:#FFF3C4;border:2px solid #FFB800;border-radius:20px;padding:5px 16px;font-size:13px;font-weight:700;color:#E09800">${item.keyword}</div>
+      </div>`;
+    return;
+  }
+
+  // 영어 알파벳
+  if(subject==='english' && item.char.length===1 && /[A-Z]/.test(item.char)) {
+    vis.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:76px;font-weight:900;color:#4285F4;line-height:1">${item.char}</div>
+          <div style="font-size:52px;line-height:1">${item.emoji}</div>
+        </div>
+        <div style="background:#E8F0FE;border:2px solid #4285F4;border-radius:20px;padding:5px 16px;font-size:13px;font-weight:700;color:#1A56C4">${item.keyword}</div>
+      </div>`;
+    return;
+  }
+
+  // 단어/문장 — 이모지 크게 + 글자
+  const isSentence = item.char.length > 4;
+  vis.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div style="font-size:${isSentence?'52px':'64px'};line-height:1">${item.emoji}</div>
+      <div style="font-size:${isSentence?'22px':'40px'};font-weight:900;color:#2D2D2D;text-align:center;line-height:1.3">${item.char}</div>
+    </div>`;
 }
 
-/* ═══════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════ */
+// ═══════════════════════════════════════
+// 화면 전환
+// ═══════════════════════════════════════
+function setAccent(subject) {
+  const s = CURRICULUM[subject];
+  document.documentElement.style.setProperty('--accent', s.color);
+  document.documentElement.style.setProperty('--accent-dark', s.dark);
+  document.documentElement.style.setProperty('--accent-light', s.light);
+}
+
 function goScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-
-  const nav = document.getElementById('bottom-nav');
-  nav.style.display = name === 'learn' ? 'none' : 'flex';
-
-  if (name === 'subject') renderSubject();
-  if (name === 'zone') renderZone();
-  if (name === 'garage') renderGarage();
-  if (name === 'settings') renderSettings();
-  // 네비 활성화
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const navMap = { subject:'nav-home', garage:'nav-garage', settings:'nav-settings' };
-  if (navMap[name]) document.getElementById(navMap[name])?.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('bottom-nav').style.display = name==='learn'?'none':'flex';
+  if(name==='subject') renderSubject();
+  if(name==='zone')    renderZone();
+  if(name==='garage')  renderGarage();
+  if(name==='settings') renderSettings();
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const m={subject:'nav-home',garage:'nav-garage',settings:'nav-settings'};
+  if(m[name]) document.getElementById(m[name])?.classList.add('active');
 }
+function navTo(s){ goScreen(s); }
 
-/* ═══════════════════════════════════════════
-   시작
-═══════════════════════════════════════════ */
+// ═══════════════════════════════════════
+// 시작
+// ═══════════════════════════════════════
 function startApp() {
-  const name = document.getElementById('input-name').value.trim();
-  if (!name) { document.getElementById('input-name').focus(); return; }
-  state.userName = name;
-  saveState();
-  goScreen('subject');
+  const n=document.getElementById('input-name').value.trim();
+  if(!n){document.getElementById('input-name').focus();return;}
+  state.userName=n; saveState(); setAccent('korean'); goScreen('subject');
 }
 
-/* ═══════════════════════════════════════════
-   과목 화면
-═══════════════════════════════════════════ */
+// ═══════════════════════════════════════
+// 과목 화면
+// ═══════════════════════════════════════
 function renderSubject() {
-  document.getElementById('greeting-text').innerHTML =
-    `<em>${state.userName}</em>, 오늘도 출발해볼까요? 🚌`;
-  document.getElementById('total-stamps').textContent = state.stamps;
-
-  const totalPages = ZONES.korean.reduce((a,z) => a + z.pages.length, 0);
-  const done = state.progress.korean || 0;
-  const pct = Math.min(100, Math.round(done / totalPages * 100));
-  document.getElementById('total-progress-fill').style.width = pct + '%';
+  setAccent('korean');
+  document.getElementById('greeting-text').innerHTML=`<em>${state.userName}</em>, 오늘도 출발해볼까요? 🚌`;
+  document.getElementById('total-stamps').textContent=state.stamps;
+  ['korean','math','english'].forEach(k=>{
+    const total=ZONES[k].reduce((a,z)=>a+z.pages.length,0);
+    const done=state.progress[k]||0;
+    const pct=Math.min(100,Math.round(done/total*100));
+    document.getElementById('prog-'+k).textContent=`${pct}% 완료 · ${done}/${total}장`;
+  });
+  const totalAll=Object.values(ZONES).reduce((a,zones)=>a+zones.reduce((b,z)=>b+z.pages.length,0),0);
+  const doneAll=Object.values(state.progress).reduce((a,v)=>a+v,0);
+  document.getElementById('total-progress-fill').style.width=Math.min(100,Math.round(doneAll/totalAll*100))+'%';
 }
 
-/* ═══════════════════════════════════════════
-   존 화면
-═══════════════════════════════════════════ */
-function goToZone(subject) {
-  state.currentSubject = subject;
-  goScreen('zone');
-}
-
-function updateZoneTitle() {
-  const titles = { korean:'🚌 국어', math:'🚒 수학', english:'🚓 영어' };
-  const el = document.getElementById('zone-title');
-  if (el) el.textContent = titles[state.currentSubject] || '';
-}
+// ═══════════════════════════════════════
+// 존 화면
+// ═══════════════════════════════════════
+function goToZone(subject){ state.currentSubject=subject; setAccent(subject); goScreen('zone'); }
 
 function renderZone() {
-  updateZoneTitle();
-  const zones = ZONES[state.currentSubject];
-  const list = document.getElementById('zone-list');
-  let totalDone = 0;
-
-  list.innerHTML = zones.map((z, i) => {
-    const isDone = (state.progress[state.currentSubject] || 0) >= totalDone + z.pages.length;
-    const isLocked = !state.settings?.freeNav && i > 0 && (state.progress[state.currentSubject] || 0) < totalDone;
-    totalDone += z.pages.length;
-    return `
-      <div class="zone-card ${isLocked ? 'locked' : ''}" onclick="startZone(${i})">
-        <div class="zone-num ${isDone ? 'done' : ''}">${isDone ? '✓' : i+1}</div>
-        <div class="zone-info">
-          <div class="zone-name">${z.name}</div>
-          <div class="zone-sub">${z.desc} · ${z.pages.length}장</div>
-        </div>
-        <div class="zone-arrow">›</div>
-      </div>`;
+  setAccent(state.currentSubject);
+  const icons={korean:'🚌',math:'🚒',english:'🚓'};
+  const names={korean:'국어',math:'수학',english:'영어'};
+  document.getElementById('zone-title').textContent=icons[state.currentSubject]+' '+names[state.currentSubject];
+  const zones=ZONES[state.currentSubject];
+  let totalDone=0;
+  document.getElementById('zone-list').innerHTML=zones.map((z,i)=>{
+    const isDone=(state.progress[state.currentSubject]||0)>=totalDone+z.pages.length;
+    const isLocked=!state.settings?.freeNav&&i>0&&(state.progress[state.currentSubject]||0)<totalDone;
+    totalDone+=z.pages.length;
+    return `<div class="zone-card ${isLocked?'locked':''} ${!isLocked&&!isDone?'active-zone':''}" onclick="startZone(${i})">
+      <div class="zone-num ${isDone?'done':''}">${isDone?'✓':i+1}</div>
+      <div class="zone-info">
+        <div class="zone-name">${z.name}</div>
+        <div class="zone-sub">${z.desc} · ${z.pages.length}장</div>
+      </div>
+      <div class="zone-arrow">›</div>
+    </div>`;
   }).join('');
 }
 
-/* ═══════════════════════════════════════════
-   학습 시작
-═══════════════════════════════════════════ */
-function startZone(zoneIdx) {
-  state.currentZoneIdx = zoneIdx;
-  state.currentPageIdx = 0;
-  state.answered = false;
-  goScreen('learn');
-  renderPage();
-}
+// ═══════════════════════════════════════
+// 학습
+// ═══════════════════════════════════════
+function startZone(i){ state.currentZoneIdx=i; state.currentPageIdx=0; state.answered=false; goScreen('learn'); renderPage(); }
 
-/* ═══════════════════════════════════════════
-   페이지 렌더
-═══════════════════════════════════════════ */
 function renderPage() {
-  const zone = ZONES[state.currentSubject][state.currentZoneIdx];
-  const page = zone.pages[state.currentPageIdx];
-  const total = zone.pages.length;
-  const current = state.currentPageIdx + 1;
+  const zone=ZONES[state.currentSubject][state.currentZoneIdx];
+  const page=zone.pages[state.currentPageIdx];
+  const total=zone.pages.length;
+  document.getElementById('learn-progress-fill').style.width=((state.currentPageIdx+1)/total*100)+'%';
+  document.getElementById('learn-step-txt').textContent=`${state.currentPageIdx+1}/${total}`;
 
-  // 진행 바
-  document.getElementById('learn-progress-fill').style.width = (current/total*100) + '%';
-  document.getElementById('learn-step-txt').textContent = `${current}/${total}`;
+  const icons={korean:'🚌 국어',math:'🚒 수학',english:'🚓 영어'};
+  document.getElementById('card-subject-label').textContent=icons[state.currentSubject];
+  document.getElementById('sound-label').textContent=page.label;
+  document.getElementById('card-hint').textContent=page.hint;
 
-  // 카드
-  document.getElementById('card-char').textContent = page.char;
-  document.getElementById('card-hint').textContent = page.hint;
-  document.getElementById('sound-label').textContent = page.label;
+  // 비주얼
+  renderCardVisual(page, state.currentSubject);
 
-  // 선택지
-  const grid = document.getElementById('options-grid');
-  const nextBtn = document.getElementById('btn-next');
-  state.answered = false;
-  nextBtn.classList.remove('visible');
+  const grid=document.getElementById('options-grid');
+  const nextBtn=document.getElementById('btn-next');
+  state.answered=false; nextBtn.classList.remove('visible');
 
-  if (page.type === 'listen') {
-    grid.innerHTML = '';
-    nextBtn.classList.add('visible');
-    nextBtn.textContent = '다음 ➡️';
-    // 자동 재생
-    if (state.settings?.autoSound !== false) setTimeout(() => playSound(), 400);
-
-  } else if (page.type === 'choose') {
-    grid.innerHTML = page.options.map(opt =>
-      `<button class="option-btn" onclick="checkAnswer('${opt}', this)">${opt}</button>`
-    ).join('');
-    // 힌트음 자동 재생
-    if (state.settings?.autoSound !== false) setTimeout(() => playSound(), 400);
+  if(page.type==='listen') {
+    grid.innerHTML='';
+    nextBtn.classList.add('visible'); nextBtn.textContent='다음 ➡️';
+    if(state.settings?.autoSound!==false) setTimeout(()=>playSound(),400);
+  } else {
+    // 보기 스타일: 자음/모음/알파벳은 글자만 크게, 나머지는 이모지+글자
+    const isCharOnly = page.item && (
+      'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ'.includes(page.char) ||
+      /^[A-Z]$/.test(page.char) ||
+      /^[0-9]+$/.test(page.char) ||
+      ['○','△','□','★','♥'].includes(page.char)
+    );
+    grid.innerHTML=page.options.map(opt=>{
+      const safe = opt.char.replace(/'/g,"\\'");
+      if(isCharOnly) {
+        return `<button class="option-btn" onclick="checkAnswer('${safe}',this)">
+          <span style="font-size:34px;font-weight:900;line-height:1">${opt.char}</span>
+        </button>`;
+      } else {
+        return `<button class="option-btn" onclick="checkAnswer('${safe}',this)">
+          <span class="opt-emoji">${opt.emoji}</span>
+          <span class="opt-char" style="font-size:${opt.char.length>3?'14px':'18px'}">${opt.char}</span>
+        </button>`;
+      }
+    }).join('');
+    if(state.settings?.autoSound!==false) setTimeout(()=>playSound(),400);
   }
 }
 
-/* ═══════════════════════════════════════════
-   정답 체크
-═══════════════════════════════════════════ */
 function checkAnswer(selected, btn) {
-  if (state.answered) return;
-  state.answered = true;
-
-  const zone = ZONES[state.currentSubject][state.currentZoneIdx];
-  const page = zone.pages[state.currentPageIdx];
-
-  if (selected === page.answer) {
-    btn.classList.add('correct');
-    state.stamps++;
-    saveState();
-    playAudio('audio/30_잘했어요.mp3');
-    setTimeout(() => {
-      document.getElementById('btn-next').classList.add('visible');
-    }, 600);
+  if(state.answered) return;
+  state.answered=true;
+  const page=ZONES[state.currentSubject][state.currentZoneIdx].pages[state.currentPageIdx];
+  if(selected===page.answer){
+    btn.classList.add('correct'); state.stamps++; saveState();
+    speakTTS('잘했어요','ko-KR');
+    setTimeout(()=>document.getElementById('btn-next').classList.add('visible'),500);
   } else {
     btn.classList.add('wrong');
-    playAudio('audio/31_다시해봐요.mp3');
-    setTimeout(() => {
-      btn.classList.remove('wrong');
-      state.answered = false;
-    }, 900);
+    speakTTS('다시 해봐요','ko-KR');
+    setTimeout(()=>{btn.classList.remove('wrong');state.answered=false;},900);
   }
 }
 
-/* ═══════════════════════════════════════════
-   다음 페이지
-═══════════════════════════════════════════ */
 function nextPage() {
-  const zone = ZONES[state.currentSubject][state.currentZoneIdx];
-  const total = zone.pages.length;
-
-  // 진행 저장
-  const globalDone = (state.progress[state.currentSubject] || 0);
-  state.progress[state.currentSubject] = Math.max(globalDone, state.currentPageIdx + 1);
+  const zone=ZONES[state.currentSubject][state.currentZoneIdx];
+  state.progress[state.currentSubject]=Math.max(state.progress[state.currentSubject]||0, state.currentPageIdx+1);
   saveState();
-
-  if (state.currentPageIdx + 1 >= total) {
-    // 존 완료!
-    showResult(zone);
-  } else {
-    state.currentPageIdx++;
-    state.answered = false;
-    renderPage();
-  }
+  if(state.currentPageIdx+1>=zone.pages.length) showResult(zone);
+  else { state.currentPageIdx++; state.answered=false; renderPage(); }
 }
 
-/* ═══════════════════════════════════════════
-   결과 화면
-═══════════════════════════════════════════ */
 function showResult(zone) {
   goScreen('result');
-  document.getElementById('result-emoji').textContent = '🎉';
-  document.getElementById('result-title').textContent = `${zone.name} 완료!`;
-  document.getElementById('result-sub').textContent =
-    `${state.userName}가 자음을 다 배웠어요! 🚌💨`;
-
-  const row = document.getElementById('stamp-row');
-  row.innerHTML = ['⭐','⭐','⭐'].map((s, i) =>
-    `<div class="stamp" style="animation-delay:${i*0.15}s">${s}</div>`
-  ).join('');
-
-  playAudio('audio/30_잘했어요.mp3');
+  document.getElementById('result-title').textContent=`${zone.name} 완료! 🎉`;
+  document.getElementById('result-sub').textContent=`${state.userName}, 정말 잘했어요! 👏`;
+  document.getElementById('stamp-row').innerHTML=['⭐','⭐','⭐'].map((s,i)=>`<div class="stamp" style="animation-delay:${i*0.15}s">${s}</div>`).join('');
+  speakTTS('잘했어요! 정말 대단해요!','ko-KR');
+}
+function continueLearn(){
+  if(state.currentZoneIdx+1<ZONES[state.currentSubject].length) startZone(state.currentZoneIdx+1);
+  else goScreen('subject');
 }
 
-function continueLearn() {
-  const zones = ZONES[state.currentSubject];
-  if (state.currentZoneIdx + 1 < zones.length) {
-    startZone(state.currentZoneIdx + 1);
-  } else {
-    goScreen('subject');
-  }
-}
-
-/* ═══════════════════════════════════════════
-   차고지
-═══════════════════════════════════════════ */
-const GARAGE_VEHICLES = [
-  { emoji:'🚌', name:'고속버스', zone:'자음 Zone' },
-  { emoji:'🚒', name:'소방차', zone:'모음 Zone' },
-  { emoji:'🚓', name:'경찰차', zone:'글자 Zone' },
-  { emoji:'🚕', name:'택시', zone:'단어 Zone' },
-  { emoji:'🚛', name:'덤프트럭', zone:'문장 Zone' },
-  { emoji:'🚁', name:'헬리콥터', zone:'수학 Zone1' },
-  { emoji:'🏍️', name:'오토바이', zone:'수학 Zone2' },
-  { emoji:'🚂', name:'기차', zone:'수학 Zone3' },
-  { emoji:'🚀', name:'로켓', zone:'영어 Zone1' },
+// ═══════════════════════════════════════
+// 차고지
+// ═══════════════════════════════════════
+const GARAGE=[
+  {e:'🚌',n:'고속버스'},{e:'🚒',n:'소방차'},{e:'🚓',n:'경찰차'},{e:'🚕',n:'택시'},
+  {e:'🚛',n:'덤프트럭'},{e:'🚁',n:'헬리콥터'},{e:'🏍️',n:'오토바이'},{e:'🚂',n:'기차'},
+  {e:'🚀',n:'로켓'},{e:'🛸',n:'UFO'},{e:'🚢',n:'크루즈'},{e:'✈️',n:'비행기'},
 ];
-
-function renderGarage() {
-  const grid = document.getElementById('garage-grid');
-  const done = state.progress.korean >= 28; // Zone1 완료시 1번 해금 (임시)
-  grid.innerHTML = GARAGE_VEHICLES.map((v, i) => `
-    <div class="garage-item ${i === 0 && done ? '' : 'locked'}">
-      <div>${v.emoji}</div>
-      <p>${v.name}</p>
-    </div>
-  `).join('');
+function renderGarage(){
+  const done=Object.values(state.progress).reduce((a,v)=>a+v,0);
+  const unlocked=Math.min(GARAGE.length-1, Math.floor(done/20));
+  document.getElementById('garage-grid').innerHTML=GARAGE.map((v,i)=>`
+    <div class="garage-item ${i<=unlocked?'':'locked'}">
+      <div class="g-emoji">${v.e}</div><p>${v.n}</p>
+    </div>`).join('');
 }
 
-/* ═══════════════════════════════════════════
-   초기화
-═══════════════════════════════════════════ */
-
-/* ═══════════════════════════════════════════
-   네비 + 설정
-═══════════════════════════════════════════ */
-function navTo(screen) {
-  goScreen(screen);
+// ═══════════════════════════════════════
+// 설정
+// ═══════════════════════════════════════
+function renderSettings(){
+  document.getElementById('settings-name-input').value=state.userName;
+  document.getElementById('toggle-free-nav').checked=state.settings?.freeNav||false;
+  document.getElementById('toggle-auto-sound').checked=state.settings?.autoSound!==false;
+  const total=Object.values(ZONES).reduce((a,zones)=>a+zones.reduce((b,z)=>b+z.pages.length,0),0);
+  const done=Object.values(state.progress).reduce((a,v)=>a+v,0);
+  document.getElementById('settings-stats').textContent=`전체 ${total}장 중 ${done}장 완료 · 도장 ${state.stamps}개`;
 }
+function saveName(){ const v=document.getElementById('settings-name-input').value.trim(); if(!v)return; state.userName=v; saveState(); showToast('✅ 이름 저장!'); }
+function toggleSetting(k,v){ if(!state.settings)state.settings={}; state.settings[k]=v; saveState(); showToast('✅ 설정 저장!'); }
+function showToast(msg){ const t=document.getElementById('save-toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+function confirmReset(){ if(confirm('학습 기록을 모두 지울까요?')){ localStorage.removeItem('broom_v2'); location.reload(); } }
 
-function renderSettings() {
-  // 이름 인풋
-  document.getElementById('settings-name-input').value = state.userName;
-  // 토글 상태
-  document.getElementById('toggle-free-nav').checked = state.settings?.freeNav || false;
-  document.getElementById('toggle-auto-sound').checked = state.settings?.autoSound !== false;
-  // 통계
-  const totalPages = Object.keys(ZONES).reduce((a, k) =>
-    a + ZONES[k].reduce((b, z) => b + z.pages.length, 0), 0);
-  const donePgs = Object.values(state.progress).reduce((a, v) => a + v, 0);
-  document.getElementById('settings-stats').textContent =
-    `전체 ${totalPages}장 중 ${donePgs}장 완료 · 도장 ${state.stamps}개`;
-}
-
-function saveName() {
-  const val = document.getElementById('settings-name-input').value.trim();
-  if (!val) return;
-  state.userName = val;
-  saveState();
-  showToast('✅ 이름이 저장됐어요!');
-}
-
-function toggleSetting(key, value) {
-  if (!state.settings) state.settings = {};
-  state.settings[key] = value;
-  saveState();
-  showToast('✅ 설정 저장됐어요!');
-}
-
-function showToast(msg) {
-  const t = document.getElementById('save-toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-function confirmReset() {
-  if (confirm('학습 기록을 모두 지울까요?\n이름과 도장이 모두 초기화됩니다.')) {
-    localStorage.removeItem('broom_state');
-    location.reload();
-  }
-}
-
-window.onload = () => {
-  loadState();
-  if (state.userName) {
-    goScreen('subject');
-  }
-};
+window.onload=()=>{ loadState(); if(state.userName){ setAccent('korean'); goScreen('subject'); } };
 </script>
 </body>
 </html>
