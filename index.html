@@ -599,6 +599,146 @@
   }
   .nav-btn.active { color: var(--korean-main); }
   .nav-btn span:first-child { font-size: 24px; }
+
+  /* ══════════════════════════════════
+     설정 화면
+  ══════════════════════════════════ */
+  #screen-settings {
+    padding: 16px 20px;
+    gap: 14px;
+    overflow-y: auto;
+  }
+
+  .settings-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .settings-section {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .settings-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    letter-spacing: 1px;
+    padding: 12px 20px 4px;
+  }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 14px;
+    border-top: 1px solid #F0F0F0;
+  }
+  .settings-row:first-of-type { border-top: none; }
+
+  .settings-row-icon { font-size: 26px; flex-shrink: 0; }
+  .settings-row-info { flex: 1; }
+  .settings-row-title { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+  .settings-row-desc  { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+
+  /* 토글 스위치 */
+  .toggle-wrap { position: relative; width: 52px; height: 28px; flex-shrink: 0; }
+  .toggle-wrap input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #CCC;
+    border-radius: 28px;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-wrap input:checked + .toggle-slider { background: var(--korean-main); }
+  .toggle-wrap input:checked + .toggle-slider::before { transform: translateX(24px); }
+
+  /* 이름 수정 인풋 */
+  .settings-name-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 20px 16px;
+  }
+  .settings-name-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 2px solid #E0E0E0;
+    border-radius: var(--radius-sm);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .settings-name-input:focus { border-color: var(--korean-main); }
+  .btn-name-save {
+    padding: 10px 18px;
+    background: var(--korean-main);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--korean-dark);
+    white-space: nowrap;
+  }
+  .btn-name-save:active { transform: translateY(2px); box-shadow: none; }
+
+  .settings-save-toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2D2D2D;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .settings-save-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* 초기화 버튼 */
+  .btn-reset {
+    width: 100%;
+    padding: 14px;
+    background: none;
+    border: 2px solid #FFCDD2;
+    border-radius: var(--radius);
+    color: var(--wrong);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-reset:active { background: #FFEBEE; }
+
 </style>
 </head>
 <body>
@@ -675,7 +815,7 @@
   <div id="screen-zone" class="screen">
     <div class="zone-header">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
-      <div class="zone-title" id="zone-title">🚌 국어 노선</div>
+      <div class="zone-title" id="zone-title">🚌 국어</div>
     </div>
     <div class="zone-list" id="zone-list"></div>
   </div>
@@ -727,17 +867,450 @@
   </div>
 
 
+  <!-- ⑦ 설정 화면 -->
+  <div id="screen-settings" class="screen">
+    <div class="settings-header">
+      <button class="btn-back" onclick="goScreen('subject')">←</button>
+      <div class="zone-title">⚙️ 설정</div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">이름</div>
+      <div class="settings-name-wrap">
+        <input class="settings-name-input" id="settings-name-input" type="text" maxlength="6" placeholder="이름 입력">
+        <button class="btn-name-save" onclick="saveName()">저장</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">학습 옵션</div>
+      <div class="settings-row">
+        <div class="settings-row-icon">🔓</div>
+        <div class="settings-row-info">
+          <div class="settings-row-title">자유 이동</div>
+          <div class="settings-row-desc">커리큘럼 완료 전에도 다음 Zone으로 이동</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" id="toggle-free-nav" onchange="toggleSetting('freeNav', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon">🔊</div>
+        <div class="settings-row-info">
+          <div class="settings-row-title">자동 소리 재생</div>
+          <div class="settings-row-desc">페이지 넘어갈 때 자동으로 소리 재생</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" id="toggle-auto-sound" onchange="toggleSetting('autoSound', this.checked)" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">데이터</div>
+      <div class="settings-row">
+        <div class="settings-row-icon">📊</div>
+        <div class="settings-row-info">
+          <div class="settings-row-title">학습 현황</div>
+          <div class="settings-row-desc" id="settings-stats">로딩 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="confirmReset()">🗑️ 학습 기록 초기화</button>
+  </div>
+
+  <div class="settings-save-toast" id="save-toast">✅ 저장됐어요!</div>
+
 <!-- 하단 네비 (학습 중 숨김) -->
 <nav class="bottom-nav" id="bottom-nav">
-  <button class="nav-btn active" id="nav-home" onclick="goScreen('subject')">
+  <button class="nav-btn active" id="nav-home" onclick="navTo('subject')">
     <span>🏠</span><span>홈</span>
   </button>
-  <button class="nav-btn" id="nav-garage" onclick="goScreen('garage')">
+  <button class="nav-btn" id="nav-garage" onclick="navTo('garage')">
     <span>🚌</span><span>차고지</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="navTo('settings')">
+    <span>⚙️</span><span>설정</span>
   </button>
 </nav>
 </div><!-- /app -->
 
+<script>
+// ═══════════════════════════════════════════
+// data.js — 부릉부릉 학교 커리큘럼 데이터
+// ═══════════════════════════════════════════
+
+const CURRICULUM = {
+
+  korean: {
+    subject: '국어',
+    icon: '🚌',
+    color: '#FFB800',
+    zones: [
+
+      // ─────────────────────────────
+      // Zone 1. 자음 정류장 (28장)
+      // ─────────────────────────────
+      {
+        id: 'ko-z1',
+        name: '자음 정류장',
+        desc: 'ㄱ~ㅎ 자음 14개',
+        vehicle: '고속버스',
+        items: [
+          { char:'ㄱ', name:'기역',  sound:'그', emoji:'🚌', audio:'01_기역', audioSound:'15_그' },
+          { char:'ㄴ', name:'니은',  sound:'느', emoji:'🚗', audio:'02_니은', audioSound:'16_느' },
+          { char:'ㄷ', name:'디귿',  sound:'드', emoji:'🚛', audio:'03_디귿', audioSound:'17_드' },
+          { char:'ㄹ', name:'리을',  sound:'르', emoji:'🚚', audio:'04_리을', audioSound:'18_르' },
+          { char:'ㅁ', name:'미음',  sound:'므', emoji:'🚎', audio:'05_미음', audioSound:'19_므' },
+          { char:'ㅂ', name:'비읍',  sound:'브', emoji:'🚍', audio:'06_비읍', audioSound:'20_브' },
+          { char:'ㅅ', name:'시옷',  sound:'스', emoji:'🚒', audio:'07_시옷', audioSound:'21_스' },
+          { char:'ㅇ', name:'이응',  sound:'으', emoji:'🏍️', audio:'08_이응', audioSound:'22_으' },
+          { char:'ㅈ', name:'지읒',  sound:'즈', emoji:'🏗️', audio:'09_지읒', audioSound:'23_즈' },
+          { char:'ㅊ', name:'치읓',  sound:'츠', emoji:'🚜', audio:'10_치읓', audioSound:'24_츠' },
+          { char:'ㅋ', name:'키읔',  sound:'크', emoji:'🚕', audio:'11_키읔', audioSound:'25_크' },
+          { char:'ㅌ', name:'티읕',  sound:'트', emoji:'🚖', audio:'12_티읕', audioSound:'26_트' },
+          { char:'ㅍ', name:'피읖',  sound:'프', emoji:'🚧', audio:'13_피읖', audioSound:'27_프' },
+          { char:'ㅎ', name:'히읗',  sound:'흐', emoji:'🚁', audio:'14_히읗', audioSound:'28_흐' },
+        ]
+      },
+
+      // ─────────────────────────────
+      // Zone 2. 모음 정류장 (20장)
+      // ─────────────────────────────
+      {
+        id: 'ko-z2',
+        name: '모음 정류장',
+        desc: 'ㅏ~ㅣ 모음 10개',
+        vehicle: '마을버스',
+        items: [
+          { char:'ㅏ', name:'아', sound:'아', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅑ', name:'야', sound:'야', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅓ', name:'어', sound:'어', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅕ', name:'여', sound:'여', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅗ', name:'오', sound:'오', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅛ', name:'요', sound:'요', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅜ', name:'우', sound:'우', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅠ', name:'유', sound:'유', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅡ', name:'으', sound:'으', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'ㅣ', name:'이', sound:'이', emoji:'🚌', audio:'tts', audioSound:'tts' },
+        ]
+      },
+
+      // ─────────────────────────────
+      // Zone 3. 글자 조합 (24장)
+      // ─────────────────────────────
+      {
+        id: 'ko-z3',
+        name: '글자 조합 놀이',
+        desc: '자음+모음 합치기',
+        vehicle: '기차',
+        items: [
+          { char:'가', name:'가', sound:'가', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'나', name:'나', sound:'나', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'다', name:'다', sound:'다', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'라', name:'라', sound:'라', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'마', name:'마', sound:'마', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'바', name:'바', sound:'바', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'사', name:'사', sound:'사', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'아', name:'아', sound:'아', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'자', name:'자', sound:'자', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'차', name:'차', sound:'차', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'카', name:'카', sound:'카', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'타', name:'타', sound:'타', emoji:'🚂', audio:'tts', audioSound:'tts' },
+        ]
+      },
+
+      // ─────────────────────────────
+      // Zone 4. 단어 카드 (50장)
+      // ─────────────────────────────
+      {
+        id: 'ko-z4',
+        name: '단어 카드',
+        desc: '그림 단어 50개',
+        vehicle: '택시',
+        items: [
+          { char:'버스', name:'버스',   sound:'버스', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'차',   name:'차',     sound:'차',   emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'기차', name:'기차',   sound:'기차', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'배',   name:'배',     sound:'배',   emoji:'⛵', audio:'tts', audioSound:'tts' },
+          { char:'비행기',name:'비행기',sound:'비행기',emoji:'✈️', audio:'tts', audioSound:'tts' },
+          { char:'나무', name:'나무',   sound:'나무', emoji:'🌳', audio:'tts', audioSound:'tts' },
+          { char:'꽃',   name:'꽃',     sound:'꽃',   emoji:'🌸', audio:'tts', audioSound:'tts' },
+          { char:'해',   name:'해',     sound:'해',   emoji:'☀️', audio:'tts', audioSound:'tts' },
+          { char:'달',   name:'달',     sound:'달',   emoji:'🌙', audio:'tts', audioSound:'tts' },
+          { char:'별',   name:'별',     sound:'별',   emoji:'⭐', audio:'tts', audioSound:'tts' },
+          { char:'물',   name:'물',     sound:'물',   emoji:'💧', audio:'tts', audioSound:'tts' },
+          { char:'불',   name:'불',     sound:'불',   emoji:'🔥', audio:'tts', audioSound:'tts' },
+          { char:'집',   name:'집',     sound:'집',   emoji:'🏠', audio:'tts', audioSound:'tts' },
+          { char:'산',   name:'산',     sound:'산',   emoji:'⛰️', audio:'tts', audioSound:'tts' },
+          { char:'강',   name:'강',     sound:'강',   emoji:'🌊', audio:'tts', audioSound:'tts' },
+          { char:'개',   name:'개',     sound:'개',   emoji:'🐶', audio:'tts', audioSound:'tts' },
+          { char:'고양이',name:'고양이',sound:'고양이',emoji:'🐱', audio:'tts', audioSound:'tts' },
+          { char:'곰',   name:'곰',     sound:'곰',   emoji:'🐻', audio:'tts', audioSound:'tts' },
+          { char:'토끼', name:'토끼',   sound:'토끼', emoji:'🐰', audio:'tts', audioSound:'tts' },
+          { char:'사자', name:'사자',   sound:'사자', emoji:'🦁', audio:'tts', audioSound:'tts' },
+          { char:'사과', name:'사과',   sound:'사과', emoji:'🍎', audio:'tts', audioSound:'tts' },
+          { char:'바나나',name:'바나나',sound:'바나나',emoji:'🍌', audio:'tts', audioSound:'tts' },
+          { char:'포도', name:'포도',   sound:'포도', emoji:'🍇', audio:'tts', audioSound:'tts' },
+          { char:'딸기', name:'딸기',   sound:'딸기', emoji:'🍓', audio:'tts', audioSound:'tts' },
+          { char:'수박', name:'수박',   sound:'수박', emoji:'🍉', audio:'tts', audioSound:'tts' },
+        ]
+      },
+
+      // ─────────────────────────────
+      // Zone 5. 짧은 문장 (20장)
+      // ─────────────────────────────
+      {
+        id: 'ko-z5',
+        name: '첫 문장',
+        desc: '짧은 문장 읽기',
+        vehicle: '소방차',
+        items: [
+          { char:'버스가 가요.', name:'버스가 가요.', sound:'버스가 가요.', emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'차가 빨라요.', name:'차가 빨라요.', sound:'차가 빨라요.', emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'기차가 와요.', name:'기차가 와요.', sound:'기차가 와요.', emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'곰이 자요.',   name:'곰이 자요.',   sound:'곰이 자요.',   emoji:'🐻', audio:'tts', audioSound:'tts' },
+          { char:'꽃이 예뻐요.',name:'꽃이 예뻐요.',sound:'꽃이 예뻐요.',emoji:'🌸', audio:'tts', audioSound:'tts' },
+          { char:'해가 떠요.',   name:'해가 떠요.',   sound:'해가 떠요.',   emoji:'☀️', audio:'tts', audioSound:'tts' },
+          { char:'비가 와요.',   name:'비가 와요.',   sound:'비가 와요.',   emoji:'🌧️', audio:'tts', audioSound:'tts' },
+          { char:'개가 짖어요.',name:'개가 짖어요.',sound:'개가 짖어요.',emoji:'🐶', audio:'tts', audioSound:'tts' },
+          { char:'사과가 맛있어요.',name:'사과가 맛있어요.',sound:'사과가 맛있어요.',emoji:'🍎', audio:'tts', audioSound:'tts' },
+          { char:'집에 가요.',   name:'집에 가요.',   sound:'집에 가요.',   emoji:'🏠', audio:'tts', audioSound:'tts' },
+        ]
+      },
+    ]
+  },
+
+  // ════════════════════════════════
+  // 수학
+  // ════════════════════════════════
+  math: {
+    subject: '수학',
+    icon: '🚒',
+    color: '#FF5252',
+    zones: [
+      {
+        id: 'ma-z1',
+        name: '숫자 1~5 차고',
+        desc: '숫자 1부터 5까지',
+        vehicle: '소방차',
+        items: [
+          { char:'1', name:'일', sound:'일', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'2', name:'이', sound:'이', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'3', name:'삼', sound:'삼', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'4', name:'사', sound:'사', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'5', name:'오', sound:'오', emoji:'🚒', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'ma-z2',
+        name: '숫자 6~10 차고',
+        desc: '숫자 6부터 10까지',
+        vehicle: '경찰차',
+        items: [
+          { char:'6',  name:'육',  sound:'육',  emoji:'🚓', audio:'tts', audioSound:'tts' },
+          { char:'7',  name:'칠',  sound:'칠',  emoji:'🚓', audio:'tts', audioSound:'tts' },
+          { char:'8',  name:'팔',  sound:'팔',  emoji:'🚓', audio:'tts', audioSound:'tts' },
+          { char:'9',  name:'구',  sound:'구',  emoji:'🚓', audio:'tts', audioSound:'tts' },
+          { char:'10', name:'십',  sound:'십',  emoji:'🚓', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'ma-z3',
+        name: '크다 작다 도로',
+        desc: '크기 비교하기',
+        vehicle: '덤프트럭',
+        items: [
+          { char:'크다',  name:'크다',  sound:'크다',  emoji:'🚛', audio:'tts', audioSound:'tts' },
+          { char:'작다',  name:'작다',  sound:'작다',  emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'많다',  name:'많다',  sound:'많다',  emoji:'🚛', audio:'tts', audioSound:'tts' },
+          { char:'적다',  name:'적다',  sound:'적다',  emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'길다',  name:'길다',  sound:'길다',  emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'짧다',  name:'짧다',  sound:'짧다',  emoji:'🚕', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'ma-z4',
+        name: '도형 교차로',
+        desc: '동그라미·세모·네모',
+        vehicle: '포클레인',
+        items: [
+          { char:'○', name:'동그라미', sound:'동그라미', emoji:'⭕', audio:'tts', audioSound:'tts' },
+          { char:'△', name:'세모',     sound:'세모',     emoji:'🔺', audio:'tts', audioSound:'tts' },
+          { char:'□', name:'네모',     sound:'네모',     emoji:'🟦', audio:'tts', audioSound:'tts' },
+          { char:'★', name:'별모양',   sound:'별모양',   emoji:'⭐', audio:'tts', audioSound:'tts' },
+          { char:'♥', name:'하트',     sound:'하트',     emoji:'❤️', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'ma-z5',
+        name: '더하기 출동',
+        desc: '1~5 더하기',
+        vehicle: '소방차',
+        items: [
+          { char:'1+1=2', name:'일 더하기 일은 이', sound:'일 더하기 일은 이', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'1+2=3', name:'일 더하기 이는 삼', sound:'일 더하기 이는 삼', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'2+2=4', name:'이 더하기 이는 사', sound:'이 더하기 이는 사', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'2+3=5', name:'이 더하기 삼은 오', sound:'이 더하기 삼은 오', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'3+3=6', name:'삼 더하기 삼은 육', sound:'삼 더하기 삼은 육', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'4+1=5', name:'사 더하기 일은 오', sound:'사 더하기 일은 오', emoji:'🚒', audio:'tts', audioSound:'tts' },
+        ]
+      },
+    ]
+  },
+
+  // ════════════════════════════════
+  // 영어
+  // ════════════════════════════════
+  english: {
+    subject: '영어',
+    icon: '🚓',
+    color: '#4285F4',
+    zones: [
+      {
+        id: 'en-z1',
+        name: '알파벳 A~M',
+        desc: 'A부터 M까지',
+        vehicle: '경찰차',
+        items: [
+          { char:'A', name:'에이', sound:'에이', emoji:'🚑', audio:'tts', audioSound:'tts' },
+          { char:'B', name:'비',   sound:'비',   emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'C', name:'씨',   sound:'씨',   emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'D', name:'디',   sound:'디',   emoji:'🚛', audio:'tts', audioSound:'tts' },
+          { char:'E', name:'이',   sound:'이',   emoji:'⚡', audio:'tts', audioSound:'tts' },
+          { char:'F', name:'에프', sound:'에프', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'G', name:'지',   sound:'지',   emoji:'🏎️', audio:'tts', audioSound:'tts' },
+          { char:'H', name:'에이치',sound:'에이치',emoji:'🚁', audio:'tts', audioSound:'tts' },
+          { char:'I', name:'아이', sound:'아이', emoji:'🛻', audio:'tts', audioSound:'tts' },
+          { char:'J', name:'제이', sound:'제이', emoji:'🚙', audio:'tts', audioSound:'tts' },
+          { char:'K', name:'케이', sound:'케이', emoji:'🛺', audio:'tts', audioSound:'tts' },
+          { char:'L', name:'엘',   sound:'엘',   emoji:'🚐', audio:'tts', audioSound:'tts' },
+          { char:'M', name:'엠',   sound:'엠',   emoji:'🛵', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'en-z2',
+        name: '알파벳 N~Z',
+        desc: 'N부터 Z까지',
+        vehicle: '경찰차',
+        items: [
+          { char:'N', name:'엔',   sound:'엔',   emoji:'🚓', audio:'tts', audioSound:'tts' },
+          { char:'O', name:'오',   sound:'오',   emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'P', name:'피',   sound:'피',   emoji:'🚓', audio:'tts', audioSound:'tts' },
+          { char:'Q', name:'큐',   sound:'큐',   emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'R', name:'알',   sound:'알',   emoji:'🚕', audio:'tts', audioSound:'tts' },
+          { char:'S', name:'에스', sound:'에스', emoji:'🚒', audio:'tts', audioSound:'tts' },
+          { char:'T', name:'티',   sound:'티',   emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'U', name:'유',   sound:'유',   emoji:'🚛', audio:'tts', audioSound:'tts' },
+          { char:'V', name:'브이', sound:'브이', emoji:'🚐', audio:'tts', audioSound:'tts' },
+          { char:'W', name:'더블유',sound:'더블유',emoji:'🚚', audio:'tts', audioSound:'tts' },
+          { char:'X', name:'엑스', sound:'엑스', emoji:'🚧', audio:'tts', audioSound:'tts' },
+          { char:'Y', name:'와이', sound:'와이', emoji:'🏎️', audio:'tts', audioSound:'tts' },
+          { char:'Z', name:'지',   sound:'지',   emoji:'🚁', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'en-z3',
+        name: '기초 단어 순찰',
+        desc: '영어 단어 20개',
+        vehicle: '경찰차',
+        items: [
+          { char:'bus',    name:'버스',   sound:'bus',    emoji:'🚌', audio:'tts', audioSound:'tts' },
+          { char:'car',    name:'자동차', sound:'car',    emoji:'🚗', audio:'tts', audioSound:'tts' },
+          { char:'train',  name:'기차',   sound:'train',  emoji:'🚂', audio:'tts', audioSound:'tts' },
+          { char:'ship',   name:'배',     sound:'ship',   emoji:'⛵', audio:'tts', audioSound:'tts' },
+          { char:'plane',  name:'비행기', sound:'plane',  emoji:'✈️', audio:'tts', audioSound:'tts' },
+          { char:'dog',    name:'개',     sound:'dog',    emoji:'🐶', audio:'tts', audioSound:'tts' },
+          { char:'cat',    name:'고양이', sound:'cat',    emoji:'🐱', audio:'tts', audioSound:'tts' },
+          { char:'bear',   name:'곰',     sound:'bear',   emoji:'🐻', audio:'tts', audioSound:'tts' },
+          { char:'apple',  name:'사과',   sound:'apple',  emoji:'🍎', audio:'tts', audioSound:'tts' },
+          { char:'banana', name:'바나나', sound:'banana', emoji:'🍌', audio:'tts', audioSound:'tts' },
+          { char:'sun',    name:'해',     sound:'sun',    emoji:'☀️', audio:'tts', audioSound:'tts' },
+          { char:'moon',   name:'달',     sound:'moon',   emoji:'🌙', audio:'tts', audioSound:'tts' },
+          { char:'star',   name:'별',     sound:'star',   emoji:'⭐', audio:'tts', audioSound:'tts' },
+          { char:'house',  name:'집',     sound:'house',  emoji:'🏠', audio:'tts', audioSound:'tts' },
+          { char:'water',  name:'물',     sound:'water',  emoji:'💧', audio:'tts', audioSound:'tts' },
+        ]
+      },
+      {
+        id: 'en-z4',
+        name: '인사 표현',
+        desc: '영어 인사 10개',
+        vehicle: '경찰차',
+        items: [
+          { char:'Hello!',     name:'헬로',     sound:'Hello',     emoji:'👋', audio:'tts', audioSound:'tts' },
+          { char:'Bye!',       name:'바이',     sound:'Bye',       emoji:'✋', audio:'tts', audioSound:'tts' },
+          { char:'Yes!',       name:'예스',     sound:'Yes',       emoji:'✅', audio:'tts', audioSound:'tts' },
+          { char:'No!',        name:'노',       sound:'No',        emoji:'❌', audio:'tts', audioSound:'tts' },
+          { char:'Thank you!', name:'땡큐',     sound:'Thank you', emoji:'🙏', audio:'tts', audioSound:'tts' },
+          { char:'Sorry!',     name:'쏘리',     sound:'Sorry',     emoji:'😅', audio:'tts', audioSound:'tts' },
+          { char:'Good!',      name:'굿',       sound:'Good',      emoji:'👍', audio:'tts', audioSound:'tts' },
+          { char:'Help!',      name:'헬프',     sound:'Help',      emoji:'🆘', audio:'tts', audioSound:'tts' },
+          { char:'Go!',        name:'고',       sound:'Go',        emoji:'🚦', audio:'tts', audioSound:'tts' },
+          { char:'Stop!',      name:'스탑',     sound:'Stop',      emoji:'🛑', audio:'tts', audioSound:'tts' },
+        ]
+      },
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════
+// 페이지 빌더 — 아이템 → 학습 페이지 자동 생성
+// ═══════════════════════════════════════════
+function buildPages(zone, subjectKey) {
+  const pages = [];
+  const items = zone.items;
+
+  items.forEach((item, i) => {
+    // 페이지 1: 듣기 (listen)
+    pages.push({
+      id: `${zone.id}-${i}-listen`,
+      type: 'listen',
+      char: item.char,
+      label: item.name,
+      hint: `"${item.name}" 들어봐요! 🔊`,
+      emoji: item.emoji,
+      audio: item.audio === 'tts' ? null : `audio/${item.audio}.mp3`,
+      ttsText: item.sound,
+    });
+
+    // 페이지 2: 고르기 (choose) — 3개 중 정답
+    const others = items.filter((_, j) => j !== i);
+    const picks = others.sort(() => Math.random() - 0.5).slice(0, 2);
+    const opts = [item.char, picks[0]?.char, picks[1]?.char]
+      .filter(Boolean)
+      .sort(() => Math.random() - 0.5);
+
+    pages.push({
+      id: `${zone.id}-${i}-choose`,
+      type: 'choose',
+      char: item.char,
+      label: item.name,
+      hint: `"${item.name}" 찾아봐요! 👀`,
+      emoji: item.emoji,
+      audio: item.audio === 'tts' ? null : `audio/${item.audio}.mp3`,
+      ttsText: item.sound,
+      options: opts,
+      answer: item.char,
+    });
+  });
+
+  return pages;
+}
+
+// ZONES 형태로 변환 (엔진 호환)
+const ZONES = {};
+Object.entries(CURRICULUM).forEach(([subjectKey, subject]) => {
+  ZONES[subjectKey] = subject.zones.map(zone => ({
+    ...zone,
+    pages: buildPages(zone, subjectKey)
+  }));
+});
+
+</script>
 <script>
 /* ═══════════════════════════════════════════
    DATA — 국어 Zone 1: 자음 (14자)
@@ -757,6 +1330,7 @@ let state = {
   currentPageIdx: 0,
   stamps: 0,
   progress: { korean: 0, math: 0, english: 0 },
+  settings: { freeNav: false, autoSound: true },
   unlockedVehicles: [],
   answered: false,
 };
@@ -822,6 +1396,11 @@ function goScreen(name) {
   if (name === 'subject') renderSubject();
   if (name === 'zone') renderZone();
   if (name === 'garage') renderGarage();
+  if (name === 'settings') renderSettings();
+  // 네비 활성화
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const navMap = { subject:'nav-home', garage:'nav-garage', settings:'nav-settings' };
+  if (navMap[name]) document.getElementById(navMap[name])?.classList.add('active');
 }
 
 /* ═══════════════════════════════════════════
@@ -840,7 +1419,7 @@ function startApp() {
 ═══════════════════════════════════════════ */
 function renderSubject() {
   document.getElementById('greeting-text').innerHTML =
-    `<em>${state.userName}</em>아, 오늘도 출발해볼까요? 🚌`;
+    `<em>${state.userName}</em>, 오늘도 출발해볼까요? 🚌`;
   document.getElementById('total-stamps').textContent = state.stamps;
 
   const totalPages = ZONES.korean.reduce((a,z) => a + z.pages.length, 0);
@@ -858,7 +1437,7 @@ function goToZone(subject) {
 }
 
 function updateZoneTitle() {
-  const titles = { korean:'🚌 국어 노선', math:'🚒 수학 출동', english:'🚓 영어 순찰' };
+  const titles = { korean:'🚌 국어', math:'🚒 수학', english:'🚓 영어' };
   const el = document.getElementById('zone-title');
   if (el) el.textContent = titles[state.currentSubject] || '';
 }
@@ -870,8 +1449,8 @@ function renderZone() {
   let totalDone = 0;
 
   list.innerHTML = zones.map((z, i) => {
-    const isDone = (state.progress.korean || 0) >= totalDone + z.pages.length;
-    const isLocked = i > 0 && (state.progress.korean || 0) < totalDone;
+    const isDone = (state.progress[state.currentSubject] || 0) >= totalDone + z.pages.length;
+    const isLocked = !state.settings?.freeNav && i > 0 && (state.progress[state.currentSubject] || 0) < totalDone;
     totalDone += z.pages.length;
     return `
       <div class="zone-card ${isLocked ? 'locked' : ''}" onclick="startZone(${i})">
@@ -925,14 +1504,14 @@ function renderPage() {
     nextBtn.classList.add('visible');
     nextBtn.textContent = '다음 ➡️';
     // 자동 재생
-    setTimeout(() => playSound(), 400);
+    if (state.settings?.autoSound !== false) setTimeout(() => playSound(), 400);
 
   } else if (page.type === 'choose') {
     grid.innerHTML = page.options.map(opt =>
       `<button class="option-btn" onclick="checkAnswer('${opt}', this)">${opt}</button>`
     ).join('');
     // 힌트음 자동 재생
-    setTimeout(() => playSound(), 400);
+    if (state.settings?.autoSound !== false) setTimeout(() => playSound(), 400);
   }
 }
 
@@ -1042,6 +1621,57 @@ function renderGarage() {
 /* ═══════════════════════════════════════════
    초기화
 ═══════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════
+   네비 + 설정
+═══════════════════════════════════════════ */
+function navTo(screen) {
+  goScreen(screen);
+}
+
+function renderSettings() {
+  // 이름 인풋
+  document.getElementById('settings-name-input').value = state.userName;
+  // 토글 상태
+  document.getElementById('toggle-free-nav').checked = state.settings?.freeNav || false;
+  document.getElementById('toggle-auto-sound').checked = state.settings?.autoSound !== false;
+  // 통계
+  const totalPages = Object.keys(ZONES).reduce((a, k) =>
+    a + ZONES[k].reduce((b, z) => b + z.pages.length, 0), 0);
+  const donePgs = Object.values(state.progress).reduce((a, v) => a + v, 0);
+  document.getElementById('settings-stats').textContent =
+    `전체 ${totalPages}장 중 ${donePgs}장 완료 · 도장 ${state.stamps}개`;
+}
+
+function saveName() {
+  const val = document.getElementById('settings-name-input').value.trim();
+  if (!val) return;
+  state.userName = val;
+  saveState();
+  showToast('✅ 이름이 저장됐어요!');
+}
+
+function toggleSetting(key, value) {
+  if (!state.settings) state.settings = {};
+  state.settings[key] = value;
+  saveState();
+  showToast('✅ 설정 저장됐어요!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('save-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function confirmReset() {
+  if (confirm('학습 기록을 모두 지울까요?\n이름과 도장이 모두 초기화됩니다.')) {
+    localStorage.removeItem('broom_state');
+    location.reload();
+  }
+}
+
 window.onload = () => {
   loadState();
   if (state.userName) {
@@ -1049,6 +1679,5 @@ window.onload = () => {
   }
 };
 </script>
-<script src="data.js"></script>
 </body>
 </html>
