@@ -5,427 +5,278 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>부릉부릉 학교</title>
 <style>
-  :root {
-    --bg: #FFF9F0;
-    --korean-main: #FFB800;
-    --korean-dark: #E09800;
-    --korean-light: #FFF3C4;
-    --math-main: #FF5252;
-    --math-dark: #D32F2F;
-    --english-main: #4285F4;
-    --english-dark: #1A56C4;
-    --correct: #4CAF50;
-    --wrong: #FF5252;
-    --text-dark: #2D2D2D;
-    --text-mid: #666;
-    --white: #FFFFFF;
-    --shadow: 0 4px 20px rgba(0,0,0,0.10);
-    --radius: 20px;
-    --radius-sm: 12px;
-    --accent: var(--korean-main);
-    --accent-dark: var(--korean-dark);
-    --accent-light: var(--korean-light);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-    background: #1a1a2e;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  #app {
-    position: relative;
-    width: min(100vw, calc(100vh * 16 / 9));
-    height: min(100vh, calc(100vw * 9 / 16));
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    padding: 0 0 64px 0;
-    overflow: hidden;
-    box-shadow: 0 0 60px rgba(0,0,0,0.4);
-  }
-  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-  .screen.active { display: flex; }
-  #screen-zone, #screen-garage, #screen-settings { overflow-y: auto; }
+:root {
+  --bg:#FFF9F0; --white:#FFFFFF;
+  --korean-main:#FFB800; --korean-dark:#E09800; --korean-light:#FFF3C4;
+  --math-main:#FF5252;   --math-dark:#D32F2F;   --math-light:#FFEBEE;
+  --eng-main:#4285F4;    --eng-dark:#1A56C4;    --eng-light:#E8F0FE;
+  --correct:#4CAF50; --wrong:#FF5252;
+  --text-dark:#2D2D2D; --text-mid:#666;
+  --shadow:0 4px 20px rgba(0,0,0,.10);
+  --radius:20px; --radius-sm:12px;
+  --accent:var(--korean-main); --accent-dark:var(--korean-dark); --accent-light:var(--korean-light);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:#1a1a2e;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
 
-  /* ── 시작 화면 ── */
-  #screen-start {
-    align-items: center; justify-content: center; gap: 20px; padding: 32px 28px;
-    background: linear-gradient(160deg, #FFF9F0 0%, #FFF3C4 100%);
+/* ── 반응형 앱 컨테이너 ── */
+#app{
+  position:relative;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 0 60px rgba(0,0,0,.4);
+}
+/* 세로 모드: 전체화면 */
+@media (orientation:portrait){
+  #app{width:100vw;height:100vh;padding:0 0 64px 0}
+}
+/* 가로 모드: 16:9 고정 */
+@media (orientation:landscape){
+  #app{
+    width:min(100vw,calc(100vh*16/9));
+    height:min(100vh,calc(100vw*9/16));
+    padding:0 0 56px 0;
+    border-radius:var(--radius);
   }
-  .app-logo { font-size: 80px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgba(255,184,0,0.3)); }
-  @keyframes float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-14px) rotate(3deg)} }
-  .app-title { font-size: 30px; font-weight: 900; color: var(--text-dark); text-align: center; letter-spacing: -1px; }
-  .app-title em { color: var(--korean-main); font-style: normal; display: block; font-size: 13px; font-weight: 700; letter-spacing: 3px; margin-top: 4px; }
-  .name-section { width: 100%; background: white; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
-  .name-section label { font-size: 13px; font-weight: 700; color: var(--text-mid); text-align: center; }
-  .name-section input { width: 100%; padding: 14px 18px; border: 3px solid var(--korean-main); border-radius: var(--radius-sm); font-size: 22px; font-weight: 900; text-align: center; color: var(--text-dark); background: var(--bg); outline: none; }
-  .name-section input::placeholder { color: #CCC; font-weight: 400; font-size: 16px; }
-  .btn-start { width: 100%; padding: 18px; background: var(--korean-main); color: white; border: none; border-radius: var(--radius); font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 var(--korean-dark), 0 8px 20px rgba(255,184,0,0.4); transition: transform 0.1s, box-shadow 0.1s; letter-spacing: 1px; }
-  .btn-start:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--korean-dark); }
+}
 
-  /* ── 과목 선택 ── */
-  #screen-subject { padding: 14px 16px; gap: 10px; justify-content: space-between; }
-  .greeting { font-size: 16px; font-weight: 900; color: var(--text-dark); text-align: center; flex-shrink: 0; }
-  .greeting em { color: var(--korean-main); font-style: normal; }
-  .road-progress { background: white; border-radius: var(--radius); padding: 10px 16px; box-shadow: var(--shadow); flex-shrink: 0; }
-  .road-progress-label { font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; }
-  .road-track { height: 14px; background: #EEE; border-radius: 8px; overflow: hidden; }
-  .road-fill { height: 100%; background: linear-gradient(90deg, var(--korean-main), #FF8C00); border-radius: 8px; transition: width 0.6s ease; min-width: 20px; display: flex; align-items: center; justify-content: flex-end; padding-right: 3px; font-size: 11px; }
-  .subject-grid { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-  .subject-card {
-    background: white; border-radius: var(--radius); padding: 0; box-shadow: var(--shadow);
-    display: flex; align-items: center; cursor: pointer;
-    border: 3px solid transparent; transition: transform 0.15s, box-shadow 0.15s;
-    flex: 1; overflow: hidden; position: relative;
-  }
-  .subject-card:active { transform: scale(0.97); }
-  .subject-card.korean { border-color: var(--korean-main); }
-  .subject-card.math   { border-color: var(--math-main); }
-  .subject-card.english{ border-color: var(--english-main); }
-  .subject-card-stripe {
-    width: 8px; height: 100%; flex-shrink: 0;
-  }
-  .korean .subject-card-stripe { background: var(--korean-main); }
-  .math   .subject-card-stripe { background: var(--math-main); }
-  .english .subject-card-stripe{ background: var(--english-main); }
-  .subject-card-body { display: flex; align-items: center; gap: 14px; padding: 14px 16px; flex: 1; }
-  .subject-icon { font-size: 36px; flex-shrink: 0; }
-  .subject-info { flex: 1; }
-  .subject-name { font-size: 19px; font-weight: 900; color: var(--text-dark); }
-  .subject-desc { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
-  .subject-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; color: white; flex-shrink: 0; }
-  .subject-progress-mini { font-size: 10px; color: var(--text-mid); margin-top: 4px; }
-  .progress-strip { background: white; border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
-  .star-info { flex: 1; }
-  .star-info p { font-size: 10px; color: var(--text-mid); }
-  .star-info strong { font-size: 16px; font-weight: 900; color: var(--text-dark); }
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.active{display:flex}
+#screen-zone,#screen-garage,#screen-settings,#screen-calendar,#screen-parent{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-  /* ── 존 선택 ── */
-  #screen-zone { padding: 18px 16px; gap: 12px; }
-  .zone-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .btn-back { background: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
-  .zone-title { font-size: 20px; font-weight: 900; color: var(--text-dark); }
-  .zone-list { display: flex; flex-direction: column; gap: 10px; }
-  .zone-card { background: white; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.1s; border-left: 5px solid #EEE; }
-  .zone-card:active { transform: scale(0.97); }
-  .zone-card.locked { opacity: 0.35; pointer-events: none; }
-  .zone-card.active-zone { border-left-color: var(--accent); }
-  .zone-num { width: 40px; height: 40px; background: var(--korean-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; color: var(--korean-dark); flex-shrink: 0; }
-  .zone-num.done { background: var(--correct); color: white; }
-  .zone-info { flex: 1; }
-  .zone-name { font-size: 15px; font-weight: 700; color: var(--text-dark); }
-  .zone-sub { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
-  .zone-arrow { font-size: 20px; color: #CCC; }
+/* ── 시작 ── */
+#screen-start{align-items:center;justify-content:center;gap:20px;padding:clamp(20px,4vw,40px) clamp(16px,4vw,28px);background:linear-gradient(160deg,#FFF9F0,#FFF3C4)}
+.app-logo{font-size:clamp(56px,10vw,80px);animation:float 3s ease-in-out infinite;filter:drop-shadow(0 8px 16px rgba(255,184,0,.3))}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+.app-title{font-size:clamp(22px,5vw,30px);font-weight:900;color:var(--text-dark);text-align:center;letter-spacing:-1px}
+.app-title em{color:var(--korean-main);font-style:normal;display:block;font-size:clamp(11px,2vw,13px);font-weight:700;letter-spacing:3px;margin-top:4px}
+.name-section{width:100%;max-width:380px;background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.name-section label{font-size:13px;font-weight:700;color:var(--text-mid);text-align:center}
+.name-section input{width:100%;padding:13px 18px;border:3px solid var(--korean-main);border-radius:var(--radius-sm);font-size:20px;font-weight:900;text-align:center;color:var(--text-dark);background:var(--bg);outline:none}
+.btn-start{width:100%;max-width:380px;padding:17px;background:var(--korean-main);color:white;border:none;border-radius:var(--radius);font-size:19px;font-weight:900;cursor:pointer;box-shadow:0 6px 0 var(--korean-dark),0 8px 20px rgba(255,184,0,.4);transition:transform .1s,box-shadow .1s}
+.btn-start:active{transform:translateY(4px);box-shadow:0 2px 0 var(--korean-dark)}
 
-  /* ── 학습 화면 ── */
-  #screen-learn { padding: 12px 16px; gap: 10px; }
-  .learn-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .learn-progress-bar { flex: 1; height: 8px; background: #EEE; border-radius: 4px; overflow: hidden; }
-  .learn-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-dark)); border-radius: 4px; transition: width 0.4s ease; }
-  .learn-step-txt { font-size: 12px; font-weight: 700; color: var(--text-mid); white-space: nowrap; }
+/* ── 과목 선택 ── */
+#screen-subject{padding:clamp(10px,2vw,16px);gap:clamp(8px,1.5vw,12px);justify-content:space-between}
+.greeting{font-size:clamp(14px,2.5vw,17px);font-weight:900;color:var(--text-dark);text-align:center;flex-shrink:0}
+.greeting em{color:var(--korean-main);font-style:normal}
+.today-card{background:linear-gradient(135deg,var(--korean-main),#FF8C00);border-radius:var(--radius);padding:clamp(12px,2vw,18px) clamp(14px,2.5vw,20px);color:white;box-shadow:0 6px 20px rgba(255,184,0,.35);flex-shrink:0;cursor:pointer;transition:transform .1s;position:relative;overflow:hidden}
+.today-card:active{transform:scale(.98)}
+.today-card::after{content:'🚌';position:absolute;right:16px;bottom:-4px;font-size:52px;opacity:.2}
+.today-card.done{background:linear-gradient(135deg,#4CAF50,#2E7D32);box-shadow:0 6px 20px rgba(76,175,80,.35)}
+.tc-label{font-size:10px;font-weight:700;opacity:.85;letter-spacing:1px}
+.tc-title{font-size:clamp(15px,2.5vw,19px);font-weight:900;margin:3px 0}
+.tc-sub{font-size:11px;opacity:.85}
+.tc-bar{height:6px;background:rgba(255,255,255,.3);border-radius:3px;margin-top:10px;overflow:hidden}
+.tc-fill{height:100%;background:white;border-radius:3px;transition:width .5s ease}
+.streak-row{display:flex;gap:8px;align-items:center;background:white;border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);flex-shrink:0}
+.streak-info{flex:1}
+.streak-info p{font-size:10px;color:var(--text-mid)}
+.streak-info strong{font-size:17px;font-weight:900;color:var(--text-dark)}
+.streak-dots{display:flex;gap:4px}
+.streak-dot{width:26px;height:26px;border-radius:50%;background:#EEE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#BBB}
+.streak-dot.done{background:var(--korean-main);color:white}
+.streak-dot.today{background:var(--korean-main);color:white;box-shadow:0 0 0 3px rgba(255,184,0,.3)}
+.road-progress{background:white;border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);flex-shrink:0}
+.road-progress-label{font-size:11px;font-weight:700;color:var(--text-mid);margin-bottom:5px}
+.road-track{height:13px;background:#EEE;border-radius:7px;overflow:hidden}
+.road-fill{height:100%;background:linear-gradient(90deg,var(--korean-main),#FF8C00);border-radius:7px;transition:width .6s ease;min-width:18px;display:flex;align-items:center;justify-content:flex-end;padding-right:3px;font-size:11px}
+.subject-grid{display:flex;flex-direction:column;gap:clamp(6px,1vw,10px);flex:1}
+.subject-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;align-items:center;cursor:pointer;border:3px solid transparent;transition:transform .15s;flex:1;overflow:hidden}
+.subject-card:active{transform:scale(.97)}
+.subject-card.korean{border-color:var(--korean-main)}
+.subject-card.math{border-color:var(--math-main)}
+.subject-card.english{border-color:var(--eng-main)}
+.subject-stripe{width:7px;height:100%;flex-shrink:0}
+.korean .subject-stripe{background:var(--korean-main)}
+.math .subject-stripe{background:var(--math-main)}
+.english .subject-stripe{background:var(--eng-main)}
+.subject-body{display:flex;align-items:center;gap:12px;padding:clamp(10px,2vw,15px);flex:1}
+.subject-icon{font-size:clamp(28px,5vw,36px);flex-shrink:0}
+.subject-info{flex:1}
+.subject-name{font-size:clamp(15px,3vw,19px);font-weight:900;color:var(--text-dark)}
+.subject-desc{font-size:10px;color:var(--text-mid);margin-top:1px}
+.subject-prog{font-size:10px;color:var(--text-mid);margin-top:3px}
+.subject-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;color:white;flex-shrink:0}
+.progress-strip{background:white;border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);display:flex;gap:10px;align-items:center;flex-shrink:0}
+.star-info{flex:1}
+.star-info p{font-size:10px;color:var(--text-mid)}
+.star-info strong{font-size:16px;font-weight:900;color:var(--text-dark)}
 
-  /* 학습 카드 — 완전 새 구조 */
-  .learn-card {
-    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
-    display: flex; flex-direction: column; align-items: center;
-    flex: 1; overflow: hidden; position: relative;
-  }
-  .card-top-band {
-    width: 100%; height: 6px; flex-shrink: 0;
-    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-  }
-  .card-body {
-    flex: 1; width: 100%; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 12px 16px; gap: 8px; position: relative;
-  }
-  .card-subject-label {
-    position: absolute; top: 10px; left: 14px;
-    font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 1px;
-  }
+/* ── 공통 헤더 ── */
+.zone-header{display:flex;align-items:center;gap:10px;flex-shrink:0;padding:clamp(12px,2vw,18px) clamp(12px,2vw,18px) 0}
+.btn-back{background:white;border:none;border-radius:50%;width:38px;height:38px;font-size:17px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.zone-title{font-size:clamp(17px,3vw,20px);font-weight:900;color:var(--text-dark)}
 
-  /* 비주얼 영역 */
-  .card-visual {
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px; flex-wrap: wrap;
-  }
-  .card-visual-main { font-size: 72px; line-height: 1; }
-  .card-visual-emoji { font-size: 56px; line-height: 1; }
-  .card-visual-scene {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-  }
-  .card-visual-scene-row { display: flex; gap: 6px; align-items: flex-end; }
+/* ── 존 목록 ── */
+#screen-zone{gap:0}
+.zone-list{display:flex;flex-direction:column;gap:8px;padding:12px clamp(12px,2vw,18px)}
+.zone-card{background:white;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .1s;border-left:5px solid #EEE}
+.zone-card:active{transform:scale(.97)}
+.zone-card.locked{opacity:.3;pointer-events:none}
+.zone-card.current-zone{border-left-color:var(--accent)}
+.zone-num{width:38px;height:38px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--accent-dark);flex-shrink:0}
+.zone-num.done{background:var(--correct);color:white}
+.zone-info{flex:1}
+.zone-name{font-size:14px;font-weight:700;color:var(--text-dark)}
+.zone-sub{font-size:11px;color:var(--text-mid);margin-top:1px}
+.zone-arrow{font-size:18px;color:#CCC}
 
-  /* 글자/단어 표시 */
-  .card-char-display {
-    font-size: 80px; font-weight: 900; color: var(--text-dark);
-    line-height: 1; letter-spacing: -2px; text-align: center;
-  }
-  .card-char-display.small { font-size: 40px; }
-  .card-char-display.sentence { font-size: 26px; font-weight: 800; }
+/* ── 학습 화면 ── */
+#screen-learn{padding:clamp(10px,2vw,14px);gap:clamp(8px,1.5vw,12px)}
+.learn-header{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.learn-bar{flex:1;height:8px;background:#EEE;border-radius:4px;overflow:hidden}
+.learn-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));border-radius:4px;transition:width .4s ease}
+.learn-step{font-size:12px;font-weight:700;color:var(--text-mid);white-space:nowrap}
+.learn-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;flex:1;overflow:hidden;position:relative}
+.card-band{width:100%;height:6px;flex-shrink:0;background:linear-gradient(90deg,var(--accent),var(--accent-dark))}
+.card-body{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(10px,2vw,16px);gap:clamp(6px,1.2vw,10px);position:relative}
+.card-label{position:absolute;top:10px;left:14px;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px}
+.card-type-badge{position:absolute;top:10px;right:14px;font-size:9px;font-weight:700;background:var(--accent-light);color:var(--accent-dark);padding:3px 8px;border-radius:20px}
+.card-visual{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;width:100%}
+.card-hint{font-size:clamp(13px,2.5vw,18px);color:var(--text-mid);font-weight:700;text-align:center}
+.btn-sound{background:var(--accent-light);border:2.5px solid var(--accent);border-radius:50px;padding:8px 20px;font-size:15px;font-weight:700;color:var(--accent-dark);cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s;flex-shrink:0}
+.btn-sound:active,.btn-sound.playing{background:var(--accent);color:white}
 
-  /* 설명 태그 */
-  .card-tag {
-    background: var(--accent-light); color: var(--accent-dark);
-    font-size: 13px; font-weight: 700; padding: 5px 14px;
-    border-radius: 20px; text-align: center;
-    border: 2px solid var(--accent);
-  }
-  .card-sub-text {
-    font-size: 20px; color: var(--text-mid); font-weight: 700; text-align: center;
-  }
+/* 타이머 바 */
+.timer-bar{width:100%;height:5px;background:#EEE;border-radius:3px;flex-shrink:0;overflow:hidden}
+.timer-fill{height:100%;background:var(--accent);border-radius:3px;transition:width linear}
 
-  /* 소리 버튼 */
-  .btn-sound {
-    background: var(--accent-light); border: 2.5px solid var(--accent);
-    border-radius: 50px; padding: 9px 22px; font-size: 16px; font-weight: 700;
-    color: var(--accent-dark); cursor: pointer; display: flex; align-items: center; gap: 7px;
-    transition: all 0.15s; flex-shrink: 0;
-  }
-  .btn-sound:active, .btn-sound.playing { background: var(--accent); color: white; }
+/* 선택지 */
+.options-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px,1.2vw,10px);width:100%;flex-shrink:0}
+.options-grid.cols2{grid-template-columns:repeat(2,1fr)}
+.option-btn{background:white;border:2.5px solid #E0E0E0;border-radius:var(--radius-sm);padding:clamp(8px,1.5vw,12px) 6px;font-weight:900;color:var(--text-dark);cursor:pointer;text-align:center;box-shadow:0 3px 0 #DDD;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:3px;height:clamp(64px,11vw,80px);justify-content:center}
+.option-btn .opt-emoji{font-size:clamp(22px,4vw,28px);line-height:1}
+.option-btn .opt-char{font-size:clamp(18px,3.5vw,24px);font-weight:900}
+.option-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #DDD}
+.option-btn.correct{border-color:var(--correct);background:#E8F5E9;box-shadow:0 3px 0 #4CAF50;animation:pop .3s ease}
+.option-btn.wrong{border-color:var(--wrong);background:#FFEBEE;box-shadow:0 3px 0 #FF5252;animation:shake .3s ease}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
-  /* 선택지 */
-  .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; flex-shrink: 0; }
-  .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .option-btn {
-    background: white; border: 2.5px solid #E0E0E0; border-radius: var(--radius-sm);
-    padding: 10px 6px; font-weight: 900; color: var(--text-dark); cursor: pointer;
-    text-align: center; box-shadow: 0 3px 0 #DDD; transition: all 0.12s;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    height: 80px; justify-content: center;
-  }
-  .option-btn .opt-emoji { font-size: 28px; line-height: 1; }
-  .option-btn .opt-char { font-size: 22px; font-weight: 900; }
-  .option-btn .opt-label { font-size: 10px; color: var(--text-mid); font-weight: 600; }
-  .option-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #DDD; }
-  .option-btn.correct { border-color: var(--correct); background: #E8F5E9; box-shadow: 0 3px 0 #4CAF50; animation: correctPop 0.3s ease; }
-  .option-btn.wrong   { border-color: var(--wrong); background: #FFEBEE; box-shadow: 0 3px 0 #FF5252; animation: shake 0.3s ease; }
-  @keyframes correctPop { 0%{transform:scale(1)} 50%{transform:scale(1.1)} 100%{transform:scale(1)} }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+/* 짝맞추기 */
+.match-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;flex-shrink:0}
+.match-btn{background:white;border:2.5px solid #E0E0E0;border-radius:var(--radius-sm);padding:12px 8px;font-size:clamp(20px,4vw,28px);font-weight:900;cursor:pointer;text-align:center;box-shadow:0 3px 0 #DDD;transition:all .15s;min-height:clamp(60px,10vw,76px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.match-btn.selected{border-color:var(--accent);background:var(--accent-light);box-shadow:0 3px 0 var(--accent)}
+.match-btn.matched{border-color:var(--correct);background:#E8F5E9;opacity:.6;pointer-events:none}
+.match-btn.wrong-match{border-color:var(--wrong);background:#FFEBEE;animation:shake .3s ease}
+.match-label{font-size:10px;color:var(--text-mid);font-weight:600}
 
-  .btn-next { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-size: 17px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 var(--accent-dark); display: none; flex-shrink: 0; transition: transform 0.1s, box-shadow 0.1s; }
-  .btn-next.visible { display: block; }
-  .btn-next:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--accent-dark); }
+.btn-next{width:100%;padding:clamp(13px,2.5vw,16px);background:var(--accent);color:white;border:none;border-radius:var(--radius);font-size:clamp(15px,3vw,18px);font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--accent-dark);display:none;flex-shrink:0;transition:transform .1s,box-shadow .1s}
+.btn-next.visible{display:block}
+.btn-next:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-dark)}
 
-  /* ── 결과 ── */
-  #screen-result { align-items: center; justify-content: center; gap: 18px; padding: 32px 24px; background: linear-gradient(160deg, #FFF9F0, #FFF3C4); }
-  .result-emoji { font-size: 80px; animation: float 1s ease-in-out infinite; }
-  .result-title { font-size: 26px; font-weight: 900; color: var(--text-dark); text-align: center; }
-  .result-sub { font-size: 14px; color: var(--text-mid); text-align: center; }
-  .stamp-row { display: flex; gap: 10px; justify-content: center; }
-  .stamp { width: 52px; height: 52px; background: var(--korean-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 3px solid var(--korean-main); animation: stampIn 0.4s ease backwards; box-shadow: 0 3px 10px rgba(255,184,0,0.3); }
-  @keyframes stampIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
-  .result-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-  .btn-continue { padding: 16px; background: var(--korean-main); color: white; border: none; border-radius: var(--radius); font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 var(--korean-dark); }
-  .btn-home2 { padding: 13px; background: white; color: var(--text-mid); border: 2px solid #DDD; border-radius: var(--radius); font-size: 15px; font-weight: 700; cursor: pointer; }
+/* ── 결과 ── */
+#screen-result{align-items:center;justify-content:center;gap:18px;padding:32px 24px;background:linear-gradient(160deg,#FFF9F0,#FFF3C4)}
+.result-emoji{font-size:72px;animation:float 1s ease-in-out infinite}
+.result-title{font-size:clamp(20px,4vw,26px);font-weight:900;color:var(--text-dark);text-align:center}
+.result-sub{font-size:14px;color:var(--text-mid);text-align:center}
+.stamp-row{display:flex;gap:10px;justify-content:center}
+.stamp{width:50px;height:50px;background:var(--korean-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;border:3px solid var(--korean-main);animation:stampIn .4s ease backwards;box-shadow:0 3px 10px rgba(255,184,0,.3)}
+@keyframes stampIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.result-btns{display:flex;flex-direction:column;gap:10px;width:100%}
+.btn-continue{padding:15px;background:var(--korean-main);color:white;border:none;border-radius:var(--radius);font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--korean-dark)}
+.btn-home2{padding:12px;background:white;color:var(--text-mid);border:2px solid #DDD;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer}
 
-  /* ── 차고지 ── */
-  #screen-garage { padding: 18px 16px; gap: 12px; }
-  .garage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .garage-item { background: white; border-radius: var(--radius-sm); padding: 12px 6px; text-align: center; box-shadow: var(--shadow); }
-  .garage-item .g-emoji { font-size: 32px; }
-  .garage-item p { font-size: 9px; color: var(--text-mid); margin-top: 4px; font-weight: 600; }
-  .garage-item.locked { opacity: 0.18; filter: grayscale(1); }
+/* ── 차고지 ── */
+#screen-garage{gap:0}
+.garage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px clamp(12px,2vw,18px)}
+.garage-item{background:white;border-radius:var(--radius-sm);padding:12px 6px;text-align:center;box-shadow:var(--shadow)}
+.garage-item .g-emoji{font-size:30px}
+.garage-item p{font-size:9px;color:var(--text-mid);margin-top:4px;font-weight:600}
+.garage-item.locked{opacity:.18;filter:grayscale(1)}
 
-  /* ── 설정 ── */
-  #screen-settings { padding: 16px; gap: 12px; }
-  .settings-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .settings-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .settings-label { font-size: 10px; font-weight: 700; color: var(--text-mid); letter-spacing: 1px; padding: 10px 16px 4px; text-transform: uppercase; }
-  .settings-row { display: flex; align-items: center; padding: 13px 16px; gap: 12px; border-top: 1px solid #F5F5F5; }
-  .settings-row:first-of-type { border-top: none; }
-  .settings-row-icon { font-size: 22px; flex-shrink: 0; }
-  .settings-row-info { flex: 1; }
-  .settings-row-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
-  .settings-row-desc { font-size: 10px; color: var(--text-mid); margin-top: 1px; }
-  .toggle-wrap { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
-  .toggle-wrap input { opacity: 0; width: 0; height: 0; }
-  .toggle-slider { position: absolute; inset: 0; background: #CCC; border-radius: 26px; cursor: pointer; transition: background 0.25s; }
-  .toggle-slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.25s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-  .toggle-wrap input:checked + .toggle-slider { background: var(--korean-main); }
-  .toggle-wrap input:checked + .toggle-slider::before { transform: translateX(22px); }
-  .settings-name-wrap { display: flex; gap: 8px; align-items: center; padding: 10px 16px 14px; }
-  .settings-name-input { flex: 1; padding: 9px 12px; border: 2px solid #E0E0E0; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700; color: var(--text-dark); outline: none; }
-  .settings-name-input:focus { border-color: var(--korean-main); }
-  .btn-name-save { padding: 9px 14px; background: var(--korean-main); color: white; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .btn-reset { width: 100%; padding: 13px; background: none; border: 2px solid #FFCDD2; border-radius: var(--radius); color: var(--wrong); font-size: 13px; font-weight: 700; cursor: pointer; }
-  .toast { position: absolute; bottom: 75px; left: 50%; transform: translateX(-50%) translateY(16px); background: #2D2D2D; color: white; padding: 8px 20px; border-radius: 50px; font-size: 12px; font-weight: 700; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* ── 달력 ── */
+#screen-calendar{gap:0}
+.calendar-grid{background:white;border-radius:var(--radius);margin:12px clamp(12px,2vw,18px) 0;padding:14px;box-shadow:var(--shadow)}
+.calendar-month{font-size:15px;font-weight:900;color:var(--text-dark);text-align:center;margin-bottom:10px}
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.calendar-weekday{text-align:center;font-size:10px;font-weight:700;color:var(--text-mid);padding:3px 0}
+.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-mid)}
+.cal-day.has{background:var(--korean-light);color:var(--korean-dark)}
+.cal-day.full{background:var(--korean-main);color:white}
+.cal-day.today-c{box-shadow:0 0 0 2px var(--korean-main)}
+.cal-day.empty{opacity:0;pointer-events:none}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px clamp(12px,2vw,18px)}
+.stat-card{background:white;border-radius:var(--radius-sm);padding:13px;box-shadow:var(--shadow);text-align:center}
+.stat-card .se{font-size:26px}
+.stat-card .sn{font-size:20px;font-weight:900;color:var(--text-dark);margin:3px 0}
+.stat-card .sl{font-size:10px;color:var(--text-mid)}
 
-  /* ── 네비 ── */
-  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1.5px solid #F0F0F0; display: flex; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
-  .nav-btn { flex: 1; padding: 10px 0; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; color: #BBB; transition: color 0.15s; }
-  .nav-btn.active { color: var(--korean-main); }
-  .nav-btn span:first-child { font-size: 22px; }
+/* ── 부모 ── */
+#screen-parent{gap:0;position:relative}
+.parent-section{background:white;border-radius:var(--radius);margin:0 clamp(12px,2vw,18px) 10px;box-shadow:var(--shadow);overflow:hidden}
+.parent-section-title{font-size:10px;font-weight:700;color:var(--text-mid);letter-spacing:1px;padding:10px 15px 4px;text-transform:uppercase}
+.parent-row{display:flex;align-items:center;padding:12px 15px;gap:11px;border-top:1px solid #F5F5F5}
+.parent-row:first-of-type{border-top:none}
+.parent-row-icon{font-size:20px;flex-shrink:0}
+.parent-row-info{flex:1}
+.parent-row-title{font-size:13px;font-weight:700;color:var(--text-dark)}
+.parent-row-desc{font-size:10px;color:var(--text-mid);margin-top:1px}
+.parent-row-val{font-size:13px;font-weight:900;color:var(--korean-main)}
+.mini-bar{height:7px;background:#EEE;border-radius:4px;overflow:hidden;margin-top:5px}
+.mini-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--korean-main),#FF8C00);transition:width .4s}
+.goal-stepper{display:flex;align-items:center;gap:10px}
+.stepper-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--korean-main);background:white;color:var(--korean-dark);font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stepper-btn:active{background:var(--korean-light)}
+.stepper-val{font-size:18px;font-weight:900;color:var(--text-dark);min-width:46px;text-align:center}
+.btn-reset{width:calc(100% - 2*clamp(12px,2vw,18px));margin:0 clamp(12px,2vw,18px) 14px;padding:13px;background:none;border:2px solid #FFCDD2;border-radius:var(--radius);color:var(--wrong);font-size:13px;font-weight:700;cursor:pointer}
 
-  /* ══════════════════════════════════
-     오늘의 학습 / 달력 / 부모모드
-  ══════════════════════════════════ */
+/* PIN */
+.pin-overlay{position:absolute;inset:0;background:rgba(255,249,240,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:200}
+.pin-display{display:flex;gap:12px}
+.pin-dot{width:15px;height:15px;border-radius:50%;background:#EEE;transition:background .15s}
+.pin-dot.filled{background:var(--korean-main)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:210px}
+.pin-btn{padding:15px;background:white;border:2px solid #EEE;border-radius:var(--radius-sm);font-size:19px;font-weight:900;color:var(--text-dark);cursor:pointer;text-align:center;box-shadow:0 2px 0 #DDD}
+.pin-btn:active{transform:scale(.94)}
+.pin-error{color:var(--wrong);font-size:12px;font-weight:700}
 
-  /* 홈 화면 오늘의 학습 카드 */
-  .today-card {
-    background: linear-gradient(135deg, var(--korean-main), #FF8C00);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    color: white;
-    box-shadow: 0 6px 20px rgba(255,184,0,0.35);
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: transform 0.1s;
-    position: relative;
-    overflow: hidden;
-  }
-  .today-card:active { transform: scale(0.98); }
-  .today-card::after {
-    content: '🚌';
-    position: absolute;
-    right: 16px; bottom: -4px;
-    font-size: 52px;
-    opacity: 0.25;
-  }
-  .today-card-label { font-size: 11px; font-weight: 700; opacity: 0.85; letter-spacing: 1px; }
-  .today-card-title { font-size: 20px; font-weight: 900; margin: 4px 0; }
-  .today-card-sub   { font-size: 12px; opacity: 0.85; }
-  .today-card-bar   { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-top: 12px; overflow: hidden; }
-  .today-card-fill  { height: 100%; background: white; border-radius: 3px; transition: width 0.5s ease; }
-  .today-card-done  {
-    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-    box-shadow: 0 6px 20px rgba(76,175,80,0.35);
-  }
+/* ── 설정 ── */
+#screen-settings{gap:0}
+.settings-section{background:white;border-radius:var(--radius);margin:0 clamp(12px,2vw,18px) 10px;box-shadow:var(--shadow);overflow:hidden}
+.settings-label{font-size:10px;font-weight:700;color:var(--text-mid);letter-spacing:1px;padding:10px 16px 4px}
+.settings-row{display:flex;align-items:center;padding:12px 16px;gap:11px;border-top:1px solid #F5F5F5}
+.settings-row:first-of-type{border-top:none}
+.settings-row-icon{font-size:21px;flex-shrink:0}
+.settings-row-info{flex:1}
+.settings-row-title{font-size:13px;font-weight:700;color:var(--text-dark)}
+.settings-row-desc{font-size:10px;color:var(--text-mid);margin-top:1px}
+.toggle-wrap{position:relative;width:48px;height:26px;flex-shrink:0}
+.toggle-wrap input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#CCC;border-radius:26px;cursor:pointer;transition:background .25s}
+.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle-wrap input:checked + .toggle-slider{background:var(--korean-main)}
+.toggle-wrap input:checked + .toggle-slider::before{transform:translateX(22px)}
+.settings-name-wrap{display:flex;gap:8px;align-items:center;padding:9px 16px 13px}
+.settings-name-input{flex:1;padding:8px 11px;border:2px solid #E0E0E0;border-radius:var(--radius-sm);font-size:15px;font-weight:700;color:var(--text-dark);outline:none}
+.settings-name-input:focus{border-color:var(--korean-main)}
+.btn-name-save{padding:9px 14px;background:var(--korean-main);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 
-  /* 스트릭 */
-  .streak-row {
-    display: flex; gap: 8px; align-items: center;
-    background: white; border-radius: var(--radius);
-    padding: 12px 16px; box-shadow: var(--shadow); flex-shrink: 0;
-  }
-  .streak-fire { font-size: 28px; }
-  .streak-info { flex: 1; }
-  .streak-info p { font-size: 11px; color: var(--text-mid); }
-  .streak-info strong { font-size: 18px; font-weight: 900; color: var(--text-dark); }
-  .streak-dots { display: flex; gap: 5px; }
-  .streak-dot {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: #EEE; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #BBB;
-  }
-  .streak-dot.done { background: var(--korean-main); color: white; }
-  .streak-dot.today { background: var(--korean-main); color: white; box-shadow: 0 0 0 3px rgba(255,184,0,0.3); }
+/* 모달 */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:500;padding:24px}
+.modal-overlay.show{display:flex}
+.modal-box{background:white;border-radius:var(--radius);padding:22px 18px;width:100%;max-width:300px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal-emoji{font-size:40px;margin-bottom:7px}
+.modal-title{font-size:17px;font-weight:900;color:var(--text-dark);margin-bottom:5px}
+.modal-msg{font-size:12px;color:var(--text-mid);line-height:1.5;margin-bottom:16px}
+.modal-btns{display:flex;gap:9px}
+.modal-btn{flex:1;padding:11px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;border:none}
+.modal-btn-cancel{background:#EEE;color:var(--text-mid)}
+.modal-btn-danger{background:var(--wrong);color:white}
 
-  /* ── 달력 화면 ── */
-  #screen-calendar { padding: 16px; gap: 14px; overflow-y: auto; }
-  .calendar-grid {
-    background: white; border-radius: var(--radius); padding: 16px;
-    box-shadow: var(--shadow);
-  }
-  .calendar-month { font-size: 16px; font-weight: 900; color: var(--text-dark); text-align: center; margin-bottom: 12px; }
-  .calendar-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 6px; }
-  .calendar-weekday { text-align: center; font-size: 10px; font-weight: 700; color: var(--text-mid); padding: 4px 0; }
-  .calendar-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
-  .cal-day {
-    aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; font-size: 11px; font-weight: 700; color: var(--text-mid);
-  }
-  .cal-day.has-study { background: var(--korean-light); color: var(--korean-dark); }
-  .cal-day.full-study { background: var(--korean-main); color: white; }
-  .cal-day.today-cal { box-shadow: 0 0 0 2px var(--korean-main); }
-  .cal-day.empty { opacity: 0; pointer-events: none; }
+/* 토스트 */
+.toast{position:absolute;bottom:75px;left:50%;transform:translateX(-50%) translateY(16px);background:#2D2D2D;color:white;padding:8px 20px;border-radius:50px;font-size:12px;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  .calendar-legend { display: flex; gap: 14px; justify-content: center; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-mid); }
-  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
-  .stat-card { background: white; border-radius: var(--radius-sm); padding: 14px; box-shadow: var(--shadow); text-align: center; }
-  .stat-card .stat-emoji { font-size: 28px; }
-  .stat-card .stat-num { font-size: 22px; font-weight: 900; color: var(--text-dark); margin: 4px 0; }
-  .stat-card .stat-label { font-size: 11px; color: var(--text-mid); }
-
-  /* ── 부모 모드 ── */
-  #screen-parent { padding: 16px; gap: 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .parent-header { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-
-  .pin-overlay {
-    position: absolute; inset: 0;
-    background: rgba(255,249,240,0.97);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 20px; z-index: 200; border-radius: var(--radius);
-  }
-  .pin-overlay h3 { font-size: 18px; font-weight: 900; color: var(--text-dark); }
-  .pin-display { display: flex; gap: 12px; }
-  .pin-dot { width: 16px; height: 16px; border-radius: 50%; background: #EEE; transition: background 0.15s; }
-  .pin-dot.filled { background: var(--korean-main); }
-  .pin-pad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; width: 220px; }
-  .pin-btn {
-    padding: 16px; background: white; border: 2px solid #EEE;
-    border-radius: var(--radius-sm); font-size: 20px; font-weight: 900;
-    color: var(--text-dark); cursor: pointer; text-align: center;
-    box-shadow: 0 2px 0 #DDD; transition: transform 0.1s;
-  }
-  .pin-btn:active { transform: scale(0.94); }
-  .pin-error { color: var(--wrong); font-size: 13px; font-weight: 700; }
-
-  .parent-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .parent-section-title { font-size: 12px; font-weight: 700; color: var(--text-mid); letter-spacing: 1px; padding: 12px 16px 6px; }
-  .parent-row { display: flex; align-items: center; padding: 13px 16px; gap: 12px; border-top: 1px solid #F5F5F5; }
-  .parent-row:first-of-type { border-top: none; }
-  .parent-row-icon { font-size: 22px; }
-  .parent-row-info { flex: 1; }
-  .parent-row-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
-  .parent-row-desc { font-size: 11px; color: var(--text-mid); margin-top: 1px; }
-  .parent-row-val { font-size: 14px; font-weight: 900; color: var(--korean-main); }
-
-  .goal-btns { display: flex; gap: 6px; }
-  .goal-btn {
-    padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
-    border: 2px solid #EEE; background: white; color: var(--text-mid); cursor: pointer;
-  }
-  .goal-btn.active { border-color: var(--korean-main); background: var(--korean-light); color: var(--korean-dark); }
-
-  .progress-bar-wrap { width: 100%; }
-  .mini-bar { height: 8px; background: #EEE; border-radius: 4px; overflow: hidden; margin-top: 6px; }
-  .mini-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--korean-main), #FF8C00); transition: width 0.4s; }
-
-
-  /* 커스텀 확인 모달 */
-  .modal-overlay {
-    position: absolute; inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none; align-items: center; justify-content: center;
-    z-index: 500; padding: 24px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal-box {
-    background: white; border-radius: var(--radius);
-    padding: 24px 20px; width: 100%; max-width: 320px;
-    text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-  }
-  .modal-emoji { font-size: 44px; margin-bottom: 8px; }
-  .modal-title { font-size: 18px; font-weight: 900; color: var(--text-dark); margin-bottom: 6px; }
-  .modal-msg { font-size: 13px; color: var(--text-mid); line-height: 1.5; margin-bottom: 18px; }
-  .modal-btns { display: flex; gap: 10px; }
-  .modal-btn { flex: 1; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; border: none; }
-  .modal-btn-cancel { background: #EEE; color: var(--text-mid); }
-  .modal-btn-danger { background: var(--wrong); color: white; }
-  .modal-btn-confirm { background: var(--korean-main); color: white; }
-
-  /* 목표 스테퍼 */
-  .goal-stepper { display: flex; align-items: center; gap: 12px; }
-  .stepper-btn {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 2px solid var(--korean-main); background: white;
-    color: var(--korean-dark); font-size: 20px; font-weight: 900;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .stepper-btn:active { background: var(--korean-light); }
-  .stepper-val { font-size: 20px; font-weight: 900; color: var(--text-dark); min-width: 50px; text-align: center; }
-
+/* ── 네비 ── */
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:64px;background:white;border-top:1.5px solid #F0F0F0;display:flex;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+@media (orientation:portrait){.bottom-nav{height:clamp(56px,10vh,72px)}}
+.nav-btn{flex:1;padding:9px 0;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:700;color:#BBB;transition:color .15s}
+.nav-btn.active{color:var(--korean-main)}
+.nav-btn span:first-child{font-size:21px}
 </style>
 </head>
 <body>
@@ -442,23 +293,18 @@
     <button class="btn-start" onclick="startApp()">🚀 출발!</button>
   </div>
 
-  <!-- ② 과목 -->
+  <!-- ② 과목 선택 -->
   <div id="screen-subject" class="screen">
     <div class="greeting" id="greeting-text"></div>
-    <!-- 오늘의 학습 카드 -->
     <div class="today-card" id="today-card" onclick="startTodayLearn()">
-      <div class="today-card-label">📚 오늘의 학습</div>
-      <div class="today-card-title" id="today-title">로딩 중...</div>
-      <div class="today-card-sub" id="today-sub"></div>
-      <div class="today-card-bar"><div class="today-card-fill" id="today-fill" style="width:0%"></div></div>
+      <div class="tc-label">📚 오늘의 학습</div>
+      <div class="tc-title" id="tc-title">로딩 중...</div>
+      <div class="tc-sub" id="tc-sub"></div>
+      <div class="tc-bar"><div class="tc-fill" id="tc-fill" style="width:0%"></div></div>
     </div>
-    <!-- 스트릭 -->
     <div class="streak-row">
-      <div class="streak-fire" id="streak-fire">🔥</div>
-      <div class="streak-info">
-        <p>연속 학습</p>
-        <strong id="streak-num">0</strong>일째!
-      </div>
+      <div style="font-size:26px" id="streak-fire">🔥</div>
+      <div class="streak-info"><p>연속 학습</p><strong id="streak-num">0</strong>일째!</div>
       <div class="streak-dots" id="streak-dots"></div>
     </div>
     <div class="road-progress">
@@ -467,50 +313,49 @@
     </div>
     <div class="subject-grid">
       <div class="subject-card korean" onclick="goToZone('korean')">
-        <div class="subject-card-stripe"></div>
-        <div class="subject-card-body">
+        <div class="subject-stripe"></div>
+        <div class="subject-body">
           <div class="subject-icon">🚌</div>
           <div class="subject-info">
             <div class="subject-name">국어</div>
-            <div class="subject-desc">한글 자음 · 모음 · 단어 · 문장</div>
-            <div class="subject-progress-mini" id="prog-korean">0% 완료</div>
+            <div class="subject-desc">한글 자음·모음·단어·문장</div>
+            <div class="subject-prog" id="prog-korean">0% 완료</div>
           </div>
           <div class="subject-badge" style="background:#FFB800">학습중</div>
         </div>
       </div>
       <div class="subject-card math" onclick="goToZone('math')">
-        <div class="subject-card-stripe"></div>
-        <div class="subject-card-body">
+        <div class="subject-stripe"></div>
+        <div class="subject-body">
           <div class="subject-icon">🚒</div>
           <div class="subject-info">
             <div class="subject-name">수학</div>
-            <div class="subject-desc">숫자 · 크기비교 · 도형 · 더하기</div>
-            <div class="subject-progress-mini" id="prog-math">0% 완료</div>
+            <div class="subject-desc">숫자·비교·도형·연산</div>
+            <div class="subject-prog" id="prog-math">0% 완료</div>
           </div>
           <div class="subject-badge" style="background:#FF5252">학습중</div>
         </div>
       </div>
       <div class="subject-card english" onclick="goToZone('english')">
-        <div class="subject-card-stripe"></div>
-        <div class="subject-card-body">
+        <div class="subject-stripe"></div>
+        <div class="subject-body">
           <div class="subject-icon">🚓</div>
           <div class="subject-info">
             <div class="subject-name">영어</div>
-            <div class="subject-desc">알파벳 · 단어 · 인사표현</div>
-            <div class="subject-progress-mini" id="prog-english">0% 완료</div>
+            <div class="subject-desc">알파벳·단어·표현</div>
+            <div class="subject-prog" id="prog-english">0% 완료</div>
           </div>
           <div class="subject-badge" style="background:#4285F4">학습중</div>
         </div>
       </div>
     </div>
     <div class="progress-strip">
-      <span style="font-size:22px">⭐</span>
+      <span style="font-size:20px">⭐</span>
       <div class="star-info"><p>모은 도장</p><strong id="total-stamps">0</strong>개</div>
-      <span style="font-size:20px;color:#CCC">›</span>
     </div>
   </div>
 
-  <!-- ③ 존 -->
+  <!-- ③ 존 목록 -->
   <div id="screen-zone" class="screen">
     <div class="zone-header">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
@@ -523,19 +368,21 @@
   <div id="screen-learn" class="screen">
     <div class="learn-header">
       <button class="btn-back" onclick="goScreen('zone')" style="width:34px;height:34px;font-size:14px">←</button>
-      <div class="learn-progress-bar"><div class="learn-progress-fill" id="learn-progress-fill" style="width:0%"></div></div>
-      <div class="learn-step-txt" id="learn-step-txt">0/0</div>
+      <div class="learn-bar"><div class="learn-bar-fill" id="learn-bar-fill" style="width:0%"></div></div>
+      <div class="learn-step" id="learn-step">0/0</div>
     </div>
-    <div class="learn-card" id="learn-card">
-      <div class="card-top-band" id="card-top-band"></div>
+    <div class="learn-card">
+      <div class="card-band" id="card-band"></div>
       <div class="card-body">
-        <div class="card-subject-label" id="card-subject-label">🚌 국어</div>
+        <div class="card-label" id="card-label">🚌 국어</div>
+        <div class="card-type-badge" id="card-type-badge"></div>
         <div class="card-visual" id="card-visual"></div>
         <button class="btn-sound" id="btn-sound" onclick="playSound()">🔊 <span id="sound-label">들어봐요</span></button>
-        <div class="card-sub-text" id="card-hint"></div>
+        <div class="card-hint" id="card-hint"></div>
       </div>
     </div>
-    <div class="options-grid" id="options-grid"></div>
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:0%;display:none"></div></div>
+    <div id="options-area"></div>
     <button class="btn-next" id="btn-next" onclick="nextPage()">다음 ➡️</button>
   </div>
 
@@ -560,7 +407,7 @@
     <div class="garage-grid" id="garage-grid"></div>
   </div>
 
-  <!-- ⑧ 달력/통계 -->
+  <!-- ⑦ 달력 -->
   <div id="screen-calendar" class="screen">
     <div class="zone-header">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
@@ -576,134 +423,85 @@
       </div>
       <div class="calendar-days" id="cal-days"></div>
     </div>
-    <div class="calendar-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#FFF3C4;border:1px solid #FFB800"></div>일부 학습</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#FFB800"></div>목표 달성</div>
-    </div>
     <div class="stats-grid" id="stats-grid"></div>
   </div>
 
-  <!-- ⑨ 부모 모드 -->
-  <div id="screen-parent" class="screen" style="position:relative">
-    <div class="parent-header">
+  <!-- ⑧ 부모 -->
+  <div id="screen-parent" class="screen">
+    <div class="zone-header" style="margin-bottom:10px">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
       <div class="zone-title">👨‍👩‍👧 부모 모드</div>
     </div>
-
     <div class="parent-section">
       <div class="parent-section-title">오늘 현황</div>
       <div class="parent-row">
         <div class="parent-row-icon">📚</div>
-        <div class="parent-row-info"><div class="parent-row-title">오늘 학습량</div>
-          <div class="progress-bar-wrap">
-            <div class="parent-row-desc" id="p-today-desc">-</div>
-            <div class="mini-bar"><div class="mini-fill" id="p-today-bar" style="width:0%"></div></div>
-          </div>
+        <div class="parent-row-info">
+          <div class="parent-row-title">오늘 학습량</div>
+          <div class="parent-row-desc" id="p-today-desc">-</div>
+          <div class="mini-bar"><div class="mini-fill" id="p-today-bar" style="width:0%"></div></div>
         </div>
         <div class="parent-row-val" id="p-today-val">0장</div>
       </div>
       <div class="parent-row">
         <div class="parent-row-icon">🔥</div>
-        <div class="parent-row-info"><div class="parent-row-title">연속 학습</div><div class="parent-row-desc">오늘 포함 연속 달성일</div></div>
+        <div class="parent-row-info"><div class="parent-row-title">연속 학습</div><div class="parent-row-desc">오늘 포함 연속일</div></div>
         <div class="parent-row-val" id="p-streak">0일</div>
       </div>
       <div class="parent-row">
         <div class="parent-row-icon">⭐</div>
-        <div class="parent-row-info"><div class="parent-row-title">총 도장</div><div class="parent-row-desc">지금까지 획득한 도장 수</div></div>
+        <div class="parent-row-info"><div class="parent-row-title">총 도장</div><div class="parent-row-desc">지금까지 획득</div></div>
         <div class="parent-row-val" id="p-stamps">0개</div>
       </div>
     </div>
-
     <div class="parent-section">
-      <div class="parent-section-title">하루 목표 설정 (과목별 · 1장 단위)</div>
+      <div class="parent-section-title">하루 목표 (1장 단위)</div>
       <div class="parent-row">
         <div class="parent-row-icon">🚌</div>
-        <div class="parent-row-info"><div class="parent-row-title">국어 목표</div><div class="parent-row-desc">하루에 풀 국어 장수</div></div>
-        <div class="goal-stepper">
-          <button class="stepper-btn" onclick="changeGoal('korean',-1)">−</button>
-          <span class="stepper-val" id="p-goal-korean">2장</span>
-          <button class="stepper-btn" onclick="changeGoal('korean',1)">+</button>
-        </div>
+        <div class="parent-row-info"><div class="parent-row-title">국어</div><div class="parent-row-desc">하루 국어 목표</div></div>
+        <div class="goal-stepper"><button class="stepper-btn" onclick="changeGoal('korean',-1)">−</button><span class="stepper-val" id="p-goal-korean">1장</span><button class="stepper-btn" onclick="changeGoal('korean',1)">+</button></div>
       </div>
       <div class="parent-row">
         <div class="parent-row-icon">🚒</div>
-        <div class="parent-row-info"><div class="parent-row-title">수학 목표</div><div class="parent-row-desc">하루에 풀 수학 장수</div></div>
-        <div class="goal-stepper">
-          <button class="stepper-btn" onclick="changeGoal('math',-1)">−</button>
-          <span class="stepper-val" id="p-goal-math">2장</span>
-          <button class="stepper-btn" onclick="changeGoal('math',1)">+</button>
-        </div>
+        <div class="parent-row-info"><div class="parent-row-title">수학</div><div class="parent-row-desc">하루 수학 목표</div></div>
+        <div class="goal-stepper"><button class="stepper-btn" onclick="changeGoal('math',-1)">−</button><span class="stepper-val" id="p-goal-math">1장</span><button class="stepper-btn" onclick="changeGoal('math',1)">+</button></div>
       </div>
       <div class="parent-row">
         <div class="parent-row-icon">🚓</div>
-        <div class="parent-row-info"><div class="parent-row-title">영어 목표</div><div class="parent-row-desc">하루에 풀 영어 장수</div></div>
-        <div class="goal-stepper">
-          <button class="stepper-btn" onclick="changeGoal('english',-1)">−</button>
-          <span class="stepper-val" id="p-goal-english">2장</span>
-          <button class="stepper-btn" onclick="changeGoal('english',1)">+</button>
-        </div>
+        <div class="parent-row-info"><div class="parent-row-title">영어</div><div class="parent-row-desc">하루 영어 목표</div></div>
+        <div class="goal-stepper"><button class="stepper-btn" onclick="changeGoal('english',-1)">−</button><span class="stepper-val" id="p-goal-english">1장</span><button class="stepper-btn" onclick="changeGoal('english',1)">+</button></div>
       </div>
     </div>
-
     <div class="parent-section">
       <div class="parent-section-title">과목별 진도</div>
-      <div class="parent-row">
-        <div class="parent-row-icon">🚌</div>
-        <div class="parent-row-info"><div class="parent-row-title">국어</div>
-          <div class="progress-bar-wrap"><div class="mini-bar"><div class="mini-fill" id="p-prog-korean" style="width:0%"></div></div></div>
-        </div>
-        <div class="parent-row-val" id="p-pct-korean">0%</div>
-      </div>
-      <div class="parent-row">
-        <div class="parent-row-icon">🚒</div>
-        <div class="parent-row-info"><div class="parent-row-title">수학</div>
-          <div class="progress-bar-wrap"><div class="mini-bar"><div class="mini-fill" id="p-prog-math" style="width:0%"></div></div></div>
-        </div>
-        <div class="parent-row-val" id="p-pct-math">0%</div>
-      </div>
-      <div class="parent-row">
-        <div class="parent-row-icon">🚓</div>
-        <div class="parent-row-info"><div class="parent-row-title">영어</div>
-          <div class="progress-bar-wrap"><div class="mini-bar"><div class="mini-fill" id="p-prog-english" style="width:0%"></div></div></div>
-        </div>
-        <div class="parent-row-val" id="p-pct-english">0%</div>
-      </div>
+      <div class="parent-row"><div class="parent-row-icon">🚌</div><div class="parent-row-info"><div class="parent-row-title">국어</div><div class="mini-bar"><div class="mini-fill" id="p-prog-korean" style="width:0%"></div></div></div><div class="parent-row-val" id="p-pct-korean">0%</div></div>
+      <div class="parent-row"><div class="parent-row-icon">🚒</div><div class="parent-row-info"><div class="parent-row-title">수학</div><div class="mini-bar"><div class="mini-fill" id="p-prog-math" style="width:0%"></div></div></div><div class="parent-row-val" id="p-pct-math">0%</div></div>
+      <div class="parent-row"><div class="parent-row-icon">🚓</div><div class="parent-row-info"><div class="parent-row-title">영어</div><div class="mini-bar"><div class="mini-fill" id="p-prog-english" style="width:0%"></div></div></div><div class="parent-row-val" id="p-pct-english">0%</div></div>
     </div>
-
     <button class="btn-reset" onclick="confirmReset()">🗑️ 학습 기록 초기화</button>
 
     <!-- PIN 오버레이 -->
     <div class="pin-overlay" id="pin-overlay">
-      <div style="font-size:40px">🔐</div>
-      <h3>부모 모드</h3>
+      <div style="font-size:38px">🔐</div>
+      <div style="font-size:17px;font-weight:900;color:var(--text-dark)">부모 모드</div>
       <div class="pin-display" id="pin-display">
-        <div class="pin-dot" id="pd0"></div>
-        <div class="pin-dot" id="pd1"></div>
-        <div class="pin-dot" id="pd2"></div>
-        <div class="pin-dot" id="pd3"></div>
+        <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
       </div>
       <div class="pin-pad">
-        <button class="pin-btn" onclick="pinInput(1)">1</button>
-        <button class="pin-btn" onclick="pinInput(2)">2</button>
-        <button class="pin-btn" onclick="pinInput(3)">3</button>
-        <button class="pin-btn" onclick="pinInput(4)">4</button>
-        <button class="pin-btn" onclick="pinInput(5)">5</button>
-        <button class="pin-btn" onclick="pinInput(6)">6</button>
-        <button class="pin-btn" onclick="pinInput(7)">7</button>
-        <button class="pin-btn" onclick="pinInput(8)">8</button>
-        <button class="pin-btn" onclick="pinInput(9)">9</button>
-        <button class="pin-btn" onclick="pinInput('back')" style="font-size:16px">⌫</button>
-        <button class="pin-btn" onclick="pinInput(0)">0</button>
-        <button class="pin-btn" onclick="pinInput('cancel')" style="font-size:13px;color:#CCC">취소</button>
+        <button class="pin-btn" onclick="pinInput(1)">1</button><button class="pin-btn" onclick="pinInput(2)">2</button><button class="pin-btn" onclick="pinInput(3)">3</button>
+        <button class="pin-btn" onclick="pinInput(4)">4</button><button class="pin-btn" onclick="pinInput(5)">5</button><button class="pin-btn" onclick="pinInput(6)">6</button>
+        <button class="pin-btn" onclick="pinInput(7)">7</button><button class="pin-btn" onclick="pinInput(8)">8</button><button class="pin-btn" onclick="pinInput(9)">9</button>
+        <button class="pin-btn" onclick="pinInput('back')" style="font-size:15px">⌫</button><button class="pin-btn" onclick="pinInput(0)">0</button><button class="pin-btn" onclick="pinInput('cancel')" style="font-size:11px;color:#CCC">취소</button>
       </div>
       <div class="pin-error" id="pin-error"></div>
-      <div style="font-size:11px;color:#CCC">초기 PIN: 1234</div>
+      <div style="font-size:10px;color:#CCC">초기 PIN: 1234</div>
     </div>
   </div>
 
-  <!-- ⑦ 설정 -->
+  <!-- ⑨ 설정 -->
   <div id="screen-settings" class="screen">
-    <div class="settings-header">
+    <div class="zone-header" style="margin-bottom:10px">
       <button class="btn-back" onclick="goScreen('subject')">←</button>
       <div class="zone-title">⚙️ 설정</div>
     </div>
@@ -718,12 +516,12 @@
       <div class="settings-label">학습 옵션</div>
       <div class="settings-row">
         <div class="settings-row-icon">🔓</div>
-        <div class="settings-row-info"><div class="settings-row-title">자유 이동</div><div class="settings-row-desc">완료 전에도 다음 Zone 이동 가능</div></div>
+        <div class="settings-row-info"><div class="settings-row-title">자유 이동</div><div class="settings-row-desc">완료 전에도 다음 Zone 이동</div></div>
         <label class="toggle-wrap"><input type="checkbox" id="toggle-free-nav" onchange="toggleSetting('freeNav',this.checked)"><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
         <div class="settings-row-icon">🔊</div>
-        <div class="settings-row-info"><div class="settings-row-title">자동 소리 재생</div><div class="settings-row-desc">페이지 넘길 때 자동으로 소리 재생</div></div>
+        <div class="settings-row-info"><div class="settings-row-title">자동 소리 재생</div><div class="settings-row-desc">페이지 넘길 때 자동 재생</div></div>
         <label class="toggle-wrap"><input type="checkbox" id="toggle-auto-sound" onchange="toggleSetting('autoSound',this.checked)" checked><span class="toggle-slider"></span></label>
       </div>
     </div>
@@ -734,12 +532,8 @@
         <div class="settings-row-info"><div class="settings-row-title">학습 현황</div><div class="settings-row-desc" id="settings-stats">-</div></div>
       </div>
     </div>
-    <button class="btn-reset" onclick="confirmReset()">🗑️ 학습 기록 초기화</button>
   </div>
 
-  <div class="toast" id="save-toast"></div>
-
-  <!-- 커스텀 확인 모달 -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal-box">
       <div class="modal-emoji" id="modal-emoji">⚠️</div>
@@ -748,514 +542,588 @@
       <div class="modal-btns" id="modal-btns"></div>
     </div>
   </div>
-
+  <div class="toast" id="save-toast"></div>
 
   <nav class="bottom-nav" id="bottom-nav">
     <button class="nav-btn active" id="nav-home" onclick="navTo('subject')"><span>🏠</span><span>홈</span></button>
     <button class="nav-btn" id="nav-calendar" onclick="navTo('calendar')"><span>📅</span><span>달력</span></button>
     <button class="nav-btn" id="nav-garage" onclick="navTo('garage')"><span>🚗</span><span>차고지</span></button>
     <button class="nav-btn" id="nav-parent" onclick="navTo('parent')"><span>👨‍👩‍👧</span><span>부모</span></button>
+    <button class="nav-btn" id="nav-settings" onclick="navTo('settings')"><span>⚙️</span><span>설정</span></button>
   </nav>
 </div>
 
 <script>
-// ═══════════════════════════════════════
-// 커리큘럼 데이터
-// ═══════════════════════════════════════
-const CURRICULUM = {
-  korean: {
-    subject:'국어', icon:'🚌', color:'#FFB800', dark:'#E09800', light:'#FFF3C4',
-    zones: [
-      { id:'ko-z1', name:'자음 정류장', desc:'ㄱ~ㅎ 자음 14개', items:[
-        {char:'ㄱ', name:'기역', sound:'그', emoji:'🚌', keyword:'고속버스', context:'고속버스의 ㄱ!'},
-        {char:'ㄴ', name:'니은', sound:'느', emoji:'🚗', keyword:'나들이차', context:'나들이차의 ㄴ!'},
-        {char:'ㄷ', name:'디귿', sound:'드', emoji:'🚛', keyword:'덤프트럭', context:'덤프트럭의 ㄷ!'},
-        {char:'ㄹ', name:'리을', sound:'르', emoji:'🚚', keyword:'레미콘', context:'레미콘의 ㄹ!'},
-        {char:'ㅁ', name:'미음', sound:'므', emoji:'🚎', keyword:'마을버스', context:'마을버스의 ㅁ!'},
-        {char:'ㅂ', name:'비읍', sound:'브', emoji:'🛞', keyword:'바퀴', context:'바퀴의 ㅂ!'},
-        {char:'ㅅ', name:'시옷', sound:'스', emoji:'🚒', keyword:'소방차', context:'소방차의 ㅅ!'},
-        {char:'ㅇ', name:'이응', sound:'으', emoji:'🏍️', keyword:'오토바이', context:'오토바이의 ㅇ!'},
-        {char:'ㅈ', name:'지읒', sound:'즈', emoji:'🏗️', keyword:'지게차', context:'지게차의 ㅈ!'},
-        {char:'ㅊ', name:'치읓', sound:'츠', emoji:'🚜', keyword:'청소차', context:'청소차의 ㅊ!'},
-        {char:'ㅋ', name:'키읔', sound:'크', emoji:'🚕', keyword:'카택시', context:'카택시의 ㅋ!'},
-        {char:'ㅌ', name:'티읕', sound:'트', emoji:'🚂', keyword:'트럭', context:'트럭의 ㅌ!'},
-        {char:'ㅍ', name:'피읖', sound:'프', emoji:'🚧', keyword:'포클레인', context:'포클레인의 ㅍ!'},
-        {char:'ㅎ', name:'히읗', sound:'흐', emoji:'🚁', keyword:'헬리콥터', context:'헬리콥터의 ㅎ!'},
-      ]},
-      { id:'ko-z2', name:'모음 정류장', desc:'ㅏ~ㅣ 모음 10개', items:[
-        {char:'ㅏ', name:'아', sound:'아', emoji:'😮', keyword:'아~', context:'"아~" 하고 입을 크게 벌려요'},
-        {char:'ㅑ', name:'야', sound:'야', emoji:'😄', keyword:'야~', context:'"야~" 하고 크게 외쳐요'},
-        {char:'ㅓ', name:'어', sound:'어', emoji:'😯', keyword:'어~', context:'"어~" 하고 놀라요'},
-        {char:'ㅕ', name:'여', sound:'여', emoji:'🙂', keyword:'여기', context:'"여기!"라고 말해봐요'},
-        {char:'ㅗ', name:'오', sound:'오', emoji:'🚗', keyword:'오토바이', context:'"오~" 하고 입술을 오므려요'},
-        {char:'ㅛ', name:'요', sound:'요', emoji:'👋', keyword:'요기', context:'"요~" 하고 불러봐요'},
-        {char:'ㅜ', name:'우', sound:'우', emoji:'😢', keyword:'우~', context:'"우~" 하고 울어봐요'},
-        {char:'ㅠ', name:'유', sound:'유', emoji:'🦄', keyword:'유니콘', context:'"유~" 하고 불어봐요'},
-        {char:'ㅡ', name:'으', sound:'으', emoji:'😤', keyword:'으~', context:'"으~" 하고 힘을 줘요'},
-        {char:'ㅣ', name:'이', sound:'이', emoji:'😁', keyword:'이빨', context:'"이~" 하고 웃어봐요'},
-      ]},
-      { id:'ko-z3', name:'글자 조합', desc:'자음+모음 합치기', items:[
-        {char:'가', name:'가', sound:'가방', emoji:'👜', keyword:'가방', context:'가방 👜  ㄱ+ㅏ=가'},
-        {char:'나', name:'나', sound:'나비', emoji:'🦋', keyword:'나비', context:'나비 🦋  ㄴ+ㅏ=나'},
-        {char:'다', name:'다', sound:'다리', emoji:'🦵', keyword:'다리', context:'다리 🦵  ㄷ+ㅏ=다'},
-        {char:'라', name:'라', sound:'라면', emoji:'🍜', keyword:'라면', context:'라면 🍜  ㄹ+ㅏ=라'},
-        {char:'마', name:'마', sound:'마늘', emoji:'🧄', keyword:'마늘', context:'마늘 🧄  ㅁ+ㅏ=마'},
-        {char:'바', name:'바', sound:'바나나', emoji:'🍌', keyword:'바나나', context:'바나나 🍌  ㅂ+ㅏ=바'},
-        {char:'사', name:'사', sound:'사과', emoji:'🍎', keyword:'사과', context:'사과 🍎  ㅅ+ㅏ=사'},
-        {char:'아', name:'아', sound:'아이스크림', emoji:'🍦', keyword:'아이스크림', context:'아이스크림 🍦  ㅇ+ㅏ=아'},
-        {char:'자', name:'자', sound:'자전거', emoji:'🚲', keyword:'자전거', context:'자전거 🚲  ㅈ+ㅏ=자'},
-        {char:'차', name:'차', sound:'차', emoji:'🍵', keyword:'차(tea)', context:'차 한 잔 🍵  ㅊ+ㅏ=차'},
-        {char:'카', name:'카', sound:'카메라', emoji:'📷', keyword:'카메라', context:'카메라 📷  ㅋ+ㅏ=카'},
-        {char:'타', name:'타', sound:'타조', emoji:'🦤', keyword:'타조', context:'타조 🦤  ㅌ+ㅏ=타'},
-      ]},
-      { id:'ko-z4', name:'단어 카드', desc:'그림 단어 20개', items:[
-        {char:'버스',    name:'버스',    sound:'버스',    emoji:'🚌', keyword:'버스', context:'사람들을 태워요 🚌'},
-        {char:'자동차',  name:'자동차',  sound:'자동차',  emoji:'🚗', keyword:'자동차', context:'씽씽 달려요'},
-        {char:'기차',    name:'기차',    sound:'기차',    emoji:'🚂', keyword:'기차', context:'칙칙폭폭!'},
-        {char:'비행기',  name:'비행기',  sound:'비행기',  emoji:'✈️', keyword:'비행기', context:'하늘을 날아요'},
-        {char:'배',      name:'배',      sound:'배',      emoji:'⛵', keyword:'배', context:'바다 위를 달려요'},
-        {char:'나무',    name:'나무',    sound:'나무',    emoji:'🌳', keyword:'나무', context:'초록초록해요'},
-        {char:'꽃',      name:'꽃',      sound:'꽃',      emoji:'🌸', keyword:'꽃', context:'예뻐요'},
-        {char:'해',      name:'해',      sound:'해',      emoji:'☀️', keyword:'해', context:'따뜻해요'},
-        {char:'달',      name:'달',      sound:'달',      emoji:'🌙', keyword:'달', context:'밤에 떠요'},
-        {char:'별',      name:'별',      sound:'별',      emoji:'⭐', keyword:'별', context:'반짝반짝'},
-        {char:'개',      name:'개',      sound:'개',      emoji:'🐶', keyword:'개', context:'멍멍!'},
-        {char:'고양이',  name:'고양이',  sound:'고양이',  emoji:'🐱', keyword:'고양이', context:'야옹~'},
-        {char:'사과',    name:'사과',    sound:'사과',    emoji:'🍎', keyword:'사과', context:'빨갛고 달아요'},
-        {char:'바나나',  name:'바나나',  sound:'바나나',  emoji:'🍌', keyword:'바나나', context:'길쭉해요'},
-        {char:'수박',    name:'수박',    sound:'수박',    emoji:'🍉', keyword:'수박', context:'여름에 먹어요'},
-        {char:'집',      name:'집',      sound:'집',      emoji:'🏠', keyword:'집', context:'우리집 최고!'},
-        {char:'학교',    name:'학교',    sound:'학교',    emoji:'🏫', keyword:'학교', context:'공부해요'},
-        {char:'공',      name:'공',      sound:'공',      emoji:'⚽', keyword:'공', context:'데굴데굴'},
-        {char:'책',      name:'책',      sound:'책',      emoji:'📚', keyword:'책', context:'읽어요'},
-        {char:'물',      name:'물',      sound:'물',      emoji:'💧', keyword:'물', context:'마셔요'},
-        {char:'우유',    name:'우유',    sound:'우유',    emoji:'🥛', keyword:'우유', context:'쭉쭉 마셔요'},
-        {char:'신발',    name:'신발',    sound:'신발',    emoji:'👟', keyword:'신발', context:'신어요'},
-        {char:'모자',    name:'모자',    sound:'모자',    emoji:'🧢', keyword:'모자', context:'써요'},
-        {char:'우산',    name:'우산',    sound:'우산',    emoji:'☂️', keyword:'우산', context:'비올 때 써요'},
-        {char:'시계',    name:'시계',    sound:'시계',    emoji:'⏰', keyword:'시계', context:'시간을 봐요'},
-      ]},
-      { id:'ko-z5', name:'첫 문장', desc:'짧은 문장 읽기', items:[
-        {char:'버스가 가요.',      name:'버스가 가요.',      sound:'버스가 가요.',      emoji:'🚌', keyword:'버스', context:'어디 갈까요?'},
-        {char:'차가 빨라요.',      name:'차가 빨라요.',      sound:'차가 빨라요.',      emoji:'🚗💨', keyword:'자동차', context:'쌩~!'},
-        {char:'기차가 와요.',      name:'기차가 와요.',      sound:'기차가 와요.',      emoji:'🚂', keyword:'기차', context:'칙칙폭폭!'},
-        {char:'해가 떠요.',        name:'해가 떠요.',        sound:'해가 떠요.',        emoji:'☀️', keyword:'해', context:'좋은 아침!'},
-        {char:'비가 와요.',        name:'비가 와요.',        sound:'비가 와요.',        emoji:'🌧️', keyword:'비', context:'우산 써요!'},
-        {char:'개가 짖어요.',      name:'개가 짖어요.',      sound:'개가 짖어요.',      emoji:'🐶', keyword:'개', context:'멍멍!'},
-        {char:'꽃이 예뻐요.',      name:'꽃이 예뻐요.',      sound:'꽃이 예뻐요.',      emoji:'🌸', keyword:'꽃', context:'와~ 예쁘다!'},
-        {char:'사과가 맛있어요.',  name:'사과가 맛있어요.',  sound:'사과가 맛있어요.',  emoji:'🍎😋', keyword:'사과', context:'냠냠!'},
-        {char:'새가 날아요.',      name:'새가 날아요.',      sound:'새가 날아요.',      emoji:'🐦', keyword:'새', context:'훨훨~'},
-        {char:'아기가 자요.',      name:'아기가 자요.',      sound:'아기가 자요.',      emoji:'👶💤', keyword:'아기', context:'쉿! 조용히'},
-        {char:'물고기가 헤엄쳐요.',name:'물고기가 헤엄쳐요.',sound:'물고기가 헤엄쳐요.',emoji:'🐟', keyword:'물고기', context:'퐁당퐁당'},
-        {char:'달이 밝아요.',      name:'달이 밝아요.',      sound:'달이 밝아요.',      emoji:'🌙', keyword:'달', context:'반짝반짝'},
-      ]},
-      { id:'ko-z6', name:'동물 이름', desc:'동물 단어 12개', items:[
-        {char:'강아지', name:'강아지', sound:'강아지', emoji:'🐶', keyword:'강아지', context:'멍멍!'},
-        {char:'고양이', name:'고양이', sound:'고양이', emoji:'🐱', keyword:'고양이', context:'야옹~'},
-        {char:'토끼',   name:'토끼',   sound:'토끼',   emoji:'🐰', keyword:'토끼', context:'깡총깡총'},
-        {char:'곰',     name:'곰',     sound:'곰',     emoji:'🐻', keyword:'곰', context:'어흥!'},
-        {char:'사자',   name:'사자',   sound:'사자',   emoji:'🦁', keyword:'사자', context:'으르렁'},
-        {char:'코끼리', name:'코끼리', sound:'코끼리', emoji:'🐘', keyword:'코끼리', context:'뿌우~'},
-        {char:'원숭이', name:'원숭이', sound:'원숭이', emoji:'🐵', keyword:'원숭이', context:'우끼끼'},
-        {char:'기린',   name:'기린',   sound:'기린',   emoji:'🦒', keyword:'기린', context:'목이 길어요'},
-        {char:'호랑이', name:'호랑이', sound:'호랑이', emoji:'🐯', keyword:'호랑이', context:'어흥!'},
-        {char:'펭귄',   name:'펭귄',   sound:'펭귄',   emoji:'🐧', keyword:'펭귄', context:'뒤뚱뒤뚱'},
-        {char:'오리',   name:'오리',   sound:'오리',   emoji:'🦆', keyword:'오리', context:'꽥꽥!'},
-        {char:'돼지',   name:'돼지',   sound:'돼지',   emoji:'🐷', keyword:'돼지', context:'꿀꿀!'},
-      ]},
-    ]
-  },
-  math: {
-    subject:'수학', icon:'🚒', color:'#FF5252', dark:'#D32F2F', light:'#FFEBEE',
-    zones: [
-      { id:'ma-z1', name:'숫자 1~5', desc:'숫자 1부터 5까지', items:[
-        {char:'1', name:'하나', sound:'하나', emoji:'🚒', keyword:'소방차 1대', context:'소방차가 한 대 있어요', count:'🚒'},
-        {char:'2', name:'둘',  sound:'둘',  emoji:'🚒', keyword:'소방차 2대', context:'소방차가 두 대 있어요', count:'🚒🚒'},
-        {char:'3', name:'셋',  sound:'셋',  emoji:'🚒', keyword:'소방차 3대', context:'소방차가 세 대 있어요', count:'🚒🚒🚒'},
-        {char:'4', name:'넷',  sound:'넷',  emoji:'🚒', keyword:'소방차 4대', context:'소방차가 네 대 있어요', count:'🚒🚒🚒🚒'},
-        {char:'5', name:'다섯',sound:'다섯',emoji:'🚒', keyword:'소방차 5대', context:'소방차가 다섯 대!', count:'🚒🚒🚒🚒🚒'},
-      ]},
-      { id:'ma-z2', name:'숫자 6~10', desc:'숫자 6부터 10까지', items:[
-        {char:'6',  name:'여섯', sound:'여섯', emoji:'🚓', keyword:'경찰차 6대', context:'경찰차가 여섯 대!', count:'🚓🚓🚓🚓🚓🚓'},
-        {char:'7',  name:'일곱', sound:'일곱', emoji:'🚓', keyword:'경찰차 7대', context:'경찰차가 일곱 대!', count:'🚓🚓🚓🚓🚓🚓🚓'},
-        {char:'8',  name:'여덟', sound:'여덟', emoji:'🚓', keyword:'경찰차 8대', context:'경찰차가 여덟 대!', count:'🚓🚓🚓🚓🚓🚓🚓🚓'},
-        {char:'9',  name:'아홉', sound:'아홉', emoji:'🚓', keyword:'경찰차 9대', context:'경찰차가 아홉 대!', count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
-        {char:'10', name:'열',   sound:'열',   emoji:'🚓', keyword:'경찰차 10대', context:'와! 열 대나!', count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
-      ]},
-      { id:'ma-z3', name:'숫자 11~15', desc:'숫자 11부터 15까지', items:[
-        {char:'11', name:'열하나', sound:'열하나', emoji:'🚌', keyword:'버스 11대', context:'열하나! 🚌', count:'🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌'},
-        {char:'12', name:'열둘',   sound:'열둘',   emoji:'🚌', keyword:'버스 12대', context:'열둘! 🚌', count:'🚌×12'},
-        {char:'13', name:'열셋',   sound:'열셋',   emoji:'🚌', keyword:'버스 13대', context:'열셋! 🚌', count:'🚌×13'},
-        {char:'14', name:'열넷',   sound:'열넷',   emoji:'🚌', keyword:'버스 14대', context:'열넷! 🚌', count:'🚌×14'},
-        {char:'15', name:'열다섯', sound:'열다섯', emoji:'🚌', keyword:'버스 15대', context:'열다섯! 🚌', count:'🚌×15'},
-      ]},
-      { id:'ma-z4', name:'크다 작다', desc:'크기 비교하기', items:[
-        {char:'크다',  name:'크다',  sound:'크다',  emoji:'🚛', keyword:'큰 트럭', context:'트럭이 차보다 커요!', compare:{big:'🚛',small:'🚗',bigLabel:'트럭',smallLabel:'자동차'}},
-        {char:'작다',  name:'작다',  sound:'작다',  emoji:'🚗', keyword:'작은 차', context:'차가 트럭보다 작아요!', compare:{big:'🚛',small:'🚗',bigLabel:'트럭',smallLabel:'자동차'}},
-        {char:'많다',  name:'많다',  sound:'많다',  emoji:'🚌', keyword:'많은 버스', context:'버스가 많아요!', compare:{big:'🚌🚌🚌🚌🚌',small:'🚌',bigLabel:'많다',smallLabel:'적다'}},
-        {char:'적다',  name:'적다',  sound:'적다',  emoji:'🚌', keyword:'적은 버스', context:'버스가 적어요!', compare:{big:'🚌🚌🚌🚌🚌',small:'🚌',bigLabel:'많다',smallLabel:'적다'}},
-        {char:'길다',  name:'길다',  sound:'길다',  emoji:'🚂', keyword:'긴 기차', context:'기차가 택시보다 길어요!', compare:{big:'🚂🚃🚃🚃🚃',small:'🚕',bigLabel:'기차',smallLabel:'택시'}},
-        {char:'짧다',  name:'짧다',  sound:'짧다',  emoji:'🚕', keyword:'짧은 택시', context:'택시가 기차보다 짧아요!', compare:{big:'🚂🚃🚃🚃🚃',small:'🚕',bigLabel:'기차',smallLabel:'택시'}},
-        {char:'높다',  name:'높다',  sound:'높다',  emoji:'🚁', keyword:'높은 헬기', context:'헬리콥터가 높이 있어요!', compare:{big:'🚁',small:'🚗',bigLabel:'헬기(높이)',smallLabel:'자동차(낮이)'}},
-        {char:'낮다',  name:'낮다',  sound:'낮다',  emoji:'🚗', keyword:'낮은 차', context:'자동차가 낮게 있어요!', compare:{big:'🚁',small:'🚗',bigLabel:'헬기(높이)',smallLabel:'자동차(낮이)'}},
-      ]},
-      { id:'ma-z5', name:'도형', desc:'모양 알아보기', items:[
-        {char:'○', name:'동그라미', sound:'동그라미', emoji:'⭕', keyword:'동그라미', context:'바퀴는 동그라미예요 🛞'},
-        {char:'△', name:'세모',     sound:'세모',     emoji:'🔺', keyword:'세모', context:'표지판은 세모예요 ⚠️'},
-        {char:'□', name:'네모',     sound:'네모',     emoji:'🟦', keyword:'네모', context:'창문은 네모예요 🪟'},
-        {char:'★', name:'별모양',   sound:'별모양',   emoji:'⭐', keyword:'별', context:'반짝반짝 별 ⭐'},
-        {char:'♥', name:'하트',     sound:'하트',     emoji:'❤️', keyword:'하트', context:'사랑해요 ❤️'},
-        {char:'◇', name:'마름모',   sound:'마름모',   emoji:'🔷', keyword:'마름모', context:'반짝이는 마름모 🔷'},
-      ]},
-      { id:'ma-z6', name:'더하기', desc:'1~5 더하기', items:[
-        {char:'1+1=2', name:'일 더하기 일은 이', sound:'일 더하기 일은 이', emoji:'🚒', keyword:'', context:'🚒 + 🚒 = 🚒🚒', eq:{a:1,b:1,r:2,e:'🚒'}},
-        {char:'1+2=3', name:'일 더하기 이는 삼', sound:'일 더하기 이는 삼', emoji:'🚒', keyword:'', context:'🚒 + 🚒🚒 = 🚒🚒🚒', eq:{a:1,b:2,r:3,e:'🚒'}},
-        {char:'2+2=4', name:'이 더하기 이는 사', sound:'이 더하기 이는 사', emoji:'🚕', keyword:'', context:'🚕🚕 + 🚕🚕 = 🚕🚕🚕🚕', eq:{a:2,b:2,r:4,e:'🚕'}},
-        {char:'2+3=5', name:'이 더하기 삼은 오', sound:'이 더하기 삼은 오', emoji:'🚗', keyword:'', context:'🚗🚗 + 🚗🚗🚗 = 5대', eq:{a:2,b:3,r:5,e:'🚗'}},
-        {char:'3+2=5', name:'삼 더하기 이는 오', sound:'삼 더하기 이는 오', emoji:'🚙', keyword:'', context:'🚙🚙🚙 + 🚙🚙 = 5대', eq:{a:3,b:2,r:5,e:'🚙'}},
-        {char:'4+1=5', name:'사 더하기 일은 오', sound:'사 더하기 일은 오', emoji:'🚓', keyword:'', context:'🚓🚓🚓🚓 + 🚓 = 5대', eq:{a:4,b:1,r:5,e:'🚓'}},
-      ]},
-      { id:'ma-z7', name:'빼기', desc:'5까지 빼기', items:[
-        {char:'2-1=1', name:'이 빼기 일은 일', sound:'이 빼기 일은 일', emoji:'🚒', keyword:'', context:'🚒🚒 에서 1대 가면 🚒', sub:{a:2,b:1,r:1,e:'🚒'}},
-        {char:'3-1=2', name:'삼 빼기 일은 이', sound:'삼 빼기 일은 이', emoji:'🚗', keyword:'', context:'🚗🚗🚗 에서 1대 가면 🚗🚗', sub:{a:3,b:1,r:2,e:'🚗'}},
-        {char:'3-2=1', name:'삼 빼기 이는 일', sound:'삼 빼기 이는 일', emoji:'🚕', keyword:'', context:'🚕🚕🚕 에서 2대 가면 🚕', sub:{a:3,b:2,r:1,e:'🚕'}},
-        {char:'4-2=2', name:'사 빼기 이는 이', sound:'사 빼기 이는 이', emoji:'🚙', keyword:'', context:'🚙🚙🚙🚙 에서 2대 가면 🚙🚙', sub:{a:4,b:2,r:2,e:'🚙'}},
-        {char:'5-2=3', name:'오 빼기 이는 삼', sound:'오 빼기 이는 삼', emoji:'🚓', keyword:'', context:'5대에서 2대 가면 🚓🚓🚓', sub:{a:5,b:2,r:3,e:'🚓'}},
-        {char:'5-3=2', name:'오 빼기 삼은 이', sound:'오 빼기 삼은 이', emoji:'🚌', keyword:'', context:'5대에서 3대 가면 🚌🚌', sub:{a:5,b:3,r:2,e:'🚌'}},
-      ]},
-    ]
-  },
-    english: {
-    subject:'영어', icon:'🚓', color:'#4285F4', dark:'#1A56C4', light:'#E8F0FE',
-    zones: [
-      { id:'en-z1', name:'알파벳 A~G', desc:'A부터 G까지', items:[
-        {char:'A', name:'에이', sound:'에이', emoji:'🍎', keyword:'Apple',  context:'A is for Apple! 🍎'},
-        {char:'B', name:'비',   sound:'비',   emoji:'🐝', keyword:'Bee',    context:'B is for Bee! 🐝'},
-        {char:'C', name:'씨',   sound:'씨',   emoji:'🐱', keyword:'Cat',    context:'C is for Cat! 🐱'},
-        {char:'D', name:'디',   sound:'디',   emoji:'🐶', keyword:'Dog',    context:'D is for Dog! 🐶'},
-        {char:'E', name:'이',   sound:'이',   emoji:'🥚', keyword:'Egg',    context:'E is for Egg! 🥚'},
-        {char:'F', name:'에프', sound:'에프', emoji:'🐟', keyword:'Fish',   context:'F is for Fish! 🐟'},
-        {char:'G', name:'지',   sound:'지',   emoji:'🍇', keyword:'Grape',  context:'G is for Grape! 🍇'},
-      ]},
-      { id:'en-z2', name:'알파벳 H~N', desc:'H부터 N까지', items:[
-        {char:'H', name:'에이치',sound:'에이치',emoji:'🏠',keyword:'House',  context:'H is for House! 🏠'},
-        {char:'I', name:'아이', sound:'아이', emoji:'🍦', keyword:'Ice cream',context:'I is for Ice cream! 🍦'},
-        {char:'J', name:'제이', sound:'제이', emoji:'🧃', keyword:'Juice',  context:'J is for Juice! 🧃'},
-        {char:'K', name:'케이', sound:'케이', emoji:'🪁', keyword:'Kite',   context:'K is for Kite! 🪁'},
-        {char:'L', name:'엘',   sound:'엘',   emoji:'🦁', keyword:'Lion',   context:'L is for Lion! 🦁'},
-        {char:'M', name:'엠',   sound:'엠',   emoji:'🌙', keyword:'Moon',   context:'M is for Moon! 🌙'},
-        {char:'N', name:'엔',   sound:'엔',   emoji:'👃', keyword:'Nose',   context:'N is for Nose! 👃'},
-      ]},
-      { id:'en-z3', name:'알파벳 O~T', desc:'O부터 T까지', items:[
-        {char:'O', name:'오',    sound:'오',    emoji:'🍊', keyword:'Orange', context:'O is for Orange! 🍊'},
-        {char:'P', name:'피',    sound:'피',    emoji:'🐧', keyword:'Penguin', context:'P is for Penguin! 🐧'},
-        {char:'Q', name:'큐',    sound:'큐',    emoji:'👸', keyword:'Queen',   context:'Q is for Queen! 👸'},
-        {char:'R', name:'알',    sound:'알',    emoji:'🌈', keyword:'Rainbow', context:'R is for Rainbow! 🌈'},
-        {char:'S', name:'에스',  sound:'에스',  emoji:'☀️', keyword:'Sun',     context:'S is for Sun! ☀️'},
-        {char:'T', name:'티',    sound:'티',    emoji:'🌳', keyword:'Tree',    context:'T is for Tree! 🌳'},
-      ]},
-      { id:'en-z4', name:'알파벳 U~Z', desc:'U부터 Z까지', items:[
-        {char:'U', name:'유',    sound:'유',    emoji:'☂️', keyword:'Umbrella',context:'U is for Umbrella! ☂️'},
-        {char:'V', name:'브이',  sound:'브이',  emoji:'🎻', keyword:'Violin',  context:'V is for Violin! 🎻'},
-        {char:'W', name:'더블유',sound:'더블유',emoji:'🐋', keyword:'Whale',   context:'W is for Whale! 🐋'},
-        {char:'X', name:'엑스',  sound:'엑스',  emoji:'🦊', keyword:'Fox(x)',  context:'fox has X! 🦊'},
-        {char:'Y', name:'와이',  sound:'와이',  emoji:'🧶', keyword:'Yarn',    context:'Y is for Yarn! 🧶'},
-        {char:'Z', name:'지',    sound:'지',    emoji:'🦓', keyword:'Zebra',   context:'Z is for Zebra! 🦓'},
-      ]},
-      { id:'en-z5', name:'동물 단어', desc:'영어 동물 10개', items:[
-        {char:'cat',    name:'고양이', sound:'cat',    emoji:'🐱', keyword:'Cat',    context:'Meow! 🐱'},
-        {char:'dog',    name:'개',     sound:'dog',    emoji:'🐶', keyword:'Dog',    context:'Woof! 🐶'},
-        {char:'lion',   name:'사자',   sound:'lion',   emoji:'🦁', keyword:'Lion',   context:'Roar! 🦁'},
-        {char:'bear',   name:'곰',     sound:'bear',   emoji:'🐻', keyword:'Bear',   context:'Big bear! 🐻'},
-        {char:'pig',    name:'돼지',   sound:'pig',    emoji:'🐷', keyword:'Pig',    context:'Oink! 🐷'},
-        {char:'fish',   name:'물고기', sound:'fish',   emoji:'🐟', keyword:'Fish',   context:'Swim! 🐟'},
-        {char:'bird',   name:'새',     sound:'bird',   emoji:'🐦', keyword:'Bird',   context:'Tweet! 🐦'},
-        {char:'frog',   name:'개구리', sound:'frog',   emoji:'🐸', keyword:'Frog',   context:'Ribbit! 🐸'},
-        {char:'duck',   name:'오리',   sound:'duck',   emoji:'🦆', keyword:'Duck',   context:'Quack! 🦆'},
-        {char:'cow',    name:'소',     sound:'cow',    emoji:'🐮', keyword:'Cow',    context:'Moo! 🐮'},
-      ]},
-      { id:'en-z6', name:'음식 단어', desc:'영어 음식 10개', items:[
-        {char:'apple',  name:'사과',   sound:'apple',  emoji:'🍎', keyword:'Apple',  context:'Yummy! 🍎'},
-        {char:'banana', name:'바나나', sound:'banana', emoji:'🍌', keyword:'Banana', context:'Sweet! 🍌'},
-        {char:'bread',  name:'빵',     sound:'bread',  emoji:'🍞', keyword:'Bread',  context:'Soft! 🍞'},
-        {char:'milk',   name:'우유',   sound:'milk',   emoji:'🥛', keyword:'Milk',   context:'Cold! 🥛'},
-        {char:'egg',    name:'달걀',   sound:'egg',    emoji:'🥚', keyword:'Egg',    context:'Round! 🥚'},
-        {char:'cake',   name:'케이크', sound:'cake',   emoji:'🍰', keyword:'Cake',   context:'Party! 🍰'},
-        {char:'pizza',  name:'피자',   sound:'pizza',  emoji:'🍕', keyword:'Pizza',  context:'Hot! 🍕'},
-        {char:'juice',  name:'주스',   sound:'juice',  emoji:'🧃', keyword:'Juice',  context:'Tasty! 🧃'},
-        {char:'water',  name:'물',     sound:'water',  emoji:'💧', keyword:'Water',  context:'Drink! 💧'},
-        {char:'candy',  name:'사탕',   sound:'candy',  emoji:'🍬', keyword:'Candy',  context:'Sweet! 🍬'},
-      ]},
-      { id:'en-z7', name:'인사 표현', desc:'영어 인사 10개', items:[
-        {char:'Hello!',     name:'안녕!',   sound:'Hello',     emoji:'👋', keyword:'인사해요',  context:'Hi there! 👋'},
-        {char:'Bye!',       name:'잘 가!',  sound:'Bye',       emoji:'✋', keyword:'작별인사',  context:'See you! ✋'},
-        {char:'Thank you!', name:'고마워!', sound:'Thank you', emoji:'🙏', keyword:'감사해요',  context:'Thank you! 🙏'},
-        {char:'Sorry!',     name:'미안해!', sound:'Sorry',     emoji:'😅', keyword:'미안해요',  context:'I am sorry! 😅'},
-        {char:'Yes!',       name:'응!',     sound:'Yes',       emoji:'✅', keyword:'맞아요',   context:'Yes! ✅'},
-        {char:'No!',        name:'아니!',   sound:'No',        emoji:'❌', keyword:'싫어요',   context:'No! ❌'},
-        {char:'Good!',      name:'잘했어!', sound:'Good',      emoji:'👍', keyword:'최고예요',  context:'Good job! 👍'},
-        {char:'Stop!',      name:'멈춰!',   sound:'Stop',      emoji:'🛑', keyword:'멈춰요',   context:'Stop! 🛑'},
-        {char:'Go!',        name:'가자!',   sound:'Go',        emoji:'🚦', keyword:'출발해요',  context:"Let's go! 🚦"},
-        {char:'Help!',      name:'도와줘!', sound:'Help',      emoji:'🆘', keyword:'도움',     context:'Help! 🆘'},
-      ]},
-    ]
-  }
+// ══════════════════════════════════════════════════════════
+// 커리큘럼 데이터 풀
+// ══════════════════════════════════════════════════════════
+const POOL = {
+  자음:[
+    {char:'ㄱ',name:'기역',sound:'그',emoji:'🚌',keyword:'고속버스',context:'고속버스의 ㄱ!',audio:'01_기역'},
+    {char:'ㄴ',name:'니은',sound:'느',emoji:'🚗',keyword:'나들이차',context:'나들이차의 ㄴ!',audio:'02_니은'},
+    {char:'ㄷ',name:'디귿',sound:'드',emoji:'🚛',keyword:'덤프트럭',context:'덤프트럭의 ㄷ!',audio:'03_디귿'},
+    {char:'ㄹ',name:'리을',sound:'르',emoji:'🚚',keyword:'레미콘',context:'레미콘의 ㄹ!',audio:'04_리을'},
+    {char:'ㅁ',name:'미음',sound:'므',emoji:'🚎',keyword:'마을버스',context:'마을버스의 ㅁ!',audio:'05_미음'},
+    {char:'ㅂ',name:'비읍',sound:'브',emoji:'🛞',keyword:'바퀴',context:'바퀴의 ㅂ!',audio:'06_비읍'},
+    {char:'ㅅ',name:'시옷',sound:'스',emoji:'🚒',keyword:'소방차',context:'소방차의 ㅅ!',audio:'07_시옷'},
+    {char:'ㅇ',name:'이응',sound:'으',emoji:'🏍️',keyword:'오토바이',context:'오토바이의 ㅇ!',audio:'08_이응'},
+    {char:'ㅈ',name:'지읒',sound:'즈',emoji:'🏗️',keyword:'지게차',context:'지게차의 ㅈ!',audio:'09_지읒'},
+    {char:'ㅊ',name:'치읓',sound:'츠',emoji:'🚜',keyword:'청소차',context:'청소차의 ㅊ!',audio:'10_치읓'},
+    {char:'ㅋ',name:'키읔',sound:'크',emoji:'🚕',keyword:'카택시',context:'카택시의 ㅋ!',audio:'11_키읔'},
+    {char:'ㅌ',name:'티읕',sound:'트',emoji:'🚂',keyword:'트럭',context:'트럭의 ㅌ!',audio:'12_티읕'},
+    {char:'ㅍ',name:'피읖',sound:'프',emoji:'🚧',keyword:'포클레인',context:'포클레인의 ㅍ!',audio:'13_피읖'},
+    {char:'ㅎ',name:'히읗',sound:'흐',emoji:'🚁',keyword:'헬리콥터',context:'헬리콥터의 ㅎ!',audio:'14_히읗'},
+  ],
+  모음:[
+    {char:'ㅏ',name:'아',sound:'아',emoji:'😮',context:'"아~" 입을 크게 벌려요'},
+    {char:'ㅑ',name:'야',sound:'야',emoji:'😄',context:'"야~" 크게 외쳐요'},
+    {char:'ㅓ',name:'어',sound:'어',emoji:'😯',context:'"어~" 놀라요'},
+    {char:'ㅕ',name:'여',sound:'여',emoji:'🙂',context:'"여기!" 라고 말해요'},
+    {char:'ㅗ',name:'오',sound:'오',emoji:'🚗',context:'"오~" 입술을 오므려요'},
+    {char:'ㅛ',name:'요',sound:'요',emoji:'👋',context:'"요~" 불러봐요'},
+    {char:'ㅜ',name:'우',sound:'우',emoji:'😢',context:'"우~" 울어봐요'},
+    {char:'ㅠ',name:'유',sound:'유',emoji:'🦄',context:'"유~" 불어봐요'},
+    {char:'ㅡ',name:'으',sound:'으',emoji:'😤',context:'"으~" 힘을 줘요'},
+    {char:'ㅣ',name:'이',sound:'이',emoji:'😁',context:'"이~" 웃어봐요'},
+  ],
+  글자조합:[
+    {char:'가',name:'가',sound:'가방',emoji:'👜',context:'가방 👜  ㄱ+ㅏ=가'},
+    {char:'나',name:'나',sound:'나비',emoji:'🦋',context:'나비 🦋  ㄴ+ㅏ=나'},
+    {char:'다',name:'다',sound:'다리',emoji:'🦵',context:'다리 🦵  ㄷ+ㅏ=다'},
+    {char:'라',name:'라',sound:'라면',emoji:'🍜',context:'라면 🍜  ㄹ+ㅏ=라'},
+    {char:'마',name:'마',sound:'마늘',emoji:'🧄',context:'마늘 🧄  ㅁ+ㅏ=마'},
+    {char:'바',name:'바',sound:'바나나',emoji:'🍌',context:'바나나 🍌  ㅂ+ㅏ=바'},
+    {char:'사',name:'사',sound:'사과',emoji:'🍎',context:'사과 🍎  ㅅ+ㅏ=사'},
+    {char:'아',name:'아',sound:'아이스크림',emoji:'🍦',context:'아이스크림 🍦  ㅇ+ㅏ=아'},
+    {char:'자',name:'자',sound:'자전거',emoji:'🚲',context:'자전거 🚲  ㅈ+ㅏ=자'},
+    {char:'차',name:'차',sound:'차',emoji:'🍵',context:'차 한 잔 🍵  ㅊ+ㅏ=차'},
+    {char:'카',name:'카',sound:'카메라',emoji:'📷',context:'카메라 📷  ㅋ+ㅏ=카'},
+    {char:'타',name:'타',sound:'타조',emoji:'🦤',context:'타조 🦤  ㅌ+ㅏ=타'},
+  ],
+  받침:[
+    {char:'강',name:'강',sound:'강',emoji:'🌊',context:'강물이 흘러요 🌊'},
+    {char:'산',name:'산',sound:'산',emoji:'⛰️',context:'산이 높아요 ⛰️'},
+    {char:'곰',name:'곰',sound:'곰',emoji:'🐻',context:'곰이 어슬렁 🐻'},
+    {char:'별',name:'별',sound:'별',emoji:'⭐',context:'별이 반짝 ⭐'},
+    {char:'꽃',name:'꽃',sound:'꽃',emoji:'🌸',context:'꽃이 예뻐요 🌸'},
+    {char:'집',name:'집',sound:'집',emoji:'🏠',context:'우리 집 🏠'},
+    {char:'손',name:'손',sound:'손',emoji:'🖐️',context:'손을 흔들어요 🖐️'},
+    {char:'발',name:'발',sound:'발',emoji:'🦶',context:'발로 걷어요 🦶'},
+    {char:'눈',name:'눈',sound:'눈',emoji:'👀',context:'눈으로 봐요 👀'},
+    {char:'입',name:'입',sound:'입',emoji:'👄',context:'입으로 먹어요 👄'},
+    {char:'밤',name:'밤',sound:'밤',emoji:'🌙',context:'밤이 됐어요 🌙'},
+    {char:'콩',name:'콩',sound:'콩',emoji:'🫘',context:'콩콩콩 🫘'},
+  ],
+  단어:[
+    {char:'버스',name:'버스',sound:'버스',emoji:'🚌',context:'사람들을 태워요'},
+    {char:'자동차',name:'자동차',sound:'자동차',emoji:'🚗',context:'씽씽 달려요'},
+    {char:'기차',name:'기차',sound:'기차',emoji:'🚂',context:'칙칙폭폭!'},
+    {char:'비행기',name:'비행기',sound:'비행기',emoji:'✈️',context:'하늘을 날아요'},
+    {char:'배',name:'배',sound:'배',emoji:'⛵',context:'바다 위를 달려요'},
+    {char:'나무',name:'나무',sound:'나무',emoji:'🌳',context:'초록초록해요'},
+    {char:'꽃',name:'꽃',sound:'꽃',emoji:'🌸',context:'예뻐요'},
+    {char:'해',name:'해',sound:'해',emoji:'☀️',context:'따뜻해요'},
+    {char:'달',name:'달',sound:'달',emoji:'🌙',context:'밤에 떠요'},
+    {char:'별',name:'별',sound:'별',emoji:'⭐',context:'반짝반짝'},
+    {char:'개',name:'개',sound:'개',emoji:'🐶',context:'멍멍!'},
+    {char:'고양이',name:'고양이',sound:'고양이',emoji:'🐱',context:'야옹~'},
+    {char:'사과',name:'사과',sound:'사과',emoji:'🍎',context:'빨갛고 달아요'},
+    {char:'바나나',name:'바나나',sound:'바나나',emoji:'🍌',context:'길쭉해요'},
+    {char:'수박',name:'수박',sound:'수박',emoji:'🍉',context:'여름에 먹어요'},
+    {char:'집',name:'집',sound:'집',emoji:'🏠',context:'우리집 최고!'},
+    {char:'학교',name:'학교',sound:'학교',emoji:'🏫',context:'공부해요'},
+    {char:'공',name:'공',sound:'공',emoji:'⚽',context:'데굴데굴'},
+    {char:'책',name:'책',sound:'책',emoji:'📚',context:'읽어요'},
+    {char:'물',name:'물',sound:'물',emoji:'💧',context:'마셔요'},
+    {char:'강아지',name:'강아지',sound:'강아지',emoji:'🐶',context:'멍멍!'},
+    {char:'토끼',name:'토끼',sound:'토끼',emoji:'🐰',context:'깡총깡총'},
+    {char:'곰',name:'곰',sound:'곰',emoji:'🐻',context:'어흥!'},
+    {char:'코끼리',name:'코끼리',sound:'코끼리',emoji:'🐘',context:'뿌우~'},
+    {char:'사자',name:'사자',sound:'사자',emoji:'🦁',context:'으르렁'},
+    {char:'우유',name:'우유',sound:'우유',emoji:'🥛',context:'쭉쭉 마셔요'},
+    {char:'신발',name:'신발',sound:'신발',emoji:'👟',context:'신어요'},
+    {char:'모자',name:'모자',sound:'모자',emoji:'🧢',context:'써요'},
+    {char:'우산',name:'우산',sound:'우산',emoji:'☂️',context:'비올 때 써요'},
+    {char:'시계',name:'시계',sound:'시계',emoji:'⏰',context:'시간을 봐요'},
+  ],
+  문장:[
+    {char:'버스가 가요.',name:'버스가 가요.',sound:'버스가 가요.',emoji:'🚌',context:'어디 갈까요?'},
+    {char:'차가 빨라요.',name:'차가 빨라요.',sound:'차가 빨라요.',emoji:'🚗💨',context:'쌩~!'},
+    {char:'기차가 와요.',name:'기차가 와요.',sound:'기차가 와요.',emoji:'🚂',context:'칙칙폭폭!'},
+    {char:'해가 떠요.',name:'해가 떠요.',sound:'해가 떠요.',emoji:'☀️',context:'좋은 아침!'},
+    {char:'비가 와요.',name:'비가 와요.',sound:'비가 와요.',emoji:'🌧️',context:'우산 써요!'},
+    {char:'개가 짖어요.',name:'개가 짖어요.',sound:'개가 짖어요.',emoji:'🐶',context:'멍멍!'},
+    {char:'꽃이 예뻐요.',name:'꽃이 예뻐요.',sound:'꽃이 예뻐요.',emoji:'🌸',context:'와~ 예쁘다!'},
+    {char:'사과가 맛있어요.',name:'사과가 맛있어요.',sound:'사과가 맛있어요.',emoji:'🍎😋',context:'냠냠!'},
+    {char:'새가 날아요.',name:'새가 날아요.',sound:'새가 날아요.',emoji:'🐦',context:'훨훨~'},
+    {char:'달이 밝아요.',name:'달이 밝아요.',sound:'달이 밝아요.',emoji:'🌙',context:'반짝반짝'},
+    {char:'물고기가 헤엄쳐요.',name:'물고기가 헤엄쳐요.',sound:'물고기가 헤엄쳐요.',emoji:'🐟',context:'퐁당퐁당'},
+    {char:'아기가 자요.',name:'아기가 자요.',sound:'아기가 자요.',emoji:'👶💤',context:'쉿! 조용히'},
+  ],
+  숫자1_10:[
+    {char:'1',name:'하나',sound:'하나',emoji:'🚒',count:'🚒'},
+    {char:'2',name:'둘',sound:'둘',emoji:'🚒',count:'🚒🚒'},
+    {char:'3',name:'셋',sound:'셋',emoji:'🚒',count:'🚒🚒🚒'},
+    {char:'4',name:'넷',sound:'넷',emoji:'🚒',count:'🚒🚒🚒🚒'},
+    {char:'5',name:'다섯',sound:'다섯',emoji:'🚒',count:'🚒🚒🚒🚒🚒'},
+    {char:'6',name:'여섯',sound:'여섯',emoji:'🚓',count:'🚓🚓🚓🚓🚓🚓'},
+    {char:'7',name:'일곱',sound:'일곱',emoji:'🚓',count:'🚓🚓🚓🚓🚓🚓🚓'},
+    {char:'8',name:'여덟',sound:'여덟',emoji:'🚓',count:'🚓🚓🚓🚓🚓🚓🚓🚓'},
+    {char:'9',name:'아홉',sound:'아홉',emoji:'🚓',count:'🚓🚓🚓🚓🚓🚓🚓🚓🚓'},
+    {char:'10',name:'열',sound:'열',emoji:'🚌',count:'🚌×10'},
+  ],
+  숫자11_20:[
+    {char:'11',name:'열하나',sound:'열하나',emoji:'🚌',count:'🚌×11'},
+    {char:'12',name:'열둘',sound:'열둘',emoji:'🚌',count:'🚌×12'},
+    {char:'13',name:'열셋',sound:'열셋',emoji:'🚌',count:'🚌×13'},
+    {char:'14',name:'열넷',sound:'열넷',emoji:'🚌',count:'🚌×14'},
+    {char:'15',name:'열다섯',sound:'열다섯',emoji:'🚌',count:'🚌×15'},
+    {char:'16',name:'열여섯',sound:'열여섯',emoji:'🚕',count:'🚕×16'},
+    {char:'17',name:'열일곱',sound:'열일곱',emoji:'🚕',count:'🚕×17'},
+    {char:'18',name:'열여덟',sound:'열여덟',emoji:'🚕',count:'🚕×18'},
+    {char:'19',name:'열아홉',sound:'열아홉',emoji:'🚕',count:'🚕×19'},
+    {char:'20',name:'스물',sound:'스물',emoji:'🚕',count:'🚕×20'},
+  ],
+  색깔:[
+    {char:'빨강',name:'빨강',sound:'빨강',emoji:'🔴',context:'소방차는 빨강 🚒'},
+    {char:'파랑',name:'파랑',sound:'파랑',emoji:'🔵',context:'경찰차는 파랑 🚓'},
+    {char:'노랑',name:'노랑',sound:'노랑',emoji:'🟡',context:'버스는 노랑 🚌'},
+    {char:'초록',name:'초록',sound:'초록',emoji:'🟢',context:'나무는 초록 🌳'},
+    {char:'하양',name:'하양',sound:'하양',emoji:'⬜',context:'눈은 하양 ⬜'},
+    {char:'검정',name:'검정',sound:'검정',emoji:'⬛',context:'밤하늘은 검정 🌙'},
+    {char:'분홍',name:'분홍',sound:'분홍',emoji:'🩷',context:'꽃은 분홍 🌸'},
+    {char:'보라',name:'보라',sound:'보라',emoji:'🟣',context:'포도는 보라 🍇'},
+  ],
+  비교:[
+    {char:'크다',name:'크다',sound:'크다',emoji:'🚛',compare:{big:'🚛',small:'🚗',bigLabel:'트럭',smallLabel:'자동차'}},
+    {char:'작다',name:'작다',sound:'작다',emoji:'🚗',compare:{big:'🚛',small:'🚗',bigLabel:'트럭',smallLabel:'자동차'}},
+    {char:'많다',name:'많다',sound:'많다',emoji:'🚌',compare:{big:'🚌🚌🚌🚌🚌',small:'🚌',bigLabel:'많다',smallLabel:'적다'}},
+    {char:'적다',name:'적다',sound:'적다',emoji:'🚌',compare:{big:'🚌🚌🚌🚌🚌',small:'🚌',bigLabel:'많다',smallLabel:'적다'}},
+    {char:'길다',name:'길다',sound:'길다',emoji:'🚂',compare:{big:'🚂🚃🚃🚃🚃',small:'🚕',bigLabel:'기차',smallLabel:'택시'}},
+    {char:'짧다',name:'짧다',sound:'짧다',emoji:'🚕',compare:{big:'🚂🚃🚃🚃🚃',small:'🚕',bigLabel:'기차',smallLabel:'택시'}},
+    {char:'높다',name:'높다',sound:'높다',emoji:'🚁',compare:{big:'🚁',small:'🚗',bigLabel:'헬기',smallLabel:'자동차'}},
+    {char:'낮다',name:'낮다',sound:'낮다',emoji:'🚗',compare:{big:'🚁',small:'🚗',bigLabel:'헬기',smallLabel:'자동차'}},
+  ],
+  도형:[
+    {char:'○',name:'동그라미',sound:'동그라미',emoji:'⭕',context:'바퀴는 동그라미 🛞'},
+    {char:'△',name:'세모',sound:'세모',emoji:'🔺',context:'표지판은 세모 ⚠️'},
+    {char:'□',name:'네모',sound:'네모',emoji:'🟦',context:'창문은 네모 🪟'},
+    {char:'★',name:'별모양',sound:'별모양',emoji:'⭐',context:'반짝반짝 별 ⭐'},
+    {char:'♥',name:'하트',sound:'하트',emoji:'❤️',context:'사랑해요 ❤️'},
+    {char:'◇',name:'마름모',sound:'마름모',emoji:'🔷',context:'반짝이는 마름모 🔷'},
+  ],
+  덧셈:[
+    {char:'1+1=2',name:'일 더하기 일은 이',sound:'일 더하기 일은 이',emoji:'🚒',eq:{a:1,b:1,r:2,e:'🚒'}},
+    {char:'1+2=3',name:'일 더하기 이는 삼',sound:'일 더하기 이는 삼',emoji:'🚒',eq:{a:1,b:2,r:3,e:'🚒'}},
+    {char:'2+2=4',name:'이 더하기 이는 사',sound:'이 더하기 이는 사',emoji:'🚕',eq:{a:2,b:2,r:4,e:'🚕'}},
+    {char:'2+3=5',name:'이 더하기 삼은 오',sound:'이 더하기 삼은 오',emoji:'🚗',eq:{a:2,b:3,r:5,e:'🚗'}},
+    {char:'3+2=5',name:'삼 더하기 이는 오',sound:'삼 더하기 이는 오',emoji:'🚙',eq:{a:3,b:2,r:5,e:'🚙'}},
+    {char:'4+1=5',name:'사 더하기 일은 오',sound:'사 더하기 일은 오',emoji:'🚓',eq:{a:4,b:1,r:5,e:'🚓'}},
+    {char:'3+3=6',name:'삼 더하기 삼은 육',sound:'삼 더하기 삼은 육',emoji:'🚌',eq:{a:3,b:3,r:6,e:'🚌'}},
+    {char:'5+2=7',name:'오 더하기 이는 칠',sound:'오 더하기 이는 칠',emoji:'🚕',eq:{a:5,b:2,r:7,e:'🚕'}},
+    {char:'4+4=8',name:'사 더하기 사는 팔',sound:'사 더하기 사는 팔',emoji:'🚗',eq:{a:4,b:4,r:8,e:'🚗'}},
+    {char:'5+5=10',name:'오 더하기 오는 열',sound:'오 더하기 오는 열',emoji:'🚒',eq:{a:5,b:5,r:10,e:'🚒'}},
+  ],
+  뺄셈:[
+    {char:'2-1=1',name:'이 빼기 일은 일',sound:'이 빼기 일은 일',emoji:'🚒',sub:{a:2,b:1,r:1,e:'🚒'}},
+    {char:'3-1=2',name:'삼 빼기 일은 이',sound:'삼 빼기 일은 이',emoji:'🚗',sub:{a:3,b:1,r:2,e:'🚗'}},
+    {char:'3-2=1',name:'삼 빼기 이는 일',sound:'삼 빼기 이는 일',emoji:'🚕',sub:{a:3,b:2,r:1,e:'🚕'}},
+    {char:'4-2=2',name:'사 빼기 이는 이',sound:'사 빼기 이는 이',emoji:'🚙',sub:{a:4,b:2,r:2,e:'🚙'}},
+    {char:'5-2=3',name:'오 빼기 이는 삼',sound:'오 빼기 이는 삼',emoji:'🚓',sub:{a:5,b:2,r:3,e:'🚓'}},
+    {char:'5-3=2',name:'오 빼기 삼은 이',sound:'오 빼기 삼은 이',emoji:'🚌',sub:{a:5,b:3,r:2,e:'🚌'}},
+    {char:'6-3=3',name:'육 빼기 삼은 삼',sound:'육 빼기 삼은 삼',emoji:'🚒',sub:{a:6,b:3,r:3,e:'🚒'}},
+    {char:'7-4=3',name:'칠 빼기 사는 삼',sound:'칠 빼기 사는 삼',emoji:'🚕',sub:{a:7,b:4,r:3,e:'🚕'}},
+  ],
+  요일:[
+    {char:'월요일',name:'월요일',sound:'월요일',emoji:'😪',context:'학교 가는 날 🏫'},
+    {char:'화요일',name:'화요일',sound:'화요일',emoji:'💪',context:'힘차게! 💪'},
+    {char:'수요일',name:'수요일',sound:'수요일',emoji:'🌈',context:'중간! 🌈'},
+    {char:'목요일',name:'목요일',sound:'목요일',emoji:'🌤️',context:'거의 다 왔어! 🌤️'},
+    {char:'금요일',name:'금요일',sound:'금요일',emoji:'🎉',context:'주말 전날! 🎉'},
+    {char:'토요일',name:'토요일',sound:'토요일',emoji:'🎮',context:'놀이날! 🎮'},
+    {char:'일요일',name:'일요일',sound:'일요일',emoji:'😴',context:'쉬는 날! 😴'},
+  ],
+  시계:[
+    {char:'1시',name:'한 시',sound:'한 시',emoji:'🕐',context:'짧은 바늘이 1을 가리켜요'},
+    {char:'2시',name:'두 시',sound:'두 시',emoji:'🕑',context:'짧은 바늘이 2를 가리켜요'},
+    {char:'3시',name:'세 시',sound:'세 시',emoji:'🕒',context:'짧은 바늘이 3을 가리켜요'},
+    {char:'6시',name:'여섯 시',sound:'여섯 시',emoji:'🕕',context:'긴 바늘이 맨 아래! 🕕'},
+    {char:'12시',name:'열두 시',sound:'열두 시',emoji:'🕛',context:'두 바늘이 맨 위! 🕛'},
+  ],
+  알파벳:[
+    {char:'A',name:'에이',sound:'에이',emoji:'🍎',keyword:'Apple',context:'A is for Apple! 🍎'},
+    {char:'B',name:'비',sound:'비',emoji:'🐝',keyword:'Bee',context:'B is for Bee! 🐝'},
+    {char:'C',name:'씨',sound:'씨',emoji:'🐱',keyword:'Cat',context:'C is for Cat! 🐱'},
+    {char:'D',name:'디',sound:'디',emoji:'🐶',keyword:'Dog',context:'D is for Dog! 🐶'},
+    {char:'E',name:'이',sound:'이',emoji:'🥚',keyword:'Egg',context:'E is for Egg! 🥚'},
+    {char:'F',name:'에프',sound:'에프',emoji:'🐟',keyword:'Fish',context:'F is for Fish! 🐟'},
+    {char:'G',name:'지',sound:'지',emoji:'🍇',keyword:'Grape',context:'G is for Grape! 🍇'},
+    {char:'H',name:'에이치',sound:'에이치',emoji:'🏠',keyword:'House',context:'H is for House! 🏠'},
+    {char:'I',name:'아이',sound:'아이',emoji:'🍦',keyword:'Ice cream',context:'I is for Ice cream! 🍦'},
+    {char:'J',name:'제이',sound:'제이',emoji:'🧃',keyword:'Juice',context:'J is for Juice! 🧃'},
+    {char:'K',name:'케이',sound:'케이',emoji:'🪁',keyword:'Kite',context:'K is for Kite! 🪁'},
+    {char:'L',name:'엘',sound:'엘',emoji:'🦁',keyword:'Lion',context:'L is for Lion! 🦁'},
+    {char:'M',name:'엠',sound:'엠',emoji:'🌙',keyword:'Moon',context:'M is for Moon! 🌙'},
+    {char:'N',name:'엔',sound:'엔',emoji:'👃',keyword:'Nose',context:'N is for Nose! 👃'},
+    {char:'O',name:'오',sound:'오',emoji:'🍊',keyword:'Orange',context:'O is for Orange! 🍊'},
+    {char:'P',name:'피',sound:'피',emoji:'🐧',keyword:'Penguin',context:'P is for Penguin! 🐧'},
+    {char:'Q',name:'큐',sound:'큐',emoji:'👸',keyword:'Queen',context:'Q is for Queen! 👸'},
+    {char:'R',name:'알',sound:'알',emoji:'🌈',keyword:'Rainbow',context:'R is for Rainbow! 🌈'},
+    {char:'S',name:'에스',sound:'에스',emoji:'☀️',keyword:'Sun',context:'S is for Sun! ☀️'},
+    {char:'T',name:'티',sound:'티',emoji:'🌳',keyword:'Tree',context:'T is for Tree! 🌳'},
+    {char:'U',name:'유',sound:'유',emoji:'☂️',keyword:'Umbrella',context:'U is for Umbrella! ☂️'},
+    {char:'V',name:'브이',sound:'브이',emoji:'🎻',keyword:'Violin',context:'V is for Violin! 🎻'},
+    {char:'W',name:'더블유',sound:'더블유',emoji:'🐋',keyword:'Whale',context:'W is for Whale! 🐋'},
+    {char:'X',name:'엑스',sound:'엑스',emoji:'🦊',keyword:'Fox',context:'Fox has X! 🦊'},
+    {char:'Y',name:'와이',sound:'와이',emoji:'🧶',keyword:'Yarn',context:'Y is for Yarn! 🧶'},
+    {char:'Z',name:'지',sound:'지',emoji:'🦓',keyword:'Zebra',context:'Z is for Zebra! 🦓'},
+  ],
+  영어단어:[
+    {char:'cat',name:'고양이',sound:'cat',emoji:'🐱',context:'Meow! 🐱'},
+    {char:'dog',name:'개',sound:'dog',emoji:'🐶',context:'Woof! 🐶'},
+    {char:'lion',name:'사자',sound:'lion',emoji:'🦁',context:'Roar! 🦁'},
+    {char:'bear',name:'곰',sound:'bear',emoji:'🐻',context:'Big bear! 🐻'},
+    {char:'pig',name:'돼지',sound:'pig',emoji:'🐷',context:'Oink! 🐷'},
+    {char:'fish',name:'물고기',sound:'fish',emoji:'🐟',context:'Swim! 🐟'},
+    {char:'bird',name:'새',sound:'bird',emoji:'🐦',context:'Tweet! 🐦'},
+    {char:'duck',name:'오리',sound:'duck',emoji:'🦆',context:'Quack! 🦆'},
+    {char:'apple',name:'사과',sound:'apple',emoji:'🍎',context:'Yummy! 🍎'},
+    {char:'banana',name:'바나나',sound:'banana',emoji:'🍌',context:'Sweet! 🍌'},
+    {char:'bread',name:'빵',sound:'bread',emoji:'🍞',context:'Soft! 🍞'},
+    {char:'milk',name:'우유',sound:'milk',emoji:'🥛',context:'Cold! 🥛'},
+    {char:'cake',name:'케이크',sound:'cake',emoji:'🍰',context:'Party! 🍰'},
+    {char:'water',name:'물',sound:'water',emoji:'💧',context:'Drink! 💧'},
+    {char:'red',name:'빨강',sound:'red',emoji:'🔴',context:'Red! 🔴'},
+    {char:'blue',name:'파랑',sound:'blue',emoji:'🔵',context:'Blue! 🔵'},
+    {char:'yellow',name:'노랑',sound:'yellow',emoji:'🟡',context:'Yellow! 🟡'},
+    {char:'green',name:'초록',sound:'green',emoji:'🟢',context:'Green! 🟢'},
+    {char:'one',name:'일',sound:'one',emoji:'1️⃣',context:'One! 1️⃣'},
+    {char:'two',name:'이',sound:'two',emoji:'2️⃣',context:'Two! 2️⃣'},
+    {char:'three',name:'삼',sound:'three',emoji:'3️⃣',context:'Three! 3️⃣'},
+    {char:'eye',name:'눈',sound:'eye',emoji:'👁️',context:'I see! 👁️'},
+    {char:'nose',name:'코',sound:'nose',emoji:'👃',context:'Smell! 👃'},
+    {char:'mouth',name:'입',sound:'mouth',emoji:'👄',context:'Eat! 👄'},
+    {char:'mom',name:'엄마',sound:'mom',emoji:'👩',context:'I love mom! 👩'},
+    {char:'dad',name:'아빠',sound:'dad',emoji:'👨',context:'I love dad! 👨'},
+    {char:'baby',name:'아기',sound:'baby',emoji:'👶',context:'So cute! 👶'},
+  ],
+  영어표현:[
+    {char:'Hello!',name:'안녕!',sound:'Hello',emoji:'👋',context:'Hi there! 👋'},
+    {char:'Bye!',name:'잘 가!',sound:'Bye',emoji:'✋',context:'See you! ✋'},
+    {char:'Thank you!',name:'고마워!',sound:'Thank you',emoji:'🙏',context:'Thank you! 🙏'},
+    {char:'Sorry!',name:'미안해!',sound:'Sorry',emoji:'😅',context:'I am sorry! 😅'},
+    {char:'Yes!',name:'응!',sound:'Yes',emoji:'✅',context:'Yes! ✅'},
+    {char:'No!',name:'아니!',sound:'No',emoji:'❌',context:'No! ❌'},
+    {char:'Good!',name:'잘했어!',sound:'Good',emoji:'👍',context:'Good job! 👍'},
+    {char:'Stop!',name:'멈춰!',sound:'Stop',emoji:'🛑',context:'Stop! 🛑'},
+    {char:"Let's go!",name:'가자!',sound:"Let's go",emoji:'🚦',context:"Let's go! 🚦"},
+    {char:'Help!',name:'도와줘!',sound:'Help',emoji:'🆘',context:'Help! 🆘'},
+    {char:'Wow!',name:'와!',sound:'Wow',emoji:'🤩',context:'Wow! 🤩'},
+    {char:'Please!',name:'제발!',sound:'Please',emoji:'🙏',context:'Please! 🙏'},
+  ],
 };
 
-// ═══════════════════════════════════════
-// 페이지 빌더
-// ═══════════════════════════════════════
-function buildPages(zone) {
-  const pages = [];
-  zone.items.forEach((item, i) => {
-    // listen 페이지
-    pages.push({ type:'listen', char:item.char, label:item.name, hint:item.context||'', emoji:item.emoji, ttsText:item.sound, item });
-    // choose 페이지
-    const others = zone.items.filter((_,j)=>j!==i);
-    const picks = [...others].sort(()=>Math.random()-0.5).slice(0,2);
-    const opts = [item, ...picks].sort(()=>Math.random()-0.5);
-    pages.push({ type:'choose', char:item.char, label:item.name, hint:`"${item.name}" 을 찾아봐요! 👀`, emoji:item.emoji, ttsText:item.sound, options:opts, answer:item.char, item });
+// ══════════════════════════════════════════════════════════
+// 페이지 빌더 (5가지 타입)
+// ══════════════════════════════════════════════════════════
+function mk(pool, type, opts={}) {
+  let items = opts.shuffle ? [...pool].sort(()=>Math.random()-.5) : [...pool];
+  if(opts.limit) items = items.slice(0, opts.limit);
+  return items.map((item,i) => {
+    const base = {char:item.char, label:item.name, ttsText:item.sound,
+                  emoji:item.emoji||'🚌', hint:item.context||'', item};
+    if(type==='meet') return {...base, type:'listen'};
+    if(type==='find') {
+      const others = pool.filter(x=>x.char!==item.char).sort(()=>Math.random()-.5).slice(0,2);
+      return {...base, type:'choose', cols:3, options:[item,...others].sort(()=>Math.random()-.5), answer:item.char};
+    }
+    if(type==='quickfind') {
+      const others = pool.filter(x=>x.char!==item.char).sort(()=>Math.random()-.5).slice(0,3);
+      return {...base, type:'choose', cols:2, timed:8, options:[item,...others].sort(()=>Math.random()-.5), answer:item.char};
+    }
+    if(type==='match') {
+      const others = pool.filter(x=>x.char!==item.char).sort(()=>Math.random()-.5).slice(0,2);
+      return {...base, type:'match', options:[item,...others].sort(()=>Math.random()-.5), answer:item.char};
+    }
+    if(type==='blank') {
+      const word = item.char;
+      if(word.length < 2) return {...base, type:'listen'};
+      const bi = Math.floor(Math.random()*word.length);
+      const blanked = word.split('').map((c,j)=>j===bi?'_':c).join('');
+      const ans = word[bi];
+      const opts2 = pool.filter(x=>x.char!==item.char).sort(()=>Math.random()-.5).slice(0,2).map(x=>x.char[0]);
+      return {...base, type:'blank', blanked, answer:ans, options:[ans,...opts2].sort(()=>Math.random()-.5), hint:`빈칸에 들어갈 글자는? "${blanked}"`};
+    }
+    return {...base, type:'listen'};
   });
-  return pages;
 }
 
+// ══════════════════════════════════════════════════════════
+// 커리큘럼 Zone 정의
+// ══════════════════════════════════════════════════════════
+const ZONE_DEFS = {
+  korean:[
+    {id:'ko-z1',  name:'자음 소개',        desc:'ㄱ~ㅎ 처음 만남',    pg:()=>mk(POOL.자음,'meet')},
+    {id:'ko-z2',  name:'자음 찾기',        desc:'자음 3지선다',       pg:()=>mk(POOL.자음,'find')},
+    {id:'ko-z3',  name:'모음 소개',        desc:'ㅏ~ㅣ 처음 만남',    pg:()=>mk(POOL.모음,'meet')},
+    {id:'ko-z4',  name:'모음 찾기',        desc:'모음 3지선다',       pg:()=>mk(POOL.모음,'find')},
+    {id:'ko-z5',  name:'자음 빠른 복습 🔄',desc:'4지선다 빠르게',     pg:()=>mk(POOL.자음,'quickfind',{shuffle:true})},
+    {id:'ko-z6',  name:'글자 조합',        desc:'ㄱ+ㅏ=가',          pg:()=>mk(POOL.글자조합,'meet')},
+    {id:'ko-z7',  name:'글자 조합 찾기',   desc:'조합 3지선다',       pg:()=>mk(POOL.글자조합,'find')},
+    {id:'ko-z8',  name:'자음·모음 짝맞추기 🔄',desc:'짝 맞추기',     pg:()=>mk([...POOL.자음.slice(0,6),...POOL.모음.slice(0,6)],'match',{shuffle:true})},
+    {id:'ko-z9',  name:'단어 카드 1',      desc:'그림 단어 15개',     pg:()=>mk(POOL.단어.slice(0,15),'meet')},
+    {id:'ko-z10', name:'단어 찾기 1',      desc:'단어 3지선다',       pg:()=>mk(POOL.단어.slice(0,15),'find')},
+    {id:'ko-z11', name:'받침 글자',        desc:'강·산·곰...',        pg:()=>mk(POOL.받침,'meet')},
+    {id:'ko-z12', name:'받침 찾기',        desc:'받침 3지선다',       pg:()=>mk(POOL.받침,'find')},
+    {id:'ko-z13', name:'단어 카드 2',      desc:'더 많은 단어 15개',  pg:()=>mk(POOL.단어.slice(15,30),'meet')},
+    {id:'ko-z14', name:'단어 짝맞추기 🔄', desc:'짝 맞추기',         pg:()=>mk(POOL.단어.slice(0,15),'match',{shuffle:true})},
+    {id:'ko-z15', name:'단어 빈칸',        desc:'빈칸 채우기',        pg:()=>mk(POOL.단어.slice(0,12),'blank')},
+    {id:'ko-z16', name:'첫 문장',          desc:'짧은 문장 읽기',     pg:()=>mk(POOL.문장,'meet')},
+    {id:'ko-z17', name:'문장 찾기 🔄',     desc:'문장 3지선다',       pg:()=>mk(POOL.문장,'find')},
+    {id:'ko-z18', name:'🏆 마스터 테스트', desc:'전체 복습',          pg:()=>mk([...POOL.자음.slice(0,3),...POOL.모음.slice(0,3),...POOL.단어.slice(0,3)],'quickfind',{shuffle:true})},
+  ],
+  math:[
+    {id:'ma-z1',  name:'숫자 1~5',          desc:'처음 만남',          pg:()=>mk(POOL.숫자1_10.slice(0,5),'meet')},
+    {id:'ma-z2',  name:'숫자 6~10',         desc:'처음 만남',          pg:()=>mk(POOL.숫자1_10.slice(5,10),'meet')},
+    {id:'ma-z3',  name:'숫자 1~10 찾기',    desc:'숫자 3지선다',       pg:()=>mk(POOL.숫자1_10,'find')},
+    {id:'ma-z4',  name:'색깔 소개',         desc:'8가지 색깔',          pg:()=>mk(POOL.색깔,'meet')},
+    {id:'ma-z5',  name:'색깔 찾기',         desc:'색깔 3지선다',       pg:()=>mk(POOL.색깔,'find')},
+    {id:'ma-z6',  name:'숫자 복습 🔄',      desc:'4지선다 빠르게',     pg:()=>mk(POOL.숫자1_10,'quickfind',{shuffle:true})},
+    {id:'ma-z7',  name:'크다 작다',         desc:'크기 비교',          pg:()=>mk(POOL.비교,'meet')},
+    {id:'ma-z8',  name:'크다 작다 찾기',    desc:'비교 3지선다',       pg:()=>mk(POOL.비교,'find')},
+    {id:'ma-z9',  name:'도형 소개',         desc:'모양 알기',          pg:()=>mk(POOL.도형,'meet')},
+    {id:'ma-z10', name:'도형 짝맞추기 🔄',  desc:'짝 맞추기',         pg:()=>mk(POOL.도형,'match')},
+    {id:'ma-z11', name:'더하기 소개',       desc:'1~10 더하기',        pg:()=>mk(POOL.덧셈,'meet')},
+    {id:'ma-z12', name:'더하기 찾기',       desc:'더하기 3지선다',     pg:()=>mk(POOL.덧셈,'find')},
+    {id:'ma-z13', name:'빼기 소개',         desc:'5까지 빼기',         pg:()=>mk(POOL.뺄셈,'meet')},
+    {id:'ma-z14', name:'숫자 11~20',        desc:'10 넘는 숫자',       pg:()=>mk(POOL.숫자11_20,'meet')},
+    {id:'ma-z15', name:'숫자 11~20 찾기',   desc:'큰 숫자 3지선다',    pg:()=>mk(POOL.숫자11_20,'find')},
+    {id:'ma-z16', name:'요일 소개',         desc:'월~일',              pg:()=>mk(POOL.요일,'meet')},
+    {id:'ma-z17', name:'요일 찾기',         desc:'요일 3지선다',       pg:()=>mk(POOL.요일,'find')},
+    {id:'ma-z18', name:'시계 소개',         desc:'정시 읽기',          pg:()=>mk(POOL.시계,'meet')},
+    {id:'ma-z19', name:'더하기 빠른 복습 🔄',desc:'4지선다 빠르게',   pg:()=>mk(POOL.덧셈,'quickfind',{shuffle:true})},
+    {id:'ma-z20', name:'빼기 찾기 🔄',      desc:'빼기 3지선다',       pg:()=>mk(POOL.뺄셈,'find',{shuffle:true})},
+    {id:'ma-z21', name:'연산 빈칸',         desc:'빈칸 채우기',        pg:()=>mk(POOL.덧셈.slice(0,8),'blank')},
+    {id:'ma-z22', name:'🏆 마스터 테스트',  desc:'전체 복습',          pg:()=>mk([...POOL.숫자1_10.slice(0,3),...POOL.비교.slice(0,3),...POOL.덧셈.slice(0,3)],'quickfind',{shuffle:true})},
+  ],
+  english:[
+    {id:'en-z1',  name:'알파벳 A~G',        desc:'A부터 G까지',        pg:()=>mk(POOL.알파벳.slice(0,7),'meet')},
+    {id:'en-z2',  name:'알파벳 H~N',        desc:'H부터 N까지',        pg:()=>mk(POOL.알파벳.slice(7,14),'meet')},
+    {id:'en-z3',  name:'알파벳 O~Z',        desc:'O부터 Z까지',        pg:()=>mk(POOL.알파벳.slice(14,26),'meet')},
+    {id:'en-z4',  name:'알파벳 A~M 찾기',   desc:'앞쪽 알파벳',        pg:()=>mk(POOL.알파벳.slice(0,13),'find')},
+    {id:'en-z5',  name:'알파벳 N~Z 찾기',   desc:'뒤쪽 알파벳',        pg:()=>mk(POOL.알파벳.slice(13,26),'find')},
+    {id:'en-z6',  name:'알파벳 복습 🔄',    desc:'4지선다 빠르게',     pg:()=>mk(POOL.알파벳,'quickfind',{shuffle:true,limit:13})},
+    {id:'en-z7',  name:'동물 단어',         desc:'동물 영어 8개',       pg:()=>mk(POOL.영어단어.slice(0,8),'meet')},
+    {id:'en-z8',  name:'동물 찾기',         desc:'동물 3지선다',       pg:()=>mk(POOL.영어단어.slice(0,8),'find')},
+    {id:'en-z9',  name:'음식 단어',         desc:'음식 영어 6개',       pg:()=>mk(POOL.영어단어.slice(8,14),'meet')},
+    {id:'en-z10', name:'음식 찾기',         desc:'음식 3지선다',       pg:()=>mk(POOL.영어단어.slice(8,14),'find')},
+    {id:'en-z11', name:'색깔 영어',         desc:'색깔 4가지',         pg:()=>mk(POOL.영어단어.slice(14,18),'meet')},
+    {id:'en-z12', name:'단어 짝맞추기 🔄',  desc:'짝 맞추기',         pg:()=>mk(POOL.영어단어.slice(0,10),'match',{shuffle:true})},
+    {id:'en-z13', name:'숫자 영어',         desc:'1~3 영어',           pg:()=>mk(POOL.영어단어.slice(18,21),'meet')},
+    {id:'en-z14', name:'몸 단어',           desc:'신체 영어',          pg:()=>mk(POOL.영어단어.slice(21,24),'meet')},
+    {id:'en-z15', name:'가족 단어',         desc:'가족 영어',          pg:()=>mk(POOL.영어단어.slice(24,27),'meet')},
+    {id:'en-z16', name:'단어 복습 🔄',      desc:'4지선다 빠르게',     pg:()=>mk(POOL.영어단어.slice(0,12),'quickfind',{shuffle:true})},
+    {id:'en-z17', name:'인사 표현',         desc:'인사 영어 12개',     pg:()=>mk(POOL.영어표현,'meet')},
+    {id:'en-z18', name:'인사 찾기',         desc:'표현 3지선다',       pg:()=>mk(POOL.영어표현,'find')},
+    {id:'en-z19', name:'알파벳 짝맞추기 🔄',desc:'알파벳 매칭',        pg:()=>mk(POOL.알파벳.slice(0,13),'match',{shuffle:true})},
+    {id:'en-z20', name:'단어 빈칸',         desc:'빈칸 채우기',        pg:()=>mk(POOL.영어단어.filter(x=>x.char.length>=3).slice(0,8),'blank')},
+    {id:'en-z21', name:'🏆 마스터 테스트',  desc:'전체 복습',          pg:()=>mk([...POOL.알파벳.slice(0,3),...POOL.영어단어.slice(0,3),...POOL.영어표현.slice(0,3)],'quickfind',{shuffle:true})},
+  ],
+};
+
+// 페이지 빌드 (처음 접근 시 생성)
 const ZONES = {};
-Object.entries(CURRICULUM).forEach(([k,v]) => {
-  ZONES[k] = v.zones.map(z => ({...z, pages:buildPages(z)}));
+Object.entries(ZONE_DEFS).forEach(([k,defs]) => {
+  ZONES[k] = defs.map(z => ({...z, get pages(){ return z._pages || (z._pages = z.pg()); }}));
 });
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 // 상태
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 let state = {
   userName:'', currentSubject:'korean', currentZoneIdx:0, currentPageIdx:0,
   stamps:0, progress:{korean:0,math:0,english:0},
-  settings:{freeNav:false,autoSound:true,dailyGoal:10,goalKorean:2,goalMath:2,goalEnglish:2}, answered:false, dailyLog:{}, dailySubjectLog:{},
+  settings:{freeNav:false,autoSound:true,goalKorean:1,goalMath:1,goalEnglish:1},
+  answered:false, dailyLog:{}, dailySubjectLog:{},
 };
-function saveState(){ try{ localStorage.setItem('broom_v2', JSON.stringify(state)); }catch(e){} }
-function loadState(){ try{ const s=localStorage.getItem('broom_v2'); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
+function saveState(){ try{localStorage.setItem('broomv3',JSON.stringify(state));}catch(e){} }
+function loadState(){ try{const s=localStorage.getItem('broomv3');if(s){const p=JSON.parse(s);state={...state,...p};}}catch(e){} }
 
-// ═══════════════════════════════════════
-// 오디오
-// ═══════════════════════════════════════
-function speakTTS(text, lang) {
+// ══════════════════════════════════════════════════════════
+// 오디오 — 클로바 mp3 우선, fallback TTS
+// ══════════════════════════════════════════════════════════
+let _audio = null;
+const AUDIO_FEEDBACK = {
+  correct: 'audio/30_잘했어요.mp3',
+  wrong:   'audio/31_다시해봐요.mp3',
+  done:    'audio/30_잘했어요.mp3',
+};
+
+function playMp3(src, fallbackText, lang) {
+  if(_audio){ _audio.pause(); _audio=null; }
+  const a = new Audio(src);
+  _audio = a;
+  document.getElementById('btn-sound')?.classList.add('playing');
+  a.play().catch(()=>{ tts(fallbackText, lang); });
+  a.onended = ()=>{ document.getElementById('btn-sound')?.classList.remove('playing'); };
+}
+
+function tts(text, lang='ko-KR') {
   if(!window.speechSynthesis) return;
-  lang = lang || (state.currentSubject==='english' ? 'en-US' : 'ko-KR');
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang; u.rate = 0.85;
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
+
 function playSound() {
-  const page = ZONES[state.currentSubject][state.currentZoneIdx].pages[state.currentPageIdx];
-  speakTTS(page.ttsText || page.label);
+  const page = currentPage();
+  if(!page) return;
+  const isEng = state.currentSubject === 'english';
+  const lang = isEng ? 'en-US' : 'ko-KR';
+  // 자음 이름은 클로바 mp3 사용
+  if(page.item?.audio) {
+    playMp3(`audio/${page.item.audio}.mp3`, page.ttsText || page.label, lang);
+  } else {
+    tts(page.ttsText || page.label, lang);
+  }
 }
 
-// ═══════════════════════════════════════
-// 비주얼 렌더러 — 핵심!
-// ═══════════════════════════════════════
-function renderCardVisual(page, subject) {
-  const item = page.item;
-  const vis = document.getElementById('card-visual');
-
-  // 수학 — 숫자 (카운팅)
-  if(item.count !== undefined) {
-    const num = parseInt(item.char);
-    let dotsHtml;
-    if(item.count.includes('×')) {
-      // 큰 숫자: 이모지 줄바꿈 표시
-      const e = item.count.split('×')[0];
-      const n = parseInt(item.count.split('×')[1]);
-      dotsHtml = `<div style="font-size:24px;line-height:1.5;max-width:240px;word-break:break-all">${e.repeat(n)}</div>`;
-    } else {
-      dotsHtml = `<div style="font-size:28px;letter-spacing:2px;line-height:1.4">${item.count}</div>`;
-    }
-    vis.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-        <div style="font-size:72px;font-weight:900;color:#FF5252;line-height:1">${item.char}</div>
-        ${dotsHtml}
-        <div style="font-size:15px;font-weight:700;color:#FF5252">${item.name}</div>
-      </div>`;
-    return;
-  }
-
-  // 수학 — 크다/작다 비교
-  if(item.compare) {
-    const c = item.compare;
-    const isBig = item.char==='크다'||item.char==='많다'||item.char==='길다';
-    // 개념별 맞춤 시각화
-    const isCount = c.big.includes('🚌🚌'); // 많다/적다
-    const isLength = c.big.includes('🚃');  // 길다/짧다
-
-    if(isCount) {
-      // 많다/적다: 개수로 표현, 같은 크기
-      vis.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-          <div style="display:flex;align-items:center;gap:24px">
-            <div style="text-align:center">
-              <div style="font-size:28px;line-height:1.4">${c.big}</div>
-              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.bigLabel}</div>
-            </div>
-            <div style="font-size:14px;color:#CCC">vs</div>
-            <div style="text-align:center">
-              <div style="font-size:28px;line-height:1.4">${c.small}</div>
-              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.smallLabel}</div>
-            </div>
-          </div>
-          <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
-        </div>`;
-    } else if(isLength) {
-      // 길다/짧다: 세로로 배치해서 길이 차이 표현
-      vis.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
-            <div style="text-align:left">
-              <span style="font-size:32px;letter-spacing:-4px">${c.big}</span>
-              <span style="font-size:11px;color:#FF5252;font-weight:700;margin-left:6px">${c.bigLabel}</span>
-            </div>
-            <div style="text-align:left">
-              <span style="font-size:32px">${c.small}</span>
-              <span style="font-size:11px;color:#FF5252;font-weight:700;margin-left:6px">${c.smallLabel}</span>
-            </div>
-          </div>
-          <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
-        </div>`;
-    } else {
-      // 크다/작다: 크기 차이로 표현
-      vis.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-          <div style="display:flex;align-items:flex-end;gap:16px">
-            <div style="text-align:center">
-              <div style="font-size:72px;line-height:1">${c.big}</div>
-              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.bigLabel}</div>
-            </div>
-            <div style="font-size:14px;color:#CCC;margin-bottom:20px">vs</div>
-            <div style="text-align:center">
-              <div style="font-size:36px;line-height:1">${c.small}</div>
-              <div style="font-size:11px;color:#FF5252;font-weight:700;margin-top:4px">${c.smallLabel}</div>
-            </div>
-          </div>
-          <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
-        </div>`;
-    }
-    return;
-  }
-
-  // 수학 — 더하기
-  if(item.eq) {
-    const {a,b,r,e} = item.eq;
-    const makeEmojis = (n) => Array(n).fill(e).join('');
-    vis.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:24px">
-          <span>${makeEmojis(a)}</span>
-          <span style="font-size:26px;font-weight:900;color:#4CAF50">➕</span>
-          <span>${makeEmojis(b)}</span>
-        </div>
-        <div style="font-size:20px;font-weight:900;color:#FF5252">⬇</div>
-        <div style="font-size:24px">${makeEmojis(r)}</div>
-        <div style="font-size:32px;font-weight:900;color:#FF5252">${item.char}</div>
-      </div>`;
-    return;
-  }
-
-  // 수학 — 빼기
-  if(item.sub) {
-    const {a,b,r,e} = item.sub;
-    const makeEmojis = (n,faded) => Array(n).fill(0).map((_,i)=>
-      faded&&i>=r ? `<span style="opacity:0.25">${e}</span>` : e
-    ).join('');
-    vis.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:24px">
-          <span>${makeEmojis(a,true)}</span>
-        </div>
-        <div style="font-size:14px;color:#888;font-weight:700">${b}대가 출발! 🚦</div>
-        <div style="font-size:20px;font-weight:900;color:#FF5252">⬇</div>
-        <div style="font-size:24px">${makeEmojis(r,false)}</div>
-        <div style="font-size:32px;font-weight:900;color:#FF5252">${item.char}</div>
-      </div>`;
-    return;
-  }
-
-  // 자음 — 글자 + 키워드 이모지 + 설명
-  if(subject==='korean' && item.keyword && item.char.length===1 && 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ'.includes(item.char)) {
-    vis.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-        <div style="display:flex;align-items:center;gap:16px">
-          <div style="font-size:72px;font-weight:900;color:#2D2D2D;line-height:1">${item.char}</div>
-          <div style="font-size:56px;line-height:1">${item.emoji}</div>
-        </div>
-        <div style="background:#FFF3C4;border:2px solid #FFB800;border-radius:20px;padding:5px 16px;font-size:13px;font-weight:700;color:#E09800">${item.keyword}</div>
-      </div>`;
-    return;
-  }
-
-  // 영어 알파벳
-  if(subject==='english' && item.char.length===1 && /[A-Z]/.test(item.char)) {
-    vis.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="font-size:76px;font-weight:900;color:#4285F4;line-height:1">${item.char}</div>
-          <div style="font-size:52px;line-height:1">${item.emoji}</div>
-        </div>
-        <div style="background:#E8F0FE;border:2px solid #4285F4;border-radius:20px;padding:5px 16px;font-size:13px;font-weight:700;color:#1A56C4">${item.keyword}</div>
-      </div>`;
-    return;
-  }
-
-  // 단어/문장 — 이모지 크게 + 글자
-  const isSentence = item.char.length > 4;
-  vis.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-      <div style="font-size:${isSentence?'52px':'64px'};line-height:1">${item.emoji}</div>
-      <div style="font-size:${isSentence?'22px':'40px'};font-weight:900;color:#2D2D2D;text-align:center;line-height:1.3">${item.char}</div>
-    </div>`;
+function playFeedback(type) {
+  playMp3(AUDIO_FEEDBACK[type], type==='correct'?'잘했어요':'다시 해봐요', 'ko-KR');
 }
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+// 날짜 / 일일 기록
+// ══════════════════════════════════════════════════════════
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function getTodayDone(){ const t=todayStr(); return (state.dailyLog[t]||0); }
+function getTodaySubjectDone(s){ const t=todayStr(); return (state.dailySubjectLog[t]?.[s]||0); }
+function getGoal(s){ const g=state.settings; return g[s==='korean'?'goalKorean':s==='math'?'goalMath':'goalEnglish']||1; }
+function getTotalGoal(){ return getGoal('korean')+getGoal('math')+getGoal('english'); }
+
+function recordPage() {
+  if(!state.dailyLog) state.dailyLog={};
+  if(!state.dailySubjectLog) state.dailySubjectLog={};
+  const t=todayStr(), s=state.currentSubject;
+  state.dailyLog[t]=(state.dailyLog[t]||0)+1;
+  if(!state.dailySubjectLog[t]) state.dailySubjectLog[t]={};
+  state.dailySubjectLog[t][s]=(state.dailySubjectLog[t][s]||0)+1;
+  saveState();
+}
+
+function calcStreak() {
+  const goal=getTotalGoal();
+  let streak=0, d=new Date();
+  for(let i=0;i<365;i++){
+    const s=d.toISOString().slice(0,10);
+    const done=state.dailyLog[s]||0;
+    if(done>=goal||(i===0&&done>0)){streak++;d.setDate(d.getDate()-1);}
+    else if(i===0){d.setDate(d.getDate()-1);const ys=d.toISOString().slice(0,10);if((state.dailyLog[ys]||0)>=goal)break;else break;}
+    else break;
+  }
+  return streak;
+}
+
+// ══════════════════════════════════════════════════════════
 // 화면 전환
-// ═══════════════════════════════════════
-function setAccent(subject) {
-  const s = CURRICULUM[subject];
-  document.documentElement.style.setProperty('--accent', s.color);
-  document.documentElement.style.setProperty('--accent-dark', s.dark);
-  document.documentElement.style.setProperty('--accent-light', s.light);
+// ══════════════════════════════════════════════════════════
+function setAccent(s) {
+  const map={korean:['#FFB800','#E09800','#FFF3C4'],math:['#FF5252','#D32F2F','#FFEBEE'],english:['#4285F4','#1A56C4','#E8F0FE']};
+  const [m,d,l]=map[s]||map.korean;
+  document.documentElement.style.setProperty('--accent',m);
+  document.documentElement.style.setProperty('--accent-dark',d);
+  document.documentElement.style.setProperty('--accent-light',l);
 }
 
 function goScreen(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
   document.getElementById('bottom-nav').style.display = name==='learn'?'none':'flex';
-  if(name==='subject') renderSubject();
-  if(name==='zone')    renderZone();
+  if(name==='subject')  renderSubject();
+  if(name==='zone')     renderZone();
   if(name==='garage')   renderGarage();
-  if(name==='settings') renderSettings();
   if(name==='calendar') renderCalendar();
-  if(name==='parent')   { renderParent(); }
+  if(name==='parent')   renderParent();
+  if(name==='settings') renderSettings();
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const m={subject:'nav-home',garage:'nav-garage',settings:'nav-settings',calendar:'nav-calendar',parent:'nav-parent'};
+  const m={subject:'nav-home',calendar:'nav-calendar',garage:'nav-garage',parent:'nav-parent',settings:'nav-settings'};
   if(m[name]) document.getElementById(m[name])?.classList.add('active');
 }
 
-// ═══════════════════════════════════════
-// 시작
-// ═══════════════════════════════════════
-function startApp() {
-  const n=document.getElementById('input-name').value.trim();
-  if(!n){document.getElementById('input-name').focus();return;}
-  state.userName=n; saveState(); setAccent('korean'); goScreen('subject');
+let pinUnlocked=false;
+function navTo(name) {
+  if(name==='parent'&&!pinUnlocked){goScreen('parent');showPinOverlay();return;}
+  goScreen(name);
 }
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+// 시작 / 오늘의 학습
+// ══════════════════════════════════════════════════════════
+function startApp(){
+  const n=document.getElementById('input-name').value.trim();
+  if(!n){document.getElementById('input-name').focus();return;}
+  state.userName=n;saveState();setAccent('korean');goScreen('subject');
+}
+
+function renderTodayCard(){
+  const goal=getTotalGoal(), done=getTodayDone();
+  const pct=Math.min(100,Math.round(done/goal*100));
+  document.getElementById('tc-fill').style.width=pct+'%';
+  const kd=getTodaySubjectDone('korean'),md=getTodaySubjectDone('math'),ed=getTodaySubjectDone('english');
+  const detail=`국어 ${kd}/${getGoal('korean')} · 수학 ${md}/${getGoal('math')} · 영어 ${ed}/${getGoal('english')}`;
+  const card=document.getElementById('today-card');
+  if(done>=goal){
+    card.className='today-card done';
+    document.getElementById('tc-title').textContent='오늘 목표 달성! 🎉';
+  } else {
+    card.className='today-card';
+    document.getElementById('tc-title').textContent=`오늘 ${goal-done}장 더 해봐요!`;
+  }
+  document.getElementById('tc-sub').textContent=detail;
+}
+
+function renderStreak(){
+  const s=calcStreak();
+  document.getElementById('streak-num').textContent=s;
+  document.getElementById('streak-fire').textContent=s>=3?'🔥':'💧';
+  const goal=getTotalGoal(), dots=document.getElementById('streak-dots');
+  const days=[]; for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
+  const wd=['일','월','화','수','목','금','토'];
+  dots.innerHTML=days.map(ds=>{
+    const done=state.dailyLog[ds]||0, isToday=ds===todayStr();
+    const cls=done>=goal?'done':isToday&&done>0?'today':'';
+    const lbl=done>=goal?'✓':isToday?'→':wd[new Date(ds).getDay()];
+    return `<div class="streak-dot ${cls}">${lbl}</div>`;
+  }).join('');
+}
+
+function startTodayLearn(){
+  const subjects=['korean','math','english'];
+  for(const s of subjects){
+    if(getTodaySubjectDone(s)>=getGoal(s)) continue;
+    const zones=ZONES[s]; let total=0;
+    for(let zi=0;zi<zones.length;zi++){
+      const z=zones[zi];
+      if((state.progress[s]||0)<total+z.pages.length){
+        state.currentSubject=s; state.currentZoneIdx=zi;
+        state.currentPageIdx=Math.max(0,(state.progress[s]||0)-total);
+        state.answered=false; setAccent(s); goScreen('learn'); renderPage(); return;
+      }
+      total+=z.pages.length;
+    }
+  }
+  showToast('🏆 오늘 모든 과목 완료!');
+}
+
+// ══════════════════════════════════════════════════════════
 // 과목 화면
-// ═══════════════════════════════════════
-function renderSubject() {
+// ══════════════════════════════════════════════════════════
+function renderSubject(){
   setAccent('korean');
   document.getElementById('greeting-text').innerHTML=`<em>${state.userName}</em>, 오늘도 출발해볼까요? 🚌`;
   document.getElementById('total-stamps').textContent=state.stamps;
-  renderTodayCard();
-  renderStreak();
+  renderTodayCard(); renderStreak();
   ['korean','math','english'].forEach(k=>{
     const total=ZONES[k].reduce((a,z)=>a+z.pages.length,0);
     const done=state.progress[k]||0;
@@ -1267,125 +1135,309 @@ function renderSubject() {
   document.getElementById('total-progress-fill').style.width=Math.min(100,Math.round(doneAll/totalAll*100))+'%';
 }
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 // 존 화면
-// ═══════════════════════════════════════
-function goToZone(subject){ state.currentSubject=subject; setAccent(subject); goScreen('zone'); }
+// ══════════════════════════════════════════════════════════
+function goToZone(s){state.currentSubject=s;setAccent(s);goScreen('zone');}
 
-function renderZone() {
+function renderZone(){
   setAccent(state.currentSubject);
-  const icons={korean:'🚌',math:'🚒',english:'🚓'};
-  const names={korean:'국어',math:'수학',english:'영어'};
-  document.getElementById('zone-title').textContent=icons[state.currentSubject]+' '+names[state.currentSubject];
-  const zones=ZONES[state.currentSubject];
-  let totalDone=0;
+  const icons={korean:'🚌 국어',math:'🚒 수학',english:'🚓 영어'};
+  document.getElementById('zone-title').textContent=icons[state.currentSubject];
+  const zones=ZONES[state.currentSubject]; let total=0;
   document.getElementById('zone-list').innerHTML=zones.map((z,i)=>{
-    const isDone=(state.progress[state.currentSubject]||0)>=totalDone+z.pages.length;
-    const isLocked=!state.settings?.freeNav&&i>0&&(state.progress[state.currentSubject]||0)<totalDone;
-    totalDone+=z.pages.length;
-    return `<div class="zone-card ${isLocked?'locked':''} ${!isLocked&&!isDone?'active-zone':''}" onclick="startZone(${i})">
-      <div class="zone-num ${isDone?'done':''}">${isDone?'✓':i+1}</div>
-      <div class="zone-info">
-        <div class="zone-name">${z.name}</div>
-        <div class="zone-sub">${z.desc} · ${z.pages.length}장</div>
-      </div>
+    const done=(state.progress[state.currentSubject]||0)>=total+z.pages.length;
+    const locked=!state.settings?.freeNav&&i>0&&(state.progress[state.currentSubject]||0)<total;
+    total+=z.pages.length;
+    return `<div class="zone-card ${locked?'locked':''} ${!locked&&!done?'current-zone':''}" onclick="startZone(${i})">
+      <div class="zone-num ${done?'done':''}">${done?'✓':i+1}</div>
+      <div class="zone-info"><div class="zone-name">${z.name}</div><div class="zone-sub">${z.desc} · ${z.pages.length}장</div></div>
       <div class="zone-arrow">›</div>
     </div>`;
   }).join('');
 }
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 // 학습
-// ═══════════════════════════════════════
-function startZone(i){ state.currentZoneIdx=i; state.currentPageIdx=0; state.answered=false; goScreen('learn'); renderPage(); }
+// ══════════════════════════════════════════════════════════
+function startZone(i){
+  state.currentZoneIdx=i;state.currentPageIdx=0;state.answered=false;
+  goScreen('learn');renderPage();
+}
 
-function renderPage() {
+function currentPage(){
+  return ZONES[state.currentSubject]?.[state.currentZoneIdx]?.pages?.[state.currentPageIdx];
+}
+
+let timerInterval=null;
+function clearTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+
+function renderPage(){
+  clearTimer();
   const zone=ZONES[state.currentSubject][state.currentZoneIdx];
-  const page=zone.pages[state.currentPageIdx];
-  const total=zone.pages.length;
-  document.getElementById('learn-progress-fill').style.width=((state.currentPageIdx+1)/total*100)+'%';
-  document.getElementById('learn-step-txt').textContent=`${state.currentPageIdx+1}/${total}`;
+  const page=currentPage(); if(!page) return;
+  const total=zone.pages.length, cur=state.currentPageIdx+1;
+
+  document.getElementById('learn-bar-fill').style.width=(cur/total*100)+'%';
+  document.getElementById('learn-step').textContent=`${cur}/${total}`;
 
   const icons={korean:'🚌 국어',math:'🚒 수학',english:'🚓 영어'};
-  document.getElementById('card-subject-label').textContent=icons[state.currentSubject];
+  const badges={listen:'👀 만나기',choose:'🔍 찾기',match:'🧩 짝맞추기',blank:'✏️ 빈칸'};
+  document.getElementById('card-label').textContent=icons[state.currentSubject];
+  document.getElementById('card-type-badge').textContent=badges[page.type]||'';
   document.getElementById('sound-label').textContent=page.label;
   document.getElementById('card-hint').textContent=page.hint;
 
-  // 비주얼
-  renderCardVisual(page, state.currentSubject);
+  renderCardVisual(page);
+  state.answered=false;
 
-  const grid=document.getElementById('options-grid');
   const nextBtn=document.getElementById('btn-next');
-  state.answered=false; nextBtn.classList.remove('visible');
+  nextBtn.classList.remove('visible');
 
-  if(page.type==='listen') {
-    grid.innerHTML='';
+  const area=document.getElementById('options-area');
+  area.innerHTML='';
+
+  if(page.type==='listen'){
     nextBtn.classList.add('visible'); nextBtn.textContent='다음 ➡️';
-    if(state.settings?.autoSound!==false) setTimeout(()=>playSound(),400);
-  } else {
-    // 보기 스타일: 자음/모음/알파벳은 글자만 크게, 나머지는 이모지+글자
-    const isCharOnly = page.item && (
-      'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ'.includes(page.char) ||
-      /^[A-Z]$/.test(page.char) ||
-      /^[0-9]+$/.test(page.char) ||
-      ['○','△','□','★','♥'].includes(page.char)
-    );
+    if(state.settings?.autoSound!==false) setTimeout(playSound,400);
+
+  } else if(page.type==='choose'){
+    const cols=page.cols||3;
+    area.innerHTML=`<div class="options-grid ${cols===2?'cols2':''}" id="opts-grid"></div>`;
+    const grid=document.getElementById('opts-grid');
+    const isCharOnly='ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ'.includes(page.char)||/^[A-Z0-9]$/.test(page.char)||['○','△','□','★','♥','◇'].includes(page.char);
     grid.innerHTML=page.options.map(opt=>{
-      const safe = opt.char.replace(/'/g,"\\'");
-      if(isCharOnly) {
-        return `<button class="option-btn" onclick="checkAnswer('${safe}',this)">
-          <span style="font-size:34px;font-weight:900;line-height:1">${opt.char}</span>
-        </button>`;
-      } else {
-        return `<button class="option-btn" onclick="checkAnswer('${safe}',this)">
-          <span class="opt-emoji">${opt.emoji}</span>
-          <span class="opt-char" style="font-size:${opt.char.length>3?'14px':'18px'}">${opt.char}</span>
-        </button>`;
-      }
+      const safe=(opt.char||opt).replace(/'/g,"\\'");
+      if(isCharOnly) return `<button class="option-btn" onclick="checkAnswer('${safe}',this)"><span class="opt-char">${opt.char||opt}</span></button>`;
+      return `<button class="option-btn" onclick="checkAnswer('${safe}',this)"><span class="opt-emoji">${opt.emoji||''}</span><span class="opt-char" style="font-size:${(opt.char||opt).length>3?'13px':'18px'}">${opt.char||opt}</span></button>`;
     }).join('');
-    if(state.settings?.autoSound!==false) setTimeout(()=>playSound(),400);
+    if(state.settings?.autoSound!==false) setTimeout(playSound,400);
+    // 타이머 (quickfind)
+    if(page.timed){
+      const bar=document.getElementById('timer-fill');
+      bar.style.display='block'; bar.style.width='100%'; bar.style.transition='none';
+      const sec=page.timed;
+      setTimeout(()=>{bar.style.transition=`width ${sec}s linear`;bar.style.width='0%';},50);
+      timerInterval=setInterval(()=>{if(!state.answered){state.answered=true;nextPage();}},sec*1000);
+    }
+
+  } else if(page.type==='match'){
+    renderMatchGame(page);
+    if(state.settings?.autoSound!==false) setTimeout(playSound,400);
+
+  } else if(page.type==='blank'){
+    area.innerHTML=`<div class="options-grid cols2" id="opts-grid"></div>`;
+    const grid=document.getElementById('opts-grid');
+    grid.innerHTML=page.options.map(ch=>{
+      const safe=ch.replace(/'/g,"\\'");
+      return `<button class="option-btn" onclick="checkBlank('${safe}',this)"><span class="opt-char" style="font-size:26px">${ch}</span></button>`;
+    }).join('');
+    if(state.settings?.autoSound!==false) setTimeout(playSound,400);
+  }
+
+  document.getElementById('timer-fill').style.display=(page.timed)?'block':'none';
+}
+
+// ── 비주얼 렌더 ──
+function renderCardVisual(page){
+  const vis=document.getElementById('card-visual');
+  const item=page.item;
+  if(!item){vis.innerHTML=`<div style="font-size:72px">${page.emoji}</div>`;return;}
+
+  // 숫자 세기
+  if(item.count!==undefined){
+    const dots=item.count.includes('×')?item.count.replace(/^(.+)×(\d+)$/,(_,e,n)=>e.repeat(+n)):item.count;
+    vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:7px">
+      <div style="font-size:clamp(60px,12vw,80px);font-weight:900;color:#FF5252;line-height:1">${item.char}</div>
+      <div style="font-size:clamp(18px,3.5vw,26px);line-height:1.5;max-width:260px;word-break:break-all">${dots}</div>
+      <div style="font-size:13px;font-weight:700;color:#FF5252">${item.name}</div>
+    </div>`; return;
+  }
+
+  // 비교
+  if(item.compare){
+    const c=item.compare, isCount=c.big.includes('🚌🚌'), isLength=c.big.includes('🚃');
+    if(isCount){
+      vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:20px">
+          <div style="text-align:center"><div style="font-size:26px;line-height:1.5">${c.big}</div><div style="font-size:10px;color:#FF5252;font-weight:700;margin-top:3px">${c.bigLabel}</div></div>
+          <div style="font-size:14px;color:#CCC">vs</div>
+          <div style="text-align:center"><div style="font-size:26px">${c.small}</div><div style="font-size:10px;color:#FF5252;font-weight:700;margin-top:3px">${c.smallLabel}</div></div>
+        </div>
+        <div style="font-size:26px;font-weight:900;color:#FF5252">${item.char}</div>
+      </div>`;
+    } else if(isLength){
+      vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+          <div><span style="font-size:28px;letter-spacing:-3px">${c.big}</span><span style="font-size:10px;color:#FF5252;font-weight:700;margin-left:6px">${c.bigLabel}</span></div>
+          <div><span style="font-size:28px">${c.small}</span><span style="font-size:10px;color:#FF5252;font-weight:700;margin-left:6px">${c.smallLabel}</span></div>
+        </div>
+        <div style="font-size:26px;font-weight:900;color:#FF5252">${item.char}</div>
+      </div>`;
+    } else {
+      vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="display:flex;align-items:flex-end;gap:14px">
+          <div style="text-align:center"><div style="font-size:64px;line-height:1">${c.big}</div><div style="font-size:10px;color:#FF5252;font-weight:700;margin-top:3px">${c.bigLabel}</div></div>
+          <div style="font-size:13px;color:#CCC;margin-bottom:16px">vs</div>
+          <div style="text-align:center"><div style="font-size:34px;line-height:1">${c.small}</div><div style="font-size:10px;color:#FF5252;font-weight:700;margin-top:3px">${c.smallLabel}</div></div>
+        </div>
+        <div style="font-size:26px;font-weight:900;color:#FF5252">${item.char}</div>
+      </div>`;
+    }
+    return;
+  }
+
+  // 덧셈
+  if(item.eq){
+    const{a,b,r,e}=item.eq, me=n=>Array(n).fill(e).join('');
+    vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:22px"><span>${me(a)}</span><span style="font-size:22px;font-weight:900;color:#4CAF50">➕</span><span>${me(b)}</span></div>
+      <div style="font-size:16px;font-weight:900;color:#FF5252">⬇</div>
+      <div style="font-size:22px">${me(r)}</div>
+      <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
+    </div>`; return;
+  }
+
+  // 뺄셈
+  if(item.sub){
+    const{a,b,r,e}=item.sub;
+    const row=Array(a).fill(0).map((_,i)=>i<r?e:`<span style="opacity:.2">${e}</span>`).join('');
+    vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+      <div style="font-size:22px">${row}</div>
+      <div style="font-size:13px;color:#888;font-weight:700">${b}대 출발! 🚦</div>
+      <div style="font-size:16px;font-weight:900;color:#FF5252">⬇</div>
+      <div style="font-size:22px">${e.repeat(r)}</div>
+      <div style="font-size:28px;font-weight:900;color:#FF5252">${item.char}</div>
+    </div>`; return;
+  }
+
+  // 자음/모음 (글자 + 이모지 + 태그)
+  const isJamo='ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ'.includes(item.char);
+  const isAlpha=/^[A-Z]$/.test(item.char);
+  if(isJamo||isAlpha){
+    const col=isAlpha?'#4285F4':'#2D2D2D', tagCol=isAlpha?'#E8F0FE':'#FFF3C4', tagBorder=isAlpha?'#4285F4':'#FFB800', tagText=isAlpha?'#1A56C4':'#E09800';
+    vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:clamp(56px,12vw,76px);font-weight:900;color:${col};line-height:1">${item.char}</div>
+        <div style="font-size:clamp(42px,9vw,56px);line-height:1">${item.emoji}</div>
+      </div>
+      ${item.keyword?`<div style="background:${tagCol};border:2px solid ${tagBorder};border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:${tagText}">${item.keyword}</div>`:''}
+    </div>`; return;
+  }
+
+  // 빈칸 모드
+  if(page.type==='blank'){
+    vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div style="font-size:clamp(44px,9vw,58px);line-height:1">${item.emoji}</div>
+      <div style="font-size:clamp(28px,5.5vw,36px);font-weight:900;color:var(--text-dark);letter-spacing:4px">${page.blanked}</div>
+    </div>`; return;
+  }
+
+  // 기본 (단어, 문장, 도형 등)
+  const isSentence=item.char.length>5;
+  vis.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div style="font-size:clamp(48px,10vw,64px);line-height:1">${item.emoji}</div>
+    <div style="font-size:${isSentence?'clamp(16px,3vw,22px)':'clamp(28px,5.5vw,38px)'};font-weight:900;color:var(--text-dark);text-align:center;line-height:1.3">${item.char}</div>
+  </div>`;
+}
+
+// ── 짝맞추기 ──
+let matchSelected=null, matchDone=0;
+function renderMatchGame(page){
+  matchSelected=null; matchDone=0;
+  const items=page.options;
+  const leftItems=[...items].sort(()=>Math.random()-.5);
+  const rightItems=[...items].sort(()=>Math.random()-.5);
+  document.getElementById('options-area').innerHTML=`
+    <div class="match-grid" id="match-grid">
+      ${leftItems.map(it=>`<button class="match-btn" data-char="${it.char}" data-side="left" onclick="matchClick(this)"><span style="font-size:26px">${it.emoji}</span></button>`).join('')}
+      ${rightItems.map(it=>`<button class="match-btn" data-char="${it.char}" data-side="right" onclick="matchClick(this)"><span style="font-size:18px;font-weight:900">${it.char}</span><span class="match-label">${it.name}</span></button>`).join('')}
+    </div>`;
+}
+
+function matchClick(btn){
+  if(btn.classList.contains('matched')) return;
+  if(!matchSelected){
+    document.querySelectorAll('.match-btn.selected').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); matchSelected=btn; return;
+  }
+  if(matchSelected===btn){matchSelected=null;btn.classList.remove('selected');return;}
+  if(matchSelected.dataset.side===btn.dataset.side){
+    matchSelected.classList.remove('selected'); matchSelected=btn; return;
+  }
+  if(matchSelected.dataset.char===btn.dataset.char){
+    matchSelected.classList.remove('selected'); matchSelected.classList.add('matched');
+    btn.classList.add('matched'); matchSelected=null;
+    matchDone++;
+    const page=currentPage();
+    if(matchDone>=page.options.length){
+      state.stamps+=3; saveState();
+      playFeedback('correct');
+      setTimeout(()=>document.getElementById('btn-next').classList.add('visible'),500);
+    }
+  } else {
+    btn.classList.add('wrong-match'); matchSelected.classList.add('wrong-match');
+    const prev=matchSelected; matchSelected=null;
+    playFeedback('wrong');
+    setTimeout(()=>{btn.classList.remove('wrong-match');prev.classList.remove('wrong-match','selected');},800);
   }
 }
 
-function checkAnswer(selected, btn) {
-  if(state.answered) return;
-  state.answered=true;
-  const page=ZONES[state.currentSubject][state.currentZoneIdx].pages[state.currentPageIdx];
+// ── 정답 체크 ──
+function checkAnswer(selected, btn){
+  if(state.answered) return; state.answered=true; clearTimer();
+  const page=currentPage();
   if(selected===page.answer){
     btn.classList.add('correct'); state.stamps++; saveState();
-    speakTTS('잘했어요','ko-KR');
+    playFeedback('correct');
     setTimeout(()=>document.getElementById('btn-next').classList.add('visible'),500);
   } else {
     btn.classList.add('wrong');
-    speakTTS('다시 해봐요','ko-KR');
+    playFeedback('wrong');
     setTimeout(()=>{btn.classList.remove('wrong');state.answered=false;},900);
   }
 }
 
-function nextPage() {
-  const zone=ZONES[state.currentSubject][state.currentZoneIdx];
-  state.progress[state.currentSubject]=Math.max(state.progress[state.currentSubject]||0, state.currentPageIdx+1);
-  recordTodayPage();
-  saveState();
-  if(state.currentPageIdx+1>=zone.pages.length) showResult(zone);
-  else { state.currentPageIdx++; state.answered=false; renderPage(); }
+function checkBlank(ch, btn){
+  if(state.answered) return; state.answered=true;
+  const page=currentPage();
+  if(ch===page.answer){
+    btn.classList.add('correct'); state.stamps++; saveState();
+    playFeedback('correct');
+    setTimeout(()=>document.getElementById('btn-next').classList.add('visible'),500);
+  } else {
+    btn.classList.add('wrong');
+    playFeedback('wrong');
+    setTimeout(()=>{btn.classList.remove('wrong');state.answered=false;},900);
+  }
 }
 
-function showResult(zone) {
+// ── 다음 페이지 ──
+function nextPage(){
+  clearTimer();
+  const zone=ZONES[state.currentSubject][state.currentZoneIdx];
+  state.progress[state.currentSubject]=Math.max(state.progress[state.currentSubject]||0,state.currentPageIdx+1);
+  recordPage(); saveState();
+  if(state.currentPageIdx+1>=zone.pages.length) showResult(zone);
+  else{state.currentPageIdx++;state.answered=false;renderPage();}
+}
+
+function showResult(zone){
   goScreen('result');
   document.getElementById('result-title').textContent=`${zone.name} 완료! 🎉`;
   document.getElementById('result-sub').textContent=`${state.userName}, 정말 잘했어요! 👏`;
-  document.getElementById('stamp-row').innerHTML=['⭐','⭐','⭐'].map((s,i)=>`<div class="stamp" style="animation-delay:${i*0.15}s">${s}</div>`).join('');
-  speakTTS('잘했어요! 정말 대단해요!','ko-KR');
+  document.getElementById('stamp-row').innerHTML=['⭐','⭐','⭐'].map((s,i)=>`<div class="stamp" style="animation-delay:${i*.15}s">${s}</div>`).join('');
+  playFeedback('done');
 }
+
 function continueLearn(){
   if(state.currentZoneIdx+1<ZONES[state.currentSubject].length) startZone(state.currentZoneIdx+1);
   else goScreen('subject');
 }
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 // 차고지
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 const GARAGE=[
   {e:'🚌',n:'고속버스'},{e:'🚒',n:'소방차'},{e:'🚓',n:'경찰차'},{e:'🚕',n:'택시'},
   {e:'🚛',n:'덤프트럭'},{e:'🚁',n:'헬리콥터'},{e:'🏍️',n:'오토바이'},{e:'🚂',n:'기차'},
@@ -1393,16 +1445,83 @@ const GARAGE=[
 ];
 function renderGarage(){
   const done=Object.values(state.progress).reduce((a,v)=>a+v,0);
-  const unlocked=Math.min(GARAGE.length-1, Math.floor(done/20));
-  document.getElementById('garage-grid').innerHTML=GARAGE.map((v,i)=>`
-    <div class="garage-item ${i<=unlocked?'':'locked'}">
-      <div class="g-emoji">${v.e}</div><p>${v.n}</p>
-    </div>`).join('');
+  const u=Math.min(GARAGE.length-1,Math.floor(done/20));
+  document.getElementById('garage-grid').innerHTML=GARAGE.map((v,i)=>`<div class="garage-item ${i<=u?'':'locked'}"><div class="g-emoji">${v.e}</div><p>${v.n}</p></div>`).join('');
 }
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+// 달력
+// ══════════════════════════════════════════════════════════
+function renderCalendar(){
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth(), goal=getTotalGoal();
+  document.getElementById('cal-month').textContent=`${y}년 ${m+1}월`;
+  const first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate(), today=now.getDate();
+  let html='';
+  for(let i=0;i<first;i++) html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=last;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const done=state.dailyLog[ds]||0;
+    let cls=done>=goal?'full':done>0?'has':'';
+    if(d===today) cls+=' today-c';
+    html+=`<div class="cal-day ${cls}">${d}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML=html;
+  const pfx=`${y}-${String(m+1).padStart(2,'0')}`;
+  const days=Object.keys(state.dailyLog||{}).filter(x=>x.startsWith(pfx)).length;
+  const goalDays=Object.entries(state.dailyLog||{}).filter(([k,v])=>k.startsWith(pfx)&&v>=goal).length;
+  const total=Object.values(state.dailyLog||{}).reduce((a,v)=>a+v,0);
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="se">📅</div><div class="sn">${days}</div><div class="sl">이번달 학습일</div></div>
+    <div class="stat-card"><div class="se">🎯</div><div class="sn">${goalDays}</div><div class="sl">목표 달성일</div></div>
+    <div class="stat-card"><div class="se">📚</div><div class="sn">${total}</div><div class="sl">총 학습 장수</div></div>
+    <div class="stat-card"><div class="se">🔥</div><div class="sn">${calcStreak()}</div><div class="sl">연속 학습일</div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// 부모 모드
+// ══════════════════════════════════════════════════════════
+function renderParent(){
+  const goal=getTotalGoal(), done=getTodayDone(), pct=Math.min(100,Math.round(done/goal*100));
+  document.getElementById('p-today-desc').textContent=`목표 ${goal}장 중 ${done}장 완료`;
+  document.getElementById('p-today-bar').style.width=pct+'%';
+  document.getElementById('p-today-val').textContent=done+'장';
+  document.getElementById('p-streak').textContent=calcStreak()+'일';
+  document.getElementById('p-stamps').textContent=state.stamps+'개';
+  ['korean','math','english'].forEach(k=>{
+    const g=getGoal(k);
+    document.getElementById('p-goal-'+k).textContent=g+'장';
+    const total=ZONES[k].reduce((a,z)=>a+z.pages.length,0);
+    const d=state.progress[k]||0, p=Math.min(100,Math.round(d/total*100));
+    document.getElementById('p-prog-'+k).style.width=p+'%';
+    document.getElementById('p-pct-'+k).textContent=p+'%';
+  });
+}
+function changeGoal(s,d){
+  if(!state.settings) state.settings={};
+  const k=s==='korean'?'goalKorean':s==='math'?'goalMath':'goalEnglish';
+  state.settings[k]=Math.max(0,Math.min(20,(state.settings[k]||1)+d));
+  saveState(); renderParent();
+}
+
+// PIN
+let pinBuf='';
+function showPinOverlay(){ pinBuf=''; document.getElementById('pin-overlay').style.display='flex'; document.getElementById('pin-error').textContent=''; updatePinDots(); }
+function hidePinOverlay(){ document.getElementById('pin-overlay').style.display='none'; }
+function updatePinDots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).className='pin-dot'+(i<pinBuf.length?' filled':''); }
+function pinInput(v){
+  if(v==='cancel'){goScreen('subject');return;}
+  if(v==='back'){pinBuf=pinBuf.slice(0,-1);updatePinDots();return;}
+  if(pinBuf.length>=4) return;
+  pinBuf+=String(v); updatePinDots();
+  if(pinBuf.length===4){
+    if(pinBuf===(state.settings?.pin||'1234')){pinUnlocked=true;hidePinOverlay();renderParent();}
+    else{document.getElementById('pin-error').textContent='❌ 틀렸어요';setTimeout(()=>{pinBuf='';updatePinDots();document.getElementById('pin-error').textContent='';},800);}
+  }
+}
+
+// ══════════════════════════════════════════════════════════
 // 설정
-// ═══════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 function renderSettings(){
   document.getElementById('settings-name-input').value=state.userName;
   document.getElementById('toggle-free-nav').checked=state.settings?.freeNav||false;
@@ -1411,52 +1530,37 @@ function renderSettings(){
   const done=Object.values(state.progress).reduce((a,v)=>a+v,0);
   document.getElementById('settings-stats').textContent=`전체 ${total}장 중 ${done}장 완료 · 도장 ${state.stamps}개`;
 }
-function saveName(){ const v=document.getElementById('settings-name-input').value.trim(); if(!v)return; state.userName=v; saveState(); showToast('✅ 이름 저장!'); }
-function toggleSetting(k,v){ if(!state.settings)state.settings={}; state.settings[k]=v; saveState(); showToast('✅ 설정 저장!'); }
-function showToast(msg){ const t=document.getElementById('save-toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
-function showModal(opts) {
-  document.getElementById('modal-emoji').textContent = opts.emoji || '⚠️';
-  document.getElementById('modal-title').textContent = opts.title || '';
-  document.getElementById('modal-msg').textContent = opts.msg || '';
-  const btns = document.getElementById('modal-btns');
-  btns.innerHTML = '';
-  (opts.buttons||[]).forEach(b => {
-    const el = document.createElement('button');
-    el.className = 'modal-btn ' + (b.cls||'modal-btn-cancel');
-    el.textContent = b.label;
-    el.onclick = () => { closeModal(); if(b.action) b.action(); };
+function saveName(){ const v=document.getElementById('settings-name-input').value.trim(); if(!v)return; state.userName=v;saveState();showToast('✅ 이름 저장!'); }
+function toggleSetting(k,v){ if(!state.settings)state.settings={}; state.settings[k]=v;saveState();showToast('✅ 설정 저장!'); }
+
+// ══════════════════════════════════════════════════════════
+// 모달 / 토스트 / 초기화
+// ══════════════════════════════════════════════════════════
+function showModal(opts){
+  document.getElementById('modal-emoji').textContent=opts.emoji||'⚠️';
+  document.getElementById('modal-title').textContent=opts.title||'';
+  document.getElementById('modal-msg').textContent=opts.msg||'';
+  const btns=document.getElementById('modal-btns'); btns.innerHTML='';
+  (opts.buttons||[]).forEach(b=>{
+    const el=document.createElement('button');
+    el.className='modal-btn '+(b.cls||'modal-btn-cancel');
+    el.textContent=b.label;
+    el.onclick=()=>{closeModal();if(b.action)b.action();};
     btns.appendChild(el);
   });
   document.getElementById('modal-overlay').classList.add('show');
 }
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('show');
-}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('show'); }
 
 function confirmReset(){
-  showModal({
-    emoji:'🗑️',
-    title:'학습 기록 초기화',
-    msg:'도장, 진도, 달력이 모두 사라져요.\n정말 초기화할까요?',
-    buttons:[
-      {label:'취소', cls:'modal-btn-cancel'},
-      {label:'초기화', cls:'modal-btn-danger', action: doReset},
-    ]
-  });
+  showModal({emoji:'🗑️',title:'학습 기록 초기화',msg:'도장·진도·달력이 모두 사라져요.\n정말 초기화할까요?',
+    buttons:[{label:'취소',cls:'modal-btn-cancel'},{label:'초기화',cls:'modal-btn-danger',action:doReset}]});
 }
-
-function doReset() {
-  // 인메모리 리셋 (Artifacts에서도 작동)
-  const name = state.userName;
-  state = {
-    userName:'', currentSubject:'korean', currentZoneIdx:0, currentPageIdx:0,
-    stamps:0, progress:{korean:0,math:0,english:0},
-    settings:{freeNav:false,autoSound:true,goalKorean:2,goalMath:2,goalEnglish:2},
-    answered:false, dailyLog:{}, dailySubjectLog:{},
-  };
-  try { localStorage.removeItem('broom_v2'); } catch(e){}
-  pinUnlocked = false;
-  // 시작 화면으로
+function doReset(){
+  state={userName:'',currentSubject:'korean',currentZoneIdx:0,currentPageIdx:0,stamps:0,progress:{korean:0,math:0,english:0},settings:{freeNav:false,autoSound:true,goalKorean:1,goalMath:1,goalEnglish:1},answered:false,dailyLog:{},dailySubjectLog:{}};
+  try{localStorage.removeItem('broomv3');}catch(e){}
+  pinUnlocked=false;
+  Object.values(ZONE_DEFS).flat().forEach(z=>{delete z._pages;});
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-start').classList.add('active');
   document.getElementById('bottom-nav').style.display='flex';
@@ -1464,323 +1568,17 @@ function doReset() {
   showToast('✅ 초기화 완료!');
 }
 
+function showToast(msg){ const t=document.getElementById('save-toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
 
-/* ═══════════════════════════════════════
-   날짜 유틸
-═══════════════════════════════════════ */
-function todayStr() {
-  return new Date().toISOString().slice(0,10); // "2026-06-24"
-}
-function dateStr(d) {
-  return d.toISOString().slice(0,10);
-}
-
-/* ═══════════════════════════════════════
-   일일 학습 시스템
-═══════════════════════════════════════ */
-const DAILY_GOAL_DEFAULT = 10;
-
-function getDailyGoal() {
-  const s = state.settings || {};
-  return (s.goalKorean||2) + (s.goalMath||2) + (s.goalEnglish||2);
-}
-function getSubjectGoal(subj) {
-  const s = state.settings || {};
-  if(subj==='korean') return s.goalKorean||2;
-  if(subj==='math')   return s.goalMath||2;
-  if(subj==='english')return s.goalEnglish||2;
-  return 2;
-}
-
-// 오늘 학습한 페이지 수 반환
-function getTodayDone() {
-  const today = todayStr();
-  return (state.dailyLog && state.dailyLog[today]) || 0;
-}
-
-// 오늘 학습 기록 +1
-function recordTodayPage() {
-  if(!state.dailyLog) state.dailyLog = {};
-  if(!state.dailySubjectLog) state.dailySubjectLog = {};
-  const today = todayStr();
-  const subj = state.currentSubject;
-  state.dailyLog[today] = (state.dailyLog[today] || 0) + 1;
-  if(!state.dailySubjectLog[today]) state.dailySubjectLog[today] = {};
-  state.dailySubjectLog[today][subj] = (state.dailySubjectLog[today][subj]||0) + 1;
-  saveState();
-}
-function getTodaySubjectDone(subj) {
-  const today = todayStr();
-  return (state.dailySubjectLog && state.dailySubjectLog[today] && state.dailySubjectLog[today][subj]) || 0;
-}
-
-// 연속 학습일 계산
-function calcStreak() {
-  if(!state.dailyLog) return 0;
-  const goal = getDailyGoal();
-  let streak = 0;
-  const d = new Date();
-  // 오늘 포함해서 거슬러 올라감
-  for(let i=0; i<365; i++) {
-    const s = dateStr(d);
-    const done = state.dailyLog[s] || 0;
-    if(done >= goal || (i===0 && done > 0)) {
-      streak++;
-      d.setDate(d.getDate()-1);
-    } else if(i===0) {
-      // 오늘 아직 안했어도 어제까지 연속이면 유지
-      d.setDate(d.getDate()-1);
-      const ys = dateStr(d);
-      if((state.dailyLog[ys]||0) >= goal) {
-        // 어제까지 연속, 오늘 아직 진행중
-        break;
-      } else {
-        break;
-      }
-    } else {
-      break;
-    }
-  }
-  return streak;
-}
-
-/* ═══════════════════════════════════════
-   오늘의 학습 카드 렌더
-═══════════════════════════════════════ */
-function renderTodayCard() {
-  const goal = getDailyGoal();
-  const done = getTodayDone();
-  const pct  = Math.min(100, Math.round(done/goal*100));
-  const card  = document.getElementById('today-card');
-  const title = document.getElementById('today-title');
-  const sub   = document.getElementById('today-sub');
-  const fill  = document.getElementById('today-fill');
-
-  fill.style.width = pct+'%';
-
-  // 과목별 달성 현황
-  const kDone = getTodaySubjectDone('korean');
-  const mDone = getTodaySubjectDone('math');
-  const eDone = getTodaySubjectDone('english');
-  const kGoal = getSubjectGoal('korean');
-  const mGoal = getSubjectGoal('math');
-  const eGoal = getSubjectGoal('english');
-  const detail = `국어 ${kDone}/${kGoal} · 수학 ${mDone}/${mGoal} · 영어 ${eDone}/${eGoal}`;
-
-  if(done >= goal) {
-    card.className = 'today-card today-card-done';
-    title.textContent = '오늘 목표 달성! 🎉';
-    sub.textContent   = detail;
-  } else {
-    card.className = 'today-card';
-    title.textContent = `오늘 ${goal-done}장 더 해봐요!`;
-    sub.textContent   = detail;
-  }
-}
-
-/* ═══════════════════════════════════════
-   스트릭 렌더
-═══════════════════════════════════════ */
-function renderStreak() {
-  const streak = calcStreak();
-  document.getElementById('streak-num').textContent = streak;
-  document.getElementById('streak-fire').textContent = streak >= 7 ? '🔥' : streak >= 3 ? '🔥' : '💧';
-
-  // 최근 7일 도트
-  const goal = getDailyGoal();
-  const dots = document.getElementById('streak-dots');
-  const days = [];
-  for(let i=6; i>=0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate()-i);
-    days.push(dateStr(d));
-  }
-  dots.innerHTML = days.map((ds,i) => {
-    const done = (state.dailyLog && state.dailyLog[ds]) || 0;
-    const isToday = ds === todayStr();
-    const cls = done>=goal ? 'done' : isToday && done>0 ? 'today' : '';
-    const label = done>=goal ? '✓' : isToday ? '→' : ['일','월','화','수','목','금','토'][new Date(ds).getDay()];
-    return `<div class="streak-dot ${cls}">${label}</div>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════
-   오늘의 학습 시작
-═══════════════════════════════════════ */
-function startTodayLearn() {
-  const done = getTodayDone();
-  const goal = getDailyGoal();
-  if(done >= goal) {
-    showToast('🎉 오늘 목표 달성! 내일 또 만나요');
-    return;
-  }
-  // 가장 안 끝난 과목 + Zone 찾아서 시작
-  // 과목별 목표 미달성인 과목 순서로 시작
-  const subjects = ['korean','math','english'];
-  for(const subj of subjects) {
-    const todayDoneSubj = getTodaySubjectDone(subj);
-    const subjGoal = getSubjectGoal(subj);
-    if(todayDoneSubj >= subjGoal) continue; // 오늘 목표 이미 달성
-
-    const zones = ZONES[subj];
-    let totalDone = 0;
-    for(let zi=0; zi<zones.length; zi++) {
-      const z = zones[zi];
-      const subjDone = state.progress[subj] || 0;
-      if(subjDone < totalDone + z.pages.length) {
-        state.currentSubject = subj;
-        state.currentZoneIdx = zi;
-        const pageStart = Math.max(0, subjDone - totalDone);
-        state.currentPageIdx = pageStart;
-        state.answered = false;
-        setAccent(subj);
-        goScreen('learn');
-        renderPage();
-        return;
-      }
-      totalDone += z.pages.length;
-    }
-  }
-  showToast('🏆 오늘 모든 과목 목표 달성! 대단해요!');
-}
-
-/* ═══════════════════════════════════════
-   달력 렌더
-═══════════════════════════════════════ */
-function renderCalendar() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const goal = getDailyGoal();
-
-  document.getElementById('cal-month').textContent =
-    `${year}년 ${month+1}월`;
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const lastDate = new Date(year, month+1, 0).getDate();
-  const todayDate = now.getDate();
-
-  let html = '';
-  for(let i=0; i<firstDay; i++) html += `<div class="cal-day empty">-</div>`;
-  for(let d=1; d<=lastDate; d++) {
-    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const done = (state.dailyLog && state.dailyLog[ds]) || 0;
-    let cls = '';
-    if(done >= goal) cls = 'full-study';
-    else if(done > 0) cls = 'has-study';
-    if(d === todayDate) cls += ' today-cal';
-    html += `<div class="cal-day ${cls}">${d}</div>`;
-  }
-  document.getElementById('cal-days').innerHTML = html;
-
-  // 통계
-  const totalDays = Object.keys(state.dailyLog||{}).filter(ds=>ds.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)).length;
-  const goalDays  = Object.entries(state.dailyLog||{}).filter(([ds,v])=>ds.startsWith(`${year}-${String(month+1).padStart(2,'0')}`) && v>=goal).length;
-  const totalPages= Object.values(state.dailyLog||{}).reduce((a,v)=>a+v,0);
-
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><div class="stat-emoji">📅</div><div class="stat-num">${totalDays}</div><div class="stat-label">이번달 학습일</div></div>
-    <div class="stat-card"><div class="stat-emoji">🎯</div><div class="stat-num">${goalDays}</div><div class="stat-label">목표 달성일</div></div>
-    <div class="stat-card"><div class="stat-emoji">📚</div><div class="stat-num">${totalPages}</div><div class="stat-label">총 학습 페이지</div></div>
-    <div class="stat-card"><div class="stat-emoji">🔥</div><div class="stat-num">${calcStreak()}</div><div class="stat-label">현재 연속일</div></div>
-  `;
-}
-
-/* ═══════════════════════════════════════
-   부모 모드 PIN
-═══════════════════════════════════════ */
-const DEFAULT_PIN = '1234';
-let pinBuffer = '';
-let pinUnlocked = false;
-
-function navTo(s) {
-  if(s === 'parent' && !pinUnlocked) {
-    goScreen('parent');
-    showPinOverlay();
-    return;
-  }
-  goScreen(s);
-}
-
-function showPinOverlay() {
-  pinBuffer = '';
-  document.getElementById('pin-overlay').style.display = 'flex';
-  document.getElementById('pin-error').textContent = '';
-  updatePinDisplay();
-}
-
-function hidePinOverlay() {
-  document.getElementById('pin-overlay').style.display = 'none';
-}
-
-function updatePinDisplay() {
-  for(let i=0; i<4; i++) {
-    document.getElementById('pd'+i).className = 'pin-dot' + (i<pinBuffer.length?' filled':'');
-  }
-}
-
-function pinInput(val) {
-  if(val === 'cancel') { goScreen('subject'); return; }
-  if(val === 'back') { pinBuffer = pinBuffer.slice(0,-1); updatePinDisplay(); return; }
-  if(pinBuffer.length >= 4) return;
-  pinBuffer += String(val);
-  updatePinDisplay();
-  if(pinBuffer.length === 4) {
-    const correct = state.settings?.pin || DEFAULT_PIN;
-    if(pinBuffer === correct) {
-      pinUnlocked = true;
-      hidePinOverlay();
-      renderParent();
-    } else {
-      document.getElementById('pin-error').textContent = '❌ 틀렸어요. 다시 입력해주세요.';
-      setTimeout(()=>{ pinBuffer=''; updatePinDisplay(); document.getElementById('pin-error').textContent=''; }, 800);
-    }
-  }
-}
-
-function renderParent() {
-  const goal = getDailyGoal();
-  const done = getTodayDone();
-  const pct  = Math.min(100, Math.round(done/goal*100));
-
-  document.getElementById('p-today-desc').textContent = `목표 ${goal}장 중 ${done}장 완료`;
-  document.getElementById('p-today-bar').style.width  = pct+'%';
-  document.getElementById('p-today-val').textContent  = done+'장';
-  document.getElementById('p-streak').textContent     = calcStreak()+'일';
-  document.getElementById('p-stamps').textContent     = state.stamps+'개';
-
-  // 과목별 목표 값 표시
-  ['korean','math','english'].forEach(subj => {
-    const g = getSubjectGoal(subj);
-    document.getElementById('p-goal-'+subj).textContent = g+'장';
-  });
-
-  // 과목별 진도
-  ['korean','math','english'].forEach(k => {
-    const total = ZONES[k].reduce((a,z)=>a+z.pages.length,0);
-    const d = state.progress[k] || 0;
-    const p = Math.min(100, Math.round(d/total*100));
-    document.getElementById('p-prog-'+k).style.width = p+'%';
-    document.getElementById('p-pct-'+k).textContent  = p+'%';
-  });
-}
-
-function changeGoal(subj, delta) {
-  if(!state.settings) state.settings = {};
-  const key = subj==='korean'?'goalKorean':subj==='math'?'goalMath':'goalEnglish';
-  let cur = state.settings[key] || 2;
-  cur = Math.max(0, Math.min(30, cur + delta));
-  state.settings[key] = cur;
-  saveState();
-  renderParent();
-}
-
+// ══════════════════════════════════════════════════════════
+// 초기화
+// ══════════════════════════════════════════════════════════
 window.onload=()=>{
   loadState();
   if(!state.dailyLog) state.dailyLog={};
   if(!state.dailySubjectLog) state.dailySubjectLog={};
-  pinUnlocked = false;
-  if(state.userName){ setAccent('korean'); goScreen('subject'); }
+  pinUnlocked=false;
+  if(state.userName){setAccent('korean');goScreen('subject');}
 };
 </script>
 </body>
